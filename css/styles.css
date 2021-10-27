@@ -3,9 +3,55 @@ html, body {
     padding: 0;
 }
 
-.main-frame__front {
-    width: 1600px;
-    height: 900px;
+/*
+.container {
+    display: flex;
+    align-items: center;
+    justify-content: left;
+    width: 100%;
+    height: 100%;
+}*/
+
+.main-frame__back {
+    display: flex;
+    align-items: center;
+    justify-content: left;
+    width: 1280px;
+    height: 720px;
+    margin: 350px 750px;
     position: fixed;
-    color: crimson;
+    background-color: darkblue;
+}
+
+.main-frame__middle {
+    display: flex;
+    align-items: center;
+    justify-content: left;
+    width: 1280px;
+    height: 720px;
+    margin: 250px 500px;
+    position: fixed;
+    background-color: gold;
+}
+
+.main-frame__front {
+    display: flex;
+    align-items: center;
+    justify-content: left;
+    width: 1280px;
+    height: 720px;
+    margin: 150px 250px;
+    position: fixed;
+    background-color: crimson;
+}
+
+.main-frame__front__text--X {
+    margin-left: 150px;
+    font-size: 500px;
+    color: white;
+}
+
+.main-frame__front__text--ini {
+    font-size: 300px;
+    color: white;
 }

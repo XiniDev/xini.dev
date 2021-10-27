@@ -16,9 +16,9 @@ html, body {
     justify-content: left;
     width: 1280px;
     height: 720px;
-    margin: 350px 750px;
+    margin: 380px 900px;
     position: fixed;
-    border-radius: 50px;
+    transform: skewY(-10deg);
     background-color: darkblue;
 }
 
@@ -37,15 +37,19 @@ html, body {
     color: white;
 }
 
+.main-frame__back__arrow p:hover {
+    cursor: pointer;
+}
+
 .main-frame__middle {
     display: flex;
     align-items: center;
     justify-content: left;
     width: 1280px;
     height: 720px;
-    margin: 250px 500px;
+    margin: 280px 650px;
     position: fixed;
-    border-radius: 50px;
+    transform: skewY(-10deg);
     background-color: gold;
 }
 
@@ -55,9 +59,9 @@ html, body {
     justify-content: left;
     width: 1280px;
     height: 720px;
-    margin: 150px 250px;
+    margin: 180px 400px;
     position: fixed;
-    border-radius: 50px;
+    transform: skewY(-10deg);
     background-color: crimson;
 }
 

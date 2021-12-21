@@ -1,101 +1,184 @@
 html, body {
     margin: 0;
     padding: 0;
+    background-color: #000000;
+}
+
+div, h1, p {
+    color: #FFFFFF;
+}
+
+a {
+    text-decoration: none;
+    color: #FFFFFF;
+}
+
+a:visited {
+    text-decoration: none;
+    color: #FFFFFF;
 }
 
 .site-wrapper, .site-body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     overflow-x: hidden;
     height: 100%;
     width: 100%;
 }
 
-.site-header {
+.site-nav {
     display: flex;
-    position: fixed;
-    top: 0;
+    align-items: center;
+    justify-content: center;
+    /* position: fixed;
+    top: 0; */
     z-index: 999;
-    height: 100px;
+    height: 70px;
     width: 100%;
+    background-color: #212121;
+}
+
+.section {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 0px 180px;
+    width: 1440px;
+    max-width: 1440px;
+}
+
+@media only screen and (max-width: 1440px) {
+    .section {
+        width: 100vw;
+    }
 }
 
 .content {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
     position: relative;
-    margin: 0px auto;
+    margin: 0px auto 80px;
     height: 100%;
     width: 100%;
-    text-align: center;
 }
 
-#header__content {
+.top3-display {
     display: flex;
     align-items: center;
-    justify-content: left;
+    justify-content: space-between;
+    height: auto;
+    width: 100%;
 }
 
-#header__icon, #header__text {
+.top3-display__item {
+    height: 400px;
+    width: 400px;
+    background-color: #212121;
+}
+
+#nav {
     display: flex;
     align-items: center;
-    justify-content: left;
+    justify-content: space-between;
+    width: 1440px;
+    max-width: 1440px;
+}
+
+@media only screen and (max-width: 1440px) {
+    #nav {
+        width: 100vw;
+    }
+}
+
+#homepage-button__content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#homepage-button__icon, #homepage-button__text {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
     height: 100%;
     width: 100%;
     padding-left: 20px;
 }
 
-#header__icon img {
-    height: 60px;
+#homepage-button__icon img {
+    height: 30px;
     width: auto;
 }
 
-#header__text p {
-    font-size: 50px;
-    color: black;
+#homepage-button__text p {
+    font-size: 25px;
 }
 
 #banner {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-    width: 100vw;
-    background-color: black;
+    height: 720px;
+    width: 1440px;
 }
 
-#banner__text {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+#banner__image {
     position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    height: 100px;
-    padding: 20px;
-    border: 4px solid white;
-    background-color: rgba(255, 255, 255, 0.3);
-}
-
-#banner__text p {
-    font-size: 100px;
-    color: white;
-}
-
-#banner__img {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    overflow: hidden;
-    height: 100vh;
-    width: 100vw;
-}
-
-#banner__img img {
     object-fit: cover;
+    overflow: hidden;
     margin: auto;
-    height: 100%;
+    height: 720px;
     width: 100%;
 }
 
-#sus {
-    height: 300px;
+#banner__title-and-description {
+    z-index: 999;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    margin: auto;
+}
+
+#banner__title {
+    margin: auto;
+    padding: 20px;
+    font-size: 50px;
+    border: 4px solid #FFFFFF;
+    background-color: rgba(255, 255, 255, 0.3);
+}
+
+#banner__description {
+    margin: 50px auto 0px;
+}
+
+#about-me {}
+
+#about-me__title-and-description {}
+
+#about-me__title {
+    font-size: 2em;
+}
+
+#about-me__description {}
+
+#languages {}
+
+#languages__title-and-description {}
+
+#languages__title {
+    font-size: 2em;
+}
+
+#languages__description {}
+
+#projects {
+
+}
+
+#projects__title {
+    margin: 0px auto 40px;
+    font-size: 2em;
 }

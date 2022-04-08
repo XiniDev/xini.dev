@@ -1,7 +1,7 @@
 {
   "name": "xini.dev",
   "version": "0.1.0",
-  "homepage": "https://XiniDev.github.io/xini.dev",
+  "homepage": "https://xini.dev/",
   "private": true,
   "dependencies": {
     "@testing-library/jest-dom": "^5.16.2",

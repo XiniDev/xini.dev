@@ -6,10 +6,9 @@ import './App.css';
 function App() {
     return (
         <div className="App">
-            <Router>
-                  {/* <Header /> */}
+            <Router basename={process.env.PUBLIC_URL}>
                   <Routes>
-                      <Route path="/" element={<Homepage />}/>
+                        <Route path="/" element={<Homepage />}/>
                   </Routes>
             </Router>
         </div>

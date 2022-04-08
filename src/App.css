@@ -3,20 +3,13 @@
 
 .App {}
 
-.homepage {
-    width: 100vw;
-    height: 100vh;
-    background: url(images/background.png) no-repeat left bottom fixed;
-    background-size: cover;
-}
-
-.homepage__header {
+.header {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
 }
 
-.homepage__header__icon {
+.header__icon {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
@@ -29,22 +22,29 @@
     user-select: none;
 }
 
-.homepage__header__icon:hover{
+.header__icon:hover{
     cursor: pointer;
 }
 
-.homepage__header__icon > img {
+.header__icon > img {
     width: 40px;
     height: 45px;
 }
 
-.homepage__header__menu {
+.header__menu {
     margin: 50px 50px 0px 0px;
     user-select: none;
 }
 
-.homepage__header__menu:hover{
+.header__menu:hover{
     cursor: pointer;
+}
+
+.homepage {
+    width: 100vw;
+    height: 100vh;
+    background: url(images/background.png) no-repeat left bottom fixed;
+    background-size: cover;
 }
 
 .homepage__titles {

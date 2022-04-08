@@ -1,0 +1,78 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Mirza&display=swap');
+
+.App {}
+
+.homepage {
+    width: 100vw;
+    height: 100vh;
+    background: url(images/background.png) no-repeat left bottom fixed;
+    background-size: cover;
+}
+
+.homepage__header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.homepage__header__icon {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 140px;
+    margin: 50px 0px 0px 50px;
+    font-family: 'Noto Sans', sans-serif;
+    font-size: 36px;
+    color: #FFFFFF;
+    user-select: none;
+}
+
+.homepage__header__icon:hover{
+    cursor: pointer;
+}
+
+.homepage__header__icon > img {
+    width: 40px;
+    height: 45px;
+}
+
+.homepage__header__menu {
+    margin: 50px 50px 0px 0px;
+    user-select: none;
+}
+
+.homepage__header__menu:hover{
+    cursor: pointer;
+}
+
+.homepage__titles {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    bottom: 150px;
+    left: 150px;
+    user-select: none;
+}
+
+.homepage__titles__title {
+    font-family: 'Noto Sans', sans-serif;
+    font-size: 144px;
+    color: #FFFFFF;
+}
+
+.homepage__titles__subtitle {
+    display: flex;
+    justify-content: flex-start;
+    margin: -25px 0px 0px 0px;
+    font-family: 'Mirza', cursive;
+    font-size: 24px;
+    color: #988850;
+}
+
+.homepage__titles__subtitle__line {
+    width: 48px;
+    margin: 15px 8px auto 0px;
+    border: 2px solid #988850;
+}

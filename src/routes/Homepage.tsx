@@ -5,12 +5,12 @@ const Homepage = () => {
     return (
         <div className="homepage">
             <Header/>
-            <div className="homepage__titles">
-                <div className="homepage__titles__title">
+            <div className="homepage-titlediv">
+                <div className="homepage-title">
                     XINI
                 </div>
-                <div className="homepage__titles__subtitle">
-                    <hr className="homepage__titles__subtitle__line"/>
+                <div className="homepage-subtitle">
+                    <hr className="homepage-titleline"/>
                     Designer • Developer • Creator
                 </div>
             </div>

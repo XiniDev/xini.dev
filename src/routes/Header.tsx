@@ -5,7 +5,7 @@ import Menu_Icon from '../images/menu-icon.png';
 
 const Header = () => {
     return (
-        <div className="header">
+        <div className="header-wrapper">
             <div className="header-icon">
                 <img src={Xini_Icon_White}/>
                 XINI

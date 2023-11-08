@@ -1,9 +1,50 @@
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Mirza&display=swap');
+/* variables */
+
+:root {
+    --shade-gold: #988850;
+}
+
+/* fonts */
+
+/* Noto Sans */
+
+@font-face {
+    font-family: "Noto Sans";
+    src: url("fonts/NotoSans/NotoSans-Regular.ttf") format("truetype");
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "Noto Sans";
+    src: url("fonts/NotoSans/NotoSans-Bold.ttf") format("truetype");
+    font-weight: bold;
+    font-style: normal;
+}
+
+/* Mirza */
+
+@font-face {
+    font-family: "Mirza";
+    src: url("fonts/Mirza/Mirza-Regular.ttf") format("truetype");
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: "Mirza";
+    src: url("fonts/Mirza/Mirza-Bold.ttf") format("truetype");
+    font-weight: bold;
+    font-style: normal;
+}
+
+/* styles */
 
 .App {}
 
 .page {}
+
+/* header */
 
 .header-wrapper {
     display: flex;
@@ -11,6 +52,7 @@
     justify-content: space-between;
     width: 100%;
     position: fixed;
+    z-index: 10;
 }
 
 .header-icon {
@@ -20,14 +62,10 @@
     align-items: center;
     width: 140px;
     margin: 50px 0px 0px 50px;
-    font-family: 'Noto Sans', sans-serif;
+    font-family: "Noto Sans";
     font-size: 36px;
     color: #FFFFFF;
     user-select: none;
-}
-
-.header-icon:hover{
-    cursor: pointer;
 }
 
 .header-icon > img {
@@ -38,45 +76,175 @@
 .header-menu {
     margin: 50px 50px 0px 0px;
     user-select: none;
+    transition: transform 0.3s ease-in-out;
 }
 
-.header-menu:hover{
-    cursor: pointer;
+.header-menu.active {
+    transform: rotateZ(90deg);
 }
 
-.homepage-wrapper {
-    width: 100vw;
+/* homepage assets */
+
+.homepage-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    height: 5000px;
+    position: relative;
+}
+
+.homepage-blackbkg {
+    width: 100%;
     height: 100vh;
+    position: fixed;
+    z-index: -100;
+    background-color: black;
+}
+
+.homepage-background {
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    z-index: -100;
     background: url(images/background.png) no-repeat left bottom fixed;
     background-size: cover;
+}
+
+.homepage-intro-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100vh;
+}
+
+.homepage-fade-bkg {
+    opacity: 0;
+    transition:
+        opacity 0.7s ease;
+}
+
+.homepage-fade-bkg.visible {
+    opacity: 1
 }
 
 .homepage-titlediv {
     display: flex;
     flex-direction: column;
-    position: absolute;
-    bottom: 150px;
-    left: 150px;
     user-select: none;
+    position: fixed;
 }
 
 .homepage-title {
-    font-family: 'Noto Sans', sans-serif;
-    font-size: 144px;
+    font-family: "Noto Sans";
+    font-weight: bold;
+    font-size: 288px;
     color: #FFFFFF;
+    /* text-shadow:
+        3px 3px 20px pink,
+        -2px 1px 30px blue; */
 }
 
 .homepage-subtitle {
     display: flex;
-    justify-content: flex-start;
-    margin: -25px 0px 0px 0px;
-    font-family: 'Mirza', cursive;
+    justify-content: center;
+    align-items: center;
+    margin: -50px 0px 0px 0px;
+    font-family: "Mirza";
     font-size: 24px;
-    color: #988850;
+    color: var(--shade-gold);
 }
 
-.homepage-titleline {
-    width: 48px;
-    margin: 15px 8px auto 0px;
-    border: 2px solid #988850;
+.homepage-subtitle > hr:nth-child(1) {
+    width: 72px;
+    margin: 10px 10px 0px 0px;
+    border: 2px solid var(--shade-gold);
+}
+
+.homepage-subtitle > hr:nth-child(2) {
+    width: 72px;
+    margin: 10px 0px 0px 10px;
+    border: 2px solid var(--shade-gold);
+}
+
+.homepage-fade {
+    opacity: 0;
+    transform: translateY(20px);
+    transition:
+        opacity 0.7s ease,
+        transform 0.7s ease;
+}
+
+.homepage-fade.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* about assets */
+
+.about-img {
+    margin: 40px auto 80px;
+}
+
+.about-intro {
+    font-family: "Mirza";
+    font-size: 48px;
+    color: white;
+    text-align: center;
+}
+
+.about-description {
+    margin-top: 20px;
+    font-family: "Mirza";
+    font-size: 24px;
+    color: white;
+    text-align: center;
+}
+
+.about-remarks {
+    margin-top: 20px;
+    font-family: "Mirza";
+    font-size: 36px;
+    color: white;
+    text-align: center;
+}
+
+/* reusable assets */
+
+.panel-title {
+    width: 1440px;
+    position: fixed;
+    font-family: "Noto Sans";
+    font-weight: bold;
+    font-size: 144px;
+    color: white;
+    text-align: center;
+    user-select: none;
+    translate: 0 -110%;
+    transition: translate 0.5s ease-in-out;
+}
+
+.panel-title.visible {
+    translate: 0 100%;
+}
+
+.panel-container {
+    display: flex;
+    flex-direction: column;
+    width: 1440px;
+    height: 60vh;
+    position: fixed;
+    bottom: 0;
+    border-radius: 20px 20px 0px 0px;
+    box-sizing: border-box;
+    padding: 40px;
+    background: rgba(0, 0, 0, 0.7);
+    translate: 0 110%;
+    transition: translate 0.5s ease-in-out;
+}
+
+.panel-container.visible {
+    translate: 0 0;
 }

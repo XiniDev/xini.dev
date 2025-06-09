@@ -18,7 +18,7 @@ const projects = [
     },
     {
         title: 'Golden Gun (ECS Platformer demo)',
-        description: 'Golden Gun is a platformer demo is used to test the Entity-Component-System (ECS) architecture. Developed in C++ and utilizing SDL2, the game showcases responsive platformer controls. The ECS system allows for flexible and efficient management of game entities, giving me practice to create games in this form in the future.',
+        description: 'Golden Gun is a platformer demo used to test the Entity-Component-System (ECS) architecture. Developed in C++ and utilizing SDL2, the game showcases responsive platformer controls. The ECS system allows for flexible and efficient management of game entities, giving me practice to create games in this form in the future.',
         image: goldenGun,
         link: 'https://github.com/XiniDev/Golden-Gun'
     },

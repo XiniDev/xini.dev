@@ -10,3 +10,4 @@ const AppLayout: React.FC = (): JSX.Element => {
 };
 
 export default AppLayout;
+

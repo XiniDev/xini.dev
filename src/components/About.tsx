@@ -12,7 +12,7 @@ const About: React.FC = (): JSX.Element => {
                 </div>
                 <div className="md:w-3/4 md:pl-12">
                     <p className="text-lg leading-relaxed">
-                        Hey there! I'm Xini. I'm deeply passionate about coding, AI, and game development. There's nothing more exciting to me than turning my wildest imaginations into reality with code. I studied Computer Science at the University of Warwick, where I got to work on a variety of projects with some amazing people.
+                        Hey there! I'm Xini. I'm deeply passionate about coding, AI, and game development. There's nothing more exciting to me than turning my wildest imaginations into reality with code. I studied BSc Computer Science at the University of Warwick and MSc Artificial Intelligence at the University of St Andrews where I got to work on a variety of projects with some amazing people.
                     </p>
                     <p className="text-lg leading-relaxed mt-4">
                         Beyond coding, I'm really into games, art, and world-building - these interests constantly spark new ideas and keep me inspired. I'm always eager to learn new things and dive into the latest tech and design trends.

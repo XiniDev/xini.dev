@@ -9,14 +9,14 @@ const projects = [
     description:
       "NullVector is a Processing (Java) platformer where you battle enemies and a boss named Zorp using gravity-affected projectiles. Features include smart AI, bounce damage, boss phases, friendly fire, and a full GUI with health bars and debug tools.",
     image: "/projects/nullvector.png",
-    link: "https://github.com/XiniDev/NullVector",
+    link: "https://github.com/XiniDev/NullVector-Processing",
   },
   {
     title: "Jungle Game & JunGUI",
     description:
       "A full implementation of the Jungle board game in Java, including a Swing-based GUI (JunGUI). Features multiplayer support, legal move highlighting, cultural-inspired UI design, and complete game logic with flexible OOP encapsulation.",
     image: "/projects/jungle-board-game.png",
-    link: "https://github.com/XiniDev/Jungle-Game",
+    link: "https://github.com/XiniDev/Jungle-Board-Game-Java",
   },
   {
     title: "WSMath",
@@ -58,7 +58,7 @@ export default function Projects() {
           ))}
         </div>
 
-        {/* Strong CTA Button */}
+        {/* CTA Button */}
         <div className="text-center">
           <a
             href="https://github.com/XiniDev"

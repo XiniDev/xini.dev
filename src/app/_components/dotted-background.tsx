@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export default function DottedBackground() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const [isTouchDevice, setIsTouchDevice] = useState(false);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -18,7 +19,11 @@ export default function DottedBackground() {
     const spacing = 50;
     const mouse = { x: -9999, y: -9999 };
 
+    // detect touch device
+    setIsTouchDevice(window.matchMedia("(pointer: coarse)").matches);
+
     const handleMouseMove = (e: MouseEvent) => {
+      if (isTouchDevice) return; // skip updates on touch
       mouse.x = e.clientX;
       mouse.y = e.clientY + window.scrollY;
     };
@@ -39,16 +44,18 @@ export default function DottedBackground() {
 
       for (let x = 0; x < width; x += spacing) {
         for (let y = 0; y < height; y += spacing) {
-          const dx = mouse.x - x;
-          const dy = mouse.y - y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
+          let intensity = 0.3; // default glow for touch devices
 
-          // closer → brighter
-          const intensity = Math.max(0, 1 - dist / 200);
+          if (!isTouchDevice) {
+            const dx = mouse.x - x;
+            const dy = mouse.y - y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            intensity = Math.max(0, 1 - dist / 200);
+          }
 
           ctx.beginPath();
           ctx.arc(x, y, 3, 0, Math.PI * 2);
-          ctx.fillStyle = `rgba(16, 185, 129, ${0.2 + intensity * 0.8})`; // emerald glow
+          ctx.fillStyle = `rgba(16, 185, 129, ${0.2 + intensity * 0.8})`;
           ctx.fill();
         }
       }
@@ -61,7 +68,7 @@ export default function DottedBackground() {
       window.removeEventListener("mousemove", handleMouseMove);
       window.removeEventListener("resize", handleResize);
     };
-  }, []);
+  }, [isTouchDevice]);
 
   return (
     <canvas

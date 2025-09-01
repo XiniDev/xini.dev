@@ -1,4 +1,7 @@
 import ProjectCard from "./project-card";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faGithub } from "@fortawesome/free-brands-svg-icons";
+import { faUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
 
 const projects = [
   {
@@ -49,10 +52,24 @@ export default function Projects() {
         </h2>
 
         {/* Project Cards */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
           {projects.map((project, index) => (
             <ProjectCard key={index} {...project} />
           ))}
+        </div>
+
+        {/* Strong CTA Button */}
+        <div className="text-center">
+          <a
+            href="https://github.com/XiniDev"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-3 bg-emerald-600 text-white px-8 py-4 rounded-xl text-lg font-bold hover:bg-emerald-700 transition"
+          >
+            <FontAwesomeIcon icon={faGithub} className="text-2xl" />
+            See All Projects on GitHub
+            <FontAwesomeIcon icon={faUpRightFromSquare} className="text-sm" />
+          </a>
         </div>
       </div>
     </section>

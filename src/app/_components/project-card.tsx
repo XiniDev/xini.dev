@@ -1,4 +1,6 @@
 import Image from "next/image";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
 
 interface ProjectCardProps {
   title: string;
@@ -37,9 +39,10 @@ export default function ProjectCard({
         href={link}
         target="_blank"
         rel="noopener noreferrer"
-        className="relative inline-block text-emerald-400 font-medium group"
+        className="relative inline-flex items-center gap-2 text-emerald-400 font-medium group"
       >
-        View Project →
+        View Project
+        <FontAwesomeIcon icon={faUpRightFromSquare} className="text-sm" />
         <span className="absolute left-0 -bottom-1 w-0 h-0.5 bg-emerald-400 transition-all group-hover:w-full"></span>
       </a>
 

@@ -36,8 +36,9 @@ export default function About() {
               <span className="text-emerald-400">game development</span>.  
               There&apos;s nothing more exciting to me than turning my wildest 
               imaginations into reality with code. I studied{" "}
-              <span className="text-emerald-400">Computer Science</span> at the 
-              University of Warwick, where I got to work on a variety of projects 
+              <span className="text-emerald-400">BSc Computer Science</span> at the 
+              University of Warwick and <span className="text-emerald-400">MSc Artificial Intelligence</span> at the 
+              University of St Andrews, where I got to work on a variety of projects 
               with some amazing people.
             </p>
             <p>

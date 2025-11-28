@@ -16,7 +16,7 @@ export default function ProjectCard({
   link,
 }: ProjectCardProps) {
   return (
-    <div className="bg-gray-800 rounded-xl p-6 flex flex-col justify-between transform transition duration-300 hover:-translate-y-2">
+    <div className="bg-gray-800 rounded-xl p-6 flex flex-col justify-between h-full transform transition duration-300 hover:-translate-y-2 relative hover:z-20">
       {/* Image */}
       <div className="overflow-hidden rounded-lg mb-4">
         <Image

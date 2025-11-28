@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
 import ProjectCard from "./project-card";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGithub } from "@fortawesome/free-brands-svg-icons";
@@ -63,6 +66,76 @@ const projects = [
 ];
 
 export default function Projects() {
+  const scrollRef = useRef<HTMLDivElement | null>(null);
+  const isPausedRef = useRef(false);
+
+  const isDraggingRef = useRef(false);
+  const startXRef = useRef(0);
+  const scrollLeftRef = useRef(0);
+  const [isDragging, setIsDragging] = useState(false);
+
+  useEffect(() => {
+    let animationFrameId: number;
+    const speed = 0.5;
+
+    const step = () => {
+      const container = scrollRef.current;
+      if (container && !isPausedRef.current) {
+        container.scrollLeft += speed;
+
+        if (
+          container.scrollLeft + container.clientWidth >=
+          container.scrollWidth
+        ) {
+          container.scrollLeft = 0;
+        }
+      }
+
+      animationFrameId = requestAnimationFrame(step);
+    };
+
+    animationFrameId = requestAnimationFrame(step);
+
+    return () => cancelAnimationFrame(animationFrameId);
+  }, []);
+
+  const handleMouseEnter = () => {
+    isPausedRef.current = true;
+  };
+
+  const handleMouseLeave = () => {
+    isPausedRef.current = false;
+    isDraggingRef.current = false;
+    setIsDragging(false);
+  };
+
+  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    const container = scrollRef.current;
+    if (!container) return;
+
+    isDraggingRef.current = true;
+    setIsDragging(true);
+    isPausedRef.current = true;
+
+    startXRef.current = e.clientX;
+    scrollLeftRef.current = container.scrollLeft;
+  };
+
+  const handleMouseUp = () => {
+    isDraggingRef.current = false;
+    setIsDragging(false);
+  };
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const container = scrollRef.current;
+    if (!container || !isDraggingRef.current) return;
+
+    e.preventDefault();
+
+    const deltaX = e.clientX - startXRef.current;
+    container.scrollLeft = scrollLeftRef.current - deltaX;
+  };
+
   return (
     <section id="projects" className="py-20 bg-gray-900 text-gray-300">
       <div className="max-w-6xl mx-auto px-6">
@@ -72,12 +145,28 @@ export default function Projects() {
           <div className="w-16 h-1 bg-emerald-500 mx-auto mt-2 rounded"></div>
         </h2>
 
-        {/* Project Cards */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+        {/* Horizontally scrolling project cards */}
+        <div
+          ref={scrollRef}
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+          onMouseDown={handleMouseDown}
+          onMouseUp={handleMouseUp}
+          onMouseMove={handleMouseMove}
+          className={`relative z-10 flex gap-8 mb-16 overflow-x-auto pb-6 pt-4 scroll-smooth no-scrollbar select-none ${
+            isDragging ? "cursor-grabbing" : "cursor-grab"
+          }`}
+        >
           {projects.map((project, index) => (
-            <ProjectCard key={index} {...project} />
+            <div
+              key={index}
+              className="flex-shrink-0 w-[320px] md:w-[360px] lg:w-[380px] flex"
+            >
+              <ProjectCard {...project} />
+            </div>
           ))}
         </div>
+
 
         {/* CTA Button */}
         <div className="text-center">

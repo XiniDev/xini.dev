@@ -5,6 +5,20 @@ import { faUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
 
 const projects = [
   {
+    title: "LeadingOnes DAC",
+    description:
+      "An implementation of Dyna-DDQN model-based deep-RL agent to improve learning quality and sample efficiency in the LeadingOnes (1+1) RLS benchmark in Dynamic Algorithm Configuration (Biedenkapp 2022).",
+    image: "/projects/lo-dac.png",
+    link: "https://github.com/XiniDev/LeadingOnesDAC",
+  },
+  {
+    title: "AI Search Algorithms",
+    description:
+      "Uninformed and informed search algorithms for solving flight-route problems on an NxN polar grid, with bidirecitonal search too.",
+    image: "/projects/ai-search-algorithms.png",
+    link: "https://github.com/XiniDev/AI-Search-Algorithms",
+  },
+  {
     title: "NullVector",
     description:
       "NullVector is a Processing (Java) platformer where you battle enemies and a boss named Zorp using gravity-affected projectiles. Features include smart AI, bounce damage, boss phases, friendly fire, and a full GUI with health bars and debug tools.",
@@ -17,6 +31,13 @@ const projects = [
       "A full implementation of the Jungle board game in Java, including a Swing-based GUI (JunGUI). Features multiplayer support, legal move highlighting, cultural-inspired UI design, and complete game logic with flexible OOP encapsulation.",
     image: "/projects/jungle-board-game.png",
     link: "https://github.com/XiniDev/Jungle-Board-Game-Java",
+  },
+  {
+    title: "Notes API",
+    description:
+      "A secure RESTful API for managing user-specific notes with CRUD operations, following OWASP principles. MongoDB with Mongoose database for efficient data modeling and querying, containing advanced filtering features.",
+    image: "/projects/notes-api.png",
+    link: "https://github.com/XiniDev/notes-api",
   },
   {
     title: "WSMath",

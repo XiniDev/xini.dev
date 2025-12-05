@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import type React from "react";
 import ProjectCard from "./project-card";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGithub } from "@fortawesome/free-brands-svg-icons";
@@ -65,6 +66,9 @@ const projects = [
   },
 ];
 
+// Duplicate for looping
+const loopingProjects = [...projects, ...projects];
+
 export default function Projects() {
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const isPausedRef = useRef(false);
@@ -83,11 +87,10 @@ export default function Projects() {
       if (container && !isPausedRef.current) {
         container.scrollLeft += speed;
 
-        if (
-          container.scrollLeft + container.clientWidth >=
-          container.scrollWidth
-        ) {
-          container.scrollLeft = 0;
+        const loopWidth = container.scrollWidth / 2;
+
+        if (container.scrollLeft >= loopWidth) {
+          container.scrollLeft -= loopWidth;
         }
       }
 
@@ -98,16 +101,6 @@ export default function Projects() {
 
     return () => cancelAnimationFrame(animationFrameId);
   }, []);
-
-  const handleMouseEnter = () => {
-    isPausedRef.current = true;
-  };
-
-  const handleMouseLeave = () => {
-    isPausedRef.current = false;
-    isDraggingRef.current = false;
-    setIsDragging(false);
-  };
 
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
     const container = scrollRef.current;
@@ -124,6 +117,15 @@ export default function Projects() {
   const handleMouseUp = () => {
     isDraggingRef.current = false;
     setIsDragging(false);
+    isPausedRef.current = false;
+  };
+
+  const handleMouseLeave = () => {
+    if (isDraggingRef.current) {
+      isDraggingRef.current = false;
+      setIsDragging(false);
+      isPausedRef.current = false;
+    }
   };
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -133,7 +135,20 @@ export default function Projects() {
     e.preventDefault();
 
     const deltaX = e.clientX - startXRef.current;
-    container.scrollLeft = scrollLeftRef.current - deltaX;
+    const loopWidth = container.scrollWidth / 2;
+
+    let nextScrollLeft = scrollLeftRef.current - deltaX;
+
+    // Wrap both directions
+    if (nextScrollLeft < 0) {
+      nextScrollLeft += loopWidth;
+      scrollLeftRef.current += loopWidth;
+    } else if (nextScrollLeft >= loopWidth * 2) {
+      nextScrollLeft -= loopWidth;
+      scrollLeftRef.current -= loopWidth;
+    }
+
+    container.scrollLeft = nextScrollLeft;
   };
 
   return (
@@ -142,31 +157,29 @@ export default function Projects() {
         {/* Section Title */}
         <h2 className="text-4xl font-bold text-center mb-12">
           My <span className="text-emerald-500">Projects</span>
-          <div className="w-16 h-1 bg-emerald-500 mx-auto mt-2 rounded"></div>
+          <div className="w-16 h-1 bg-emerald-500 mx-auto mt-2 rounded" />
         </h2>
 
         {/* Horizontally scrolling project cards */}
         <div
           ref={scrollRef}
-          onMouseEnter={handleMouseEnter}
-          onMouseLeave={handleMouseLeave}
           onMouseDown={handleMouseDown}
           onMouseUp={handleMouseUp}
+          onMouseLeave={handleMouseLeave}
           onMouseMove={handleMouseMove}
-          className={`relative z-10 flex gap-8 mb-16 overflow-x-auto pb-6 pt-4 scroll-smooth no-scrollbar select-none ${
+          className={`relative z-10 flex gap-8 mb-16 overflow-x-auto pb-6 pt-4 no-scrollbar select-none ${
             isDragging ? "cursor-grabbing" : "cursor-grab"
           }`}
         >
-          {projects.map((project, index) => (
+          {loopingProjects.map((project, index) => (
             <div
-              key={index}
+              key={`${project.title}-${index}`}
               className="flex-shrink-0 w-[320px] md:w-[360px] lg:w-[380px] flex"
             >
               <ProjectCard {...project} />
             </div>
           ))}
         </div>
-
 
         {/* CTA Button */}
         <div className="text-center">

@@ -46,7 +46,7 @@ const projects = [
   {
     title: "WSMath",
     description:
-      "WS Math is an online portfolio for a professional math tutor specializing in IB, A-levels, and IGCSE curricula. The website showcases the tutor's expertise, teaching philosophy, and success stories.",
+      "WSMath is an online portfolio for an international mathematics exam strategist. Built with Next.js and Tailwind CSS, it features a sleek, responsive design and SEO optimization to attract potential clients. It also contains a custom CMS with Zero Trust login for easy content management.",
     image: "/projects/wsmath.png",
     link: "https://www.wsmath.com/",
   },

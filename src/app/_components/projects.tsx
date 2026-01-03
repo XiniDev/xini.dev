@@ -9,6 +9,13 @@ import { faUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
 
 const projects = [
   {
+    title: "WSMath",
+    description:
+      "WSMath is an online portfolio for an international mathematics exam strategist. Built with Next.js and Tailwind CSS, it features a sleek, responsive design and SEO optimization to attract potential clients. It also contains a custom CMS with Zero Trust login for easy content management.",
+    image: "/projects/wsmath.jpg",
+    link: "https://www.wsmath.com/",
+  },
+  {
     title: "LeadingOnes DAC",
     description:
       "An implementation of Dyna-DDQN model-based deep-RL agent to improve learning quality and sample efficiency in the LeadingOnes (1+1) RLS benchmark in Dynamic Algorithm Configuration (Biedenkapp 2022).",
@@ -42,13 +49,6 @@ const projects = [
       "A secure RESTful API for managing user-specific notes with CRUD operations, following OWASP principles. MongoDB with Mongoose database for efficient data modeling and querying, containing advanced filtering features.",
     image: "/projects/notes-api.png",
     link: "https://github.com/XiniDev/notes-api",
-  },
-  {
-    title: "WSMath",
-    description:
-      "WSMath is an online portfolio for an international mathematics exam strategist. Built with Next.js and Tailwind CSS, it features a sleek, responsive design and SEO optimization to attract potential clients. It also contains a custom CMS with Zero Trust login for easy content management.",
-    image: "/projects/wsmath.jpg",
-    link: "https://www.wsmath.com/",
   },
   {
     title: "Overthrow Synthetica",

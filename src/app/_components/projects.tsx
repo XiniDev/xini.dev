@@ -47,7 +47,7 @@ const projects = [
     title: "WSMath",
     description:
       "WSMath is an online portfolio for an international mathematics exam strategist. Built with Next.js and Tailwind CSS, it features a sleek, responsive design and SEO optimization to attract potential clients. It also contains a custom CMS with Zero Trust login for easy content management.",
-    image: "/projects/wsmath.png",
+    image: "/projects/wsmath.jpg",
     link: "https://www.wsmath.com/",
   },
   {

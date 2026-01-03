@@ -16,7 +16,7 @@ export default function ProjectCard({
   link,
 }: ProjectCardProps) {
   return (
-    <div className="bg-gray-800 rounded-xl p-6 flex flex-col justify-between h-full transform transition duration-300 hover:-translate-y-2 relative hover:z-20">
+    <div className="bg-gray-800 rounded-xl p-6 flex flex-col h-full transform transition duration-300 hover:-translate-y-2 relative hover:z-20">
       {/* Image */}
       <div className="overflow-hidden rounded-lg mb-4">
         <Image
@@ -28,18 +28,20 @@ export default function ProjectCard({
         />
       </div>
 
-      {/* Title & Description */}
+      {/* Title */}
       <h3 className="text-2xl font-semibold mb-3 text-white">{title}</h3>
-      <p className="text-gray-400 mb-6 leading-relaxed text-sm sm:text-base">
+
+      {/* Description (fills remaining space) */}
+      <p className="text-gray-400 mb-6 leading-relaxed text-sm sm:text-base flex-1">
         {description}
       </p>
 
-      {/* Link with animated underline */}
+      {/* Link pinned to bottom */}
       <a
         href={link}
         target="_blank"
         rel="noopener noreferrer"
-        className="relative inline-flex items-center gap-2 text-emerald-400 font-medium group"
+        className="relative mt-auto inline-flex items-center gap-2 text-emerald-400 font-medium group"
       >
         View Project
         <FontAwesomeIcon icon={faUpRightFromSquare} className="text-sm" />

@@ -174,7 +174,7 @@ export default function Projects() {
           {loopingProjects.map((project, index) => (
             <div
               key={`${project.title}-${index}`}
-              className="flex-shrink-0 w-[320px] md:w-[360px] lg:w-[380px] flex"
+              className="flex-shrink-0 w-[320px] md:w-[360px] lg:w-[380px] flex items-stretch"
             >
               <ProjectCard {...project} />
             </div>

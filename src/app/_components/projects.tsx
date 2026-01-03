@@ -47,7 +47,7 @@ const projects = [
     title: "WSMath",
     description:
       "WS Math is an online portfolio for a professional math tutor specializing in IB, A-levels, and IGCSE curricula. The website showcases the tutor's expertise, teaching philosophy, and success stories.",
-    image: "/projects/wsmath-logo.png",
+    image: "/projects/wsmath.png",
     link: "https://www.wsmath.com/",
   },
   {

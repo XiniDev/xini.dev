@@ -71,35 +71,137 @@ const loopingProjects = [...projects, ...projects];
 
 export default function Projects() {
   const scrollRef = useRef<HTMLDivElement | null>(null);
-  const isPausedRef = useRef(false);
 
+  const isPausedRef = useRef(false);
   const isDraggingRef = useRef(false);
   const startXRef = useRef(0);
   const scrollLeftRef = useRef(0);
   const [isDragging, setIsDragging] = useState(false);
 
-  useEffect(() => {
-    let animationFrameId: number;
-    const speed = 0.5;
+  // --- NEW: snap-by-card auto-advance ---
+  const activeIndexRef = useRef(0);
+  const intervalRef = useRef<number | null>(null);
+  const isAnimatingRef = useRef(false);
 
-    const step = () => {
-      const container = scrollRef.current;
-      if (container && !isPausedRef.current) {
-        container.scrollLeft += speed;
+  const getStepPx = (): number => {
+    const container = scrollRef.current;
+    if (!container) return 0;
+    // Your wrapper has w-[320px] md:w-[360px] lg:w-[380px] and parent gap-8 (32px)
+    // We compute real step using DOM so it matches breakpoints perfectly.
+    const first = container.querySelector<HTMLElement>("[data-project-item]");
+    if (!first) return 0;
 
-        const loopWidth = container.scrollWidth / 2;
+    // distance between the left of item 0 and item 1 = card width + gap
+    const second = first.nextElementSibling as HTMLElement | null;
+    if (second) {
+      const a = first.offsetLeft;
+      const b = second.offsetLeft;
+      return Math.max(1, b - a);
+    }
 
-        if (container.scrollLeft >= loopWidth) {
-          container.scrollLeft -= loopWidth;
-        }
+    // fallback: approximate
+    return first.getBoundingClientRect().width + 32;
+  };
+
+  const normalizeToLoop = (nextLeft: number) => {
+    const container = scrollRef.current;
+    if (!container) return nextLeft;
+    const loopWidth = container.scrollWidth / 2;
+    if (loopWidth <= 0) return nextLeft;
+
+    // keep within [0, loopWidth)
+    let x = nextLeft % loopWidth;
+    if (x < 0) x += loopWidth;
+    return x;
+  };
+
+  const animateScrollTo = (targetLeft: number, duration = 550) => {
+    const container = scrollRef.current;
+    if (!container) return;
+
+    // Use shortest path considering loop boundary
+    const loopWidth = container.scrollWidth / 2;
+    const from = container.scrollLeft;
+
+    // normalize target into [0, loopWidth)
+    const target = normalizeToLoop(targetLeft);
+
+    // choose direction that travels less distance
+    let delta = target - from;
+    if (loopWidth > 0) {
+      if (delta > loopWidth / 2) delta -= loopWidth;
+      if (delta < -loopWidth / 2) delta += loopWidth;
+    }
+
+    const start = performance.now();
+    isAnimatingRef.current = true;
+
+    const easeInOutCubic = (t: number) =>
+      t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+
+    const tick = (now: number) => {
+      const t = Math.min(1, (now - start) / duration);
+      const eased = easeInOutCubic(t);
+      const next = from + delta * eased;
+
+      // while animating, keep scrollLeft in a safe range
+      container.scrollLeft = normalizeToLoop(next);
+
+      if (t < 1) {
+        requestAnimationFrame(tick);
+      } else {
+        container.scrollLeft = normalizeToLoop(from + delta);
+        isAnimatingRef.current = false;
       }
-
-      animationFrameId = requestAnimationFrame(step);
     };
 
-    animationFrameId = requestAnimationFrame(step);
+    requestAnimationFrame(tick);
+  };
 
-    return () => cancelAnimationFrame(animationFrameId);
+  const stepToIndex = (idx: number) => {
+    const container = scrollRef.current;
+    if (!container) return;
+
+    const step = getStepPx();
+    if (!step) return;
+
+    const loopCount = projects.length;
+    const nextIndex = ((idx % loopCount) + loopCount) % loopCount; // 0..loopCount-1
+    activeIndexRef.current = nextIndex;
+
+    const target = nextIndex * step;
+    animateScrollTo(target);
+  };
+
+  useEffect(() => {
+    const container = scrollRef.current;
+    if (!container) return;
+
+    const startAuto = () => {
+      if (intervalRef.current) window.clearInterval(intervalRef.current);
+      intervalRef.current = window.setInterval(() => {
+        if (isPausedRef.current || isDraggingRef.current || isAnimatingRef.current)
+          return;
+        stepToIndex(activeIndexRef.current + 1);
+      }, 2200); // how long each card stays before jumping
+    };
+
+    // start
+    startAuto();
+
+    // keep loop position stable on resize (breakpoints change card width)
+    const onResize = () => {
+      const step = getStepPx();
+      if (!step) return;
+      container.scrollLeft = normalizeToLoop(activeIndexRef.current * step);
+    };
+
+    window.addEventListener("resize", onResize);
+
+    return () => {
+      if (intervalRef.current) window.clearInterval(intervalRef.current);
+      window.removeEventListener("resize", onResize);
+    };
   }, []);
 
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -118,6 +220,18 @@ export default function Projects() {
     isDraggingRef.current = false;
     setIsDragging(false);
     isPausedRef.current = false;
+
+    // Snap to nearest card after drag
+    const container = scrollRef.current;
+    if (!container) return;
+    const step = getStepPx();
+    if (!step) return;
+
+    const loopWidth = container.scrollWidth / 2;
+    const left = normalizeToLoop(container.scrollLeft);
+    const nearest = Math.round(left / step);
+    activeIndexRef.current = ((nearest % projects.length) + projects.length) % projects.length;
+    container.scrollLeft = normalizeToLoop(activeIndexRef.current * step);
   };
 
   const handleMouseLeave = () => {
@@ -125,6 +239,18 @@ export default function Projects() {
       isDraggingRef.current = false;
       setIsDragging(false);
       isPausedRef.current = false;
+
+      // same snap behavior
+      const container = scrollRef.current;
+      if (!container) return;
+      const step = getStepPx();
+      if (!step) return;
+
+      const left = normalizeToLoop(container.scrollLeft);
+      const nearest = Math.round(left / step);
+      activeIndexRef.current =
+        ((nearest % projects.length) + projects.length) % projects.length;
+      container.scrollLeft = normalizeToLoop(activeIndexRef.current * step);
     }
   };
 
@@ -174,6 +300,7 @@ export default function Projects() {
           {loopingProjects.map((project, index) => (
             <div
               key={`${project.title}-${index}`}
+              data-project-item
               className="flex-shrink-0 w-[320px] md:w-[360px] lg:w-[380px] flex items-stretch"
             >
               <ProjectCard {...project} />

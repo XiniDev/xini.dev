@@ -77,11 +77,19 @@ export default function Projects() {
   const isDraggingRef = useRef(false);
   const startXRef = useRef(0);
   const scrollLeftRef = useRef(0);
+  const lastXRef = useRef(0);
+  const lastTimeRef = useRef(0);
+  const velocityRef = useRef(0);
   const [isDragging, setIsDragging] = useState(false);
 
   const activeIndexRef = useRef(0);
   const intervalRef = useRef<number | null>(null);
   const isAnimatingRef = useRef(false);
+
+  const DRAG_MULTIPLIER = 1.85; // <— makes small drags move further
+  const VELOCITY_BOOST = 0.75; // <— stronger “throw” effect
+  const MAX_THROW_CARDS = 6; // <— max cards it can fly through
+  const SNAP_DURATION_BASE = 420;
 
   const getStepPx = (): number => {
     const container = scrollRef.current;
@@ -117,7 +125,6 @@ export default function Projects() {
 
     const loopWidth = container.scrollWidth / 2;
     const from = container.scrollLeft;
-
     const target = normalizeToLoop(targetLeft);
 
     let delta = target - from;
@@ -129,12 +136,11 @@ export default function Projects() {
     const start = performance.now();
     isAnimatingRef.current = true;
 
-    const easeInOutCubic = (t: number) =>
-      t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
 
     const tick = (now: number) => {
       const t = Math.min(1, (now - start) / duration);
-      const eased = easeInOutCubic(t);
+      const eased = easeOutCubic(t);
       const next = from + delta * eased;
 
       container.scrollLeft = normalizeToLoop(next);
@@ -150,7 +156,7 @@ export default function Projects() {
     requestAnimationFrame(tick);
   };
 
-  const stepToIndex = (idx: number) => {
+  const stepToIndex = (idx: number, duration?: number) => {
     const container = scrollRef.current;
     if (!container) return;
 
@@ -161,7 +167,7 @@ export default function Projects() {
     const nextIndex = ((idx % loopCount) + loopCount) % loopCount;
     activeIndexRef.current = nextIndex;
 
-    animateScrollTo(nextIndex * step);
+    animateScrollTo(nextIndex * step, duration ?? 550);
   };
 
   useEffect(() => {
@@ -207,9 +213,14 @@ export default function Projects() {
 
     startXRef.current = e.clientX;
     scrollLeftRef.current = container.scrollLeft;
+
+    // velocity tracking
+    lastXRef.current = e.clientX;
+    lastTimeRef.current = performance.now();
+    velocityRef.current = 0;
   };
 
-  const finishDragAndSmoothSnap = () => {
+  const finishDragWithThrowAndSnap = () => {
     const container = scrollRef.current;
     if (!container) return;
 
@@ -217,13 +228,31 @@ export default function Projects() {
     if (!step) return;
 
     const left = normalizeToLoop(container.scrollLeft);
-    const nearest = Math.round(left / step);
+    const baseIndex = Math.round(left / step);
+
+    // “throw” based on velocity (px/ms -> cards)
+    const v = velocityRef.current; // px/ms (positive means mouse moved right)
+    // Convert to scroll direction:
+    // Our scrollLeft increases when content moves left, and in handleMouseMove we do (scrollLeftRef - deltaX*mult).
+    // So if mouse moved right (deltaX positive), scrollLeft decreased => we want negative card delta.
+    const cardsFromVelocity = (-v * VELOCITY_BOOST * 140) / step; // 140 is a tuned scaler
+
+    const throwCards = Math.max(
+      -MAX_THROW_CARDS,
+      Math.min(MAX_THROW_CARDS, Math.round(cardsFromVelocity))
+    );
+
+    const nextIndexRaw = baseIndex + throwCards;
     const nextIndex =
-      ((nearest % projects.length) + projects.length) % projects.length;
+      ((nextIndexRaw % projects.length) + projects.length) % projects.length;
 
     activeIndexRef.current = nextIndex;
 
-    animateScrollTo(nextIndex * step, 420);
+    // longer distance => slightly longer duration (feels like gliding)
+    const distCards = Math.min(MAX_THROW_CARDS, Math.abs(throwCards));
+    const duration = SNAP_DURATION_BASE + distCards * 90;
+
+    animateScrollTo(nextIndex * step, duration);
   };
 
   const handleMouseUp = () => {
@@ -233,7 +262,7 @@ export default function Projects() {
     setIsDragging(false);
     isPausedRef.current = false;
 
-    finishDragAndSmoothSnap();
+    finishDragWithThrowAndSnap();
   };
 
   const handleMouseLeave = () => {
@@ -243,7 +272,7 @@ export default function Projects() {
     setIsDragging(false);
     isPausedRef.current = false;
 
-    finishDragAndSmoothSnap();
+    finishDragWithThrowAndSnap();
   };
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -252,7 +281,20 @@ export default function Projects() {
 
     e.preventDefault();
 
-    const deltaX = e.clientX - startXRef.current;
+    const now = performance.now();
+    const dx = e.clientX - startXRef.current;
+
+    const deltaX = dx * DRAG_MULTIPLIER;
+
+    // velocity (px/ms) computed on raw mouse movement (not amplified)
+    const dt = Math.max(1, now - lastTimeRef.current);
+    const vx = (e.clientX - lastXRef.current) / dt;
+    // smooth velocity a bit (low-pass filter)
+    velocityRef.current = velocityRef.current * 0.75 + vx * 0.25;
+
+    lastXRef.current = e.clientX;
+    lastTimeRef.current = now;
+
     const loopWidth = container.scrollWidth / 2;
 
     let nextScrollLeft = scrollLeftRef.current - deltaX;

@@ -86,7 +86,7 @@ export default function Projects() {
   const intervalRef = useRef<number | null>(null);
   const isAnimatingRef = useRef(false);
 
-  const DRAG_MULTIPLIER = 1.85; // <— makes small drags move further
+  const DRAG_MULTIPLIER = 1.5; // <— makes small drags move further
   const VELOCITY_BOOST = 0.75; // <— stronger “throw” effect
   const MAX_THROW_CARDS = 6; // <— max cards it can fly through
   const SNAP_DURATION_BASE = 420;

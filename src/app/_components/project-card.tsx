@@ -1,3 +1,4 @@
+// project-card.tsx
 import Image from "next/image";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
@@ -18,25 +19,27 @@ export default function ProjectCard({
   return (
     <div className="bg-gray-800 rounded-xl p-6 flex flex-col h-full transform transition duration-300 hover:-translate-y-2 relative hover:z-20">
       {/* Image */}
-      <div className="overflow-hidden rounded-lg mb-4">
+      <div
+        className="overflow-hidden rounded-lg mb-4"
+        onDragStart={(e) => e.preventDefault()}
+      >
         <Image
           src={image}
           alt={title}
-          className="w-full h-48 object-cover object-center transform transition duration-500 hover:scale-110"
           width={400}
           height={250}
+          draggable={false}
+          onDragStart={(e) => e.preventDefault()}
+          className="w-full h-48 object-cover object-center transform transition duration-500 hover:scale-110 select-none"
         />
       </div>
 
-      {/* Title */}
       <h3 className="text-2xl font-semibold mb-3 text-white">{title}</h3>
 
-      {/* Description (fills remaining space) */}
       <p className="text-gray-400 mb-6 leading-relaxed text-sm sm:text-base flex-1">
         {description}
       </p>
 
-      {/* Link pinned to bottom */}
       <a
         href={link}
         target="_blank"
@@ -45,11 +48,10 @@ export default function ProjectCard({
       >
         View Project
         <FontAwesomeIcon icon={faUpRightFromSquare} className="text-sm" />
-        <span className="absolute left-0 -bottom-1 w-0 h-0.5 bg-emerald-400 transition-all group-hover:w-full"></span>
+        <span className="absolute left-0 -bottom-1 w-0 h-0.5 bg-emerald-400 transition-all group-hover:w-full" />
       </a>
 
-      {/* Emerald line at bottom */}
-      <div className="mt-6 h-1 w-full bg-emerald-600 rounded-full"></div>
+      <div className="mt-6 h-1 w-full bg-emerald-600 rounded-full" />
     </div>
   );
 }

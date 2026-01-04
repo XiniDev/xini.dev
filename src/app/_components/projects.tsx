@@ -1,3 +1,4 @@
+// Projects.tsx
 "use client";
 
 import { useEffect, useRef, useState } from "react";
@@ -78,7 +79,6 @@ export default function Projects() {
   const scrollLeftRef = useRef(0);
   const [isDragging, setIsDragging] = useState(false);
 
-  // --- snap-by-card auto-advance ---
   const activeIndexRef = useRef(0);
   const intervalRef = useRef<number | null>(null);
   const isAnimatingRef = useRef(false);
@@ -120,7 +120,6 @@ export default function Projects() {
 
     const target = normalizeToLoop(targetLeft);
 
-    // shortest path around the loop
     let delta = target - from;
     if (loopWidth > 0) {
       if (delta > loopWidth / 2) delta -= loopWidth;
@@ -224,7 +223,6 @@ export default function Projects() {
 
     activeIndexRef.current = nextIndex;
 
-    // Smoothly animate to the snapped position (instead of instant jump)
     animateScrollTo(nextIndex * step, 420);
   };
 
@@ -271,22 +269,25 @@ export default function Projects() {
     container.scrollLeft = nextScrollLeft;
   };
 
+  const handleDragStart = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+  };
+
   return (
     <section id="projects" className="py-20 bg-gray-900 text-gray-300">
       <div className="max-w-6xl mx-auto px-6">
-        {/* Section Title */}
         <h2 className="text-4xl font-bold text-center mb-12">
           My <span className="text-emerald-500">Projects</span>
           <div className="w-16 h-1 bg-emerald-500 mx-auto mt-2 rounded" />
         </h2>
 
-        {/* Horizontally scrolling project cards */}
         <div
           ref={scrollRef}
           onMouseDown={handleMouseDown}
           onMouseUp={handleMouseUp}
           onMouseLeave={handleMouseLeave}
           onMouseMove={handleMouseMove}
+          onDragStart={handleDragStart}
           className={`relative z-10 flex gap-8 mb-16 overflow-x-auto pb-6 pt-4 no-scrollbar select-none ${
             isDragging ? "cursor-grabbing" : "cursor-grab"
           }`}
@@ -295,6 +296,8 @@ export default function Projects() {
             <div
               key={`${project.title}-${index}`}
               data-project-item
+              draggable={false}
+              onDragStart={(e) => e.preventDefault()}
               className="flex-shrink-0 w-[320px] md:w-[360px] lg:w-[380px] flex items-stretch"
             >
               <ProjectCard {...project} />
@@ -302,7 +305,6 @@ export default function Projects() {
           ))}
         </div>
 
-        {/* CTA Button */}
         <div className="text-center">
           <a
             href="https://github.com/XiniDev"

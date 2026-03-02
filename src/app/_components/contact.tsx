@@ -25,7 +25,7 @@ const contacts = [
   {
     name: "LinkedIn",
     icon: faLinkedin,
-    link: "https://www.linkedin.com/in/anxini/",
+    link: "https://www.linkedin.com/in/xinidev/",
   },
 ];
 

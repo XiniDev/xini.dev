@@ -12,14 +12,14 @@ const projects = [
   {
     title: "DBridger",
     description:
-      "DBridger is a secure, native desktop AI gateway that bridges the gap between legacy databases and modern LLMs. Built with PyQt6 and powered by Google Gemini, it acts as an autonomous agent that navigates complex relational schemas to answer plain-English queries. With local query execution, dynamic schema mapping, and automated PII redaction, DBridger ensures sensitive data never leaves your machine while providing enterprise-grade, conversational database analytics.",
+      "DBridger is a secure PyQt6 desktop gateway connecting legacy databases to Google Gemini. It acts as an autonomous agent that navigates relational schemas to answer natural language queries. By utilizing local execution, dynamic mapping, and automated PII redaction, it provides enterprise-grade conversational analytics while ensuring sensitive data remains on-device.",
     image: "/projects/dbridger.png",
     link: "https://github.com/XiniDev/dbridger",
   },
   {
     title: "Vault of Excellence",
     description:
-      "Vault of Excellence is a dynamic tutoring platform designed to bridge the gap between bespoke educational content and scalable commerce. Built with a modern tech stack featuring Next.js and Supabase, the site empowers tutors by providing them with dedicated, fully customizable webpages. This allows educators to curate their own instructional materials and market them directly to students, creating a personalized storefront for their expertise.",
+      "Vault of Excellence is a scalable commerce and tutoring platform built on Next.js and Supabase. It enables educators to bridge the gap between content and sales by providing customizable webpages. Tutors can curate instructional materials and market them through personalized storefronts, directly connecting their expertise to students.",
     image: "/projects/voe.png",
     link: "https://github.com/XiniDev/vault-of-excellence",
   },

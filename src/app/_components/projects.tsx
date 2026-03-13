@@ -21,7 +21,7 @@ const projects = [
     description:
       "Vault of Excellence is a scalable commerce and tutoring platform built on Next.js and Supabase. It enables educators to bridge the gap between content and sales by providing customizable webpages. Tutors can curate instructional materials and market them through personalized storefronts, directly connecting their expertise to students.",
     image: "/projects/voe.png",
-    link: "https://github.com/XiniDev/vault-of-excellence",
+    link: "https://voetutor.com",
   },
   {
     title: "WSMath",

@@ -10,6 +10,20 @@ import { faUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
 
 const projects = [
   {
+    title: "DBridger",
+    description:
+      "DBridger is a secure, native desktop AI gateway that bridges the gap between legacy databases and modern LLMs. Built with PyQt6 and powered by Google Gemini, it acts as an autonomous agent that navigates complex relational schemas to answer plain-English queries. With local query execution, dynamic schema mapping, and automated PII redaction, DBridger ensures sensitive data never leaves your machine while providing enterprise-grade, conversational database analytics.",
+    image: "/projects/dbridger.png",
+    link: "https://github.com/XiniDev/dbridger",
+  },
+  {
+    title: "Vault of Excellence",
+    description:
+      "Vault of Excellence is a dynamic tutoring platform designed to bridge the gap between bespoke educational content and scalable commerce. Built with a modern tech stack featuring Next.js and Supabase, the site empowers tutors by providing them with dedicated, fully customizable webpages. This allows educators to curate their own instructional materials and market them directly to students, creating a personalized storefront for their expertise.",
+    image: "/projects/voe.png",
+    link: "https://github.com/XiniDev/vault-of-excellence",
+  },
+  {
     title: "WSMath",
     description:
       "WSMath is an online portfolio for an international mathematics exam strategist. Built with Next.js and Tailwind CSS, it features a sleek, responsive design and SEO optimization to attract potential clients. It also contains a custom CMS with Zero Trust login for easy content management.",

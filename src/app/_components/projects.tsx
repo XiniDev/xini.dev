@@ -10,6 +10,13 @@ import { faUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
 
 const projects = [
   {
+    title: "Saltancy Website",
+    description:
+      "Saltancy is my consultancy company that provides comprehensive, end-to-end technical consultancy and custom software development tailored to specific business requirements. Our core engineering services encompass full-stack web application development, cross-platform mobile apps, scalable backend architecture, cloud deployment, and seamless third-party API integrations. This is Saltancy's landing page.",
+    image: "/projects/saltancy-web.png",
+    link: "https://github.com/XiniDev/saltancy-web",
+  },
+  {
     title: "DBridger",
     description:
       "DBridger is a secure PyQt6 desktop gateway connecting legacy databases to Google Gemini. It acts as an autonomous agent that navigates relational schemas to answer natural language queries. By utilizing local execution, dynamic mapping, and automated PII redaction, it provides enterprise-grade conversational analytics while ensuring sensitive data remains on-device.",

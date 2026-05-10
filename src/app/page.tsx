@@ -1,8 +1,8 @@
-import Navigation from "./_components/navigation";
-import Hero from "./_components/hero";
-import About from "./_components/about";
-import Projects from "./_components/projects";
-import Contact from "./_components/contact";
+import Navigation from "@/components/sections/navigation";
+import Hero from "@/components/sections/hero";
+import About from "@/components/sections/about";
+import Projects from "@/components/sections/projects";
+import Contact from "@/components/sections/contact";
 
 export default function Home() {
   return (

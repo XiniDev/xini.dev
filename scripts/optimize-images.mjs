@@ -1,6 +1,3 @@
-// Build-time, one-shot image optimizer (devDependency: sharp).
-// Resizes the project screenshots to 800px-wide WebP so the static export
-// (images: { unoptimized: true }) ships light assets. Run: npm run optimize-images
 import sharp from "sharp";
 import { readdir } from "node:fs/promises";
 import path from "node:path";
@@ -21,19 +18,15 @@ for (const file of files) {
   if (!SRC_EXT.includes(ext)) continue;
 
   const base = path.basename(file, ext);
-  const input = path.join(dir, file);
-  const output = path.join(dir, `${base}.webp`);
-  // The photographic wsmath shot compresses fine at a slightly lower quality.
   const quality = base === "wsmath" ? 72 : 80;
 
-  await sharp(input)
+  await sharp(path.join(dir, file))
     .resize({ width: 800, withoutEnlargement: true })
     .webp({ quality })
-    .toFile(output);
+    .toFile(path.join(dir, `${base}.webp`));
 
-  console.log(`✓ ${file} → ${base}.webp`);
+  console.log(`${file} -> ${base}.webp`);
   count += 1;
 }
 
-console.log(`\nOptimized ${count} image(s) → WebP in public/projects/`);
-console.log("Next: confirm the .webp files, update image paths, delete the originals.");
+console.log(`Optimized ${count} image(s) -> WebP in public/projects/`);

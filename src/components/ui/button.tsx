@@ -19,6 +19,23 @@ const buttonVariants = cva(
         destructive:
           "bg-destructive/10 text-destructive hover:bg-destructive/20 focus-visible:border-destructive/40 focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:hover:bg-destructive/30 dark:focus-visible:ring-destructive/40",
         link: "text-primary underline-offset-4 hover:underline",
+        plasma: cn(
+          "relative isolate overflow-visible bg-bio-emerald text-ink-1000 font-semibold",
+          "shadow-[0_2px_40px_-8px_rgba(16,185,129,0.65)]",
+          "hover:bg-bio-emerald/90 hover:shadow-[0_2px_56px_-6px_rgba(16,185,129,0.9)]",
+          "active:shadow-[0_1px_24px_-10px_rgba(16,185,129,0.7)]",
+          "after:pointer-events-none after:absolute after:inset-0 after:-z-10 after:rounded-[inherit]",
+          "after:bg-[radial-gradient(60%_120%_at_50%_50%,rgba(45,212,191,0.9),transparent_70%)]",
+          "after:opacity-0 after:scale-90 after:blur-md after:transition-all after:duration-300",
+          "group-hover/button:after:opacity-100 group-hover/button:after:scale-110",
+          "focus-visible:border-bio-emerald focus-visible:ring-bio-emerald/70 focus-visible:ring-offset-2 focus-visible:ring-offset-ink-1000"
+        ),
+        frost: cn(
+          "relative isolate overflow-hidden glass text-text-100",
+          "border-bio-emerald/40 hover:border-bio-emerald hover:bg-ink-900/70 hover:text-text-100",
+          "hover:shadow-[inset_0_0_0_1px_rgba(16,185,129,0.25)]",
+          "focus-visible:border-bio-emerald focus-visible:ring-bio-emerald/70 focus-visible:ring-offset-2 focus-visible:ring-offset-ink-1000"
+        ),
       },
       size: {
         default:

@@ -91,6 +91,9 @@ export default function Canvas({ onReady }: { onReady?: () => void }) {
         container.clientHeight || window.innerHeight
       );
       U.uResolution.value.set(gl.drawingBufferWidth, gl.drawingBufferHeight);
+      try {
+        renderer.render({ scene: mesh });
+      } catch {}
     };
     resize();
     const ro = new ResizeObserver(resize);

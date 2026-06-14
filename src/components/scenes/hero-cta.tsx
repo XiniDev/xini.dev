@@ -5,6 +5,7 @@ import { motion, useMotionValue, useSpring } from "framer-motion";
 
 import { Button } from "@/components/ui/button";
 import { useVolumetric } from "@/components/volumetric/context";
+import { useCoarsePointer } from "@/lib/use-coarse-pointer";
 
 export function HeroCTA({
   href,
@@ -16,6 +17,8 @@ export function HeroCTA({
   children: ReactNode;
 }) {
   const { reducedMotion } = useVolumetric();
+  const coarse = useCoarsePointer();
+  const still = reducedMotion || coarse;
   const ref = useRef<HTMLDivElement>(null);
   const x = useMotionValue(0);
   const y = useMotionValue(0);
@@ -23,7 +26,7 @@ export function HeroCTA({
   const sy = useSpring(y, { stiffness: 200, damping: 18 });
 
   const onMove = (e: React.MouseEvent) => {
-    if (reducedMotion || !ref.current) return;
+    if (still || !ref.current) return;
     const r = ref.current.getBoundingClientRect();
     x.set((e.clientX - (r.left + r.width / 2)) * 0.25);
     y.set((e.clientY - (r.top + r.height / 2)) * 0.25);
@@ -38,7 +41,7 @@ export function HeroCTA({
       ref={ref}
       onMouseMove={onMove}
       onMouseLeave={reset}
-      style={reducedMotion ? undefined : { x: sx, y: sy }}
+      style={still ? undefined : { x: sx, y: sy }}
       className="inline-block"
     >
       <Button

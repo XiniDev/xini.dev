@@ -23,7 +23,15 @@ export function HudFrame() {
   const active = CHAMBERS.find((c) => c.id === activeChamber) ?? CHAMBERS[0];
 
   return (
-    <div className="pointer-events-none fixed inset-0 z-40 font-mono text-[10px] tracking-[0.3em] text-text-300">
+    <div
+      className="pointer-events-none fixed inset-0 z-40 font-mono text-[10px] tracking-[0.3em] text-text-300"
+      style={{
+        paddingTop: "env(safe-area-inset-top)",
+        paddingRight: "env(safe-area-inset-right)",
+        paddingBottom: "env(safe-area-inset-bottom)",
+        paddingLeft: "env(safe-area-inset-left)",
+      }}
+    >
       <span aria-hidden className="absolute left-4 top-4 h-4 w-4 border-l border-t border-bio-emerald/40" />
       <span aria-hidden className="absolute right-4 top-4 h-4 w-4 border-r border-t border-bio-emerald/40" />
       <span aria-hidden className="absolute bottom-4 left-4 h-4 w-4 border-b border-l border-bio-emerald/40" />
@@ -41,7 +49,7 @@ export function HudFrame() {
 
       <nav
         aria-label="Chamber navigation"
-        className="pointer-events-auto absolute right-7 top-1/2 flex -translate-y-1/2 flex-col items-center gap-6"
+        className="pointer-events-auto absolute right-7 top-1/2 hidden -translate-y-1/2 flex-col items-center gap-6 md:flex"
       >
         <div aria-hidden className="relative h-44 w-[3px] rounded-full bg-white/10">
           <motion.div
@@ -63,12 +71,17 @@ export function HudFrame() {
               <Link
                 href={`#${c.id}`}
                 aria-label={c.label}
-                className={`block size-2 rounded-full ring-1 transition-all ${
-                  activeChamber === c.id
-                    ? "scale-125 bg-bio-emerald ring-bio-emerald shadow-[0_0_14px_2px_rgba(16,185,129,0.9)]"
-                    : "bg-transparent ring-white/30 hover:ring-bio-emerald/70"
-                }`}
-              />
+                className="grid size-2 place-items-center pointer-coarse:size-11"
+              >
+                <span
+                  aria-hidden
+                  className={`size-2 rounded-full ring-1 transition-all ${
+                    activeChamber === c.id
+                      ? "scale-125 bg-bio-emerald ring-bio-emerald shadow-[0_0_14px_2px_rgba(16,185,129,0.9)]"
+                      : "bg-transparent ring-white/30 hover:ring-bio-emerald/70"
+                  }`}
+                />
+              </Link>
             </li>
           ))}
         </ul>

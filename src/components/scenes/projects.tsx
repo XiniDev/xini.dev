@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import { ArrowUpRight } from "lucide-react";
 import {
@@ -15,6 +15,7 @@ import {
 import { GithubIcon } from "@/components/icons/github";
 import { Button } from "@/components/ui/button";
 import { useVolumetric } from "@/components/volumetric/context";
+import { useCoarsePointer } from "@/lib/use-coarse-pointer";
 
 type Bay = "WEB" | "AI" | "GAMES";
 
@@ -139,7 +140,15 @@ function GithubButton() {
   );
 }
 
-function ProjectCard({ project, lite }: { project: Project; lite?: boolean }) {
+function ProjectCard({
+  project,
+  lite,
+  sizes = "(max-width: 768px) 86vw, 48rem",
+}: {
+  project: Project;
+  lite?: boolean;
+  sizes?: string;
+}) {
   return (
     <a
       href={project.link}
@@ -154,7 +163,7 @@ function ProjectCard({ project, lite }: { project: Project; lite?: boolean }) {
           src={project.image}
           alt={project.title}
           fill
-          sizes="(max-width: 768px) 86vw, 48rem"
+          sizes={sizes}
           className="object-cover transition-transform duration-500 group-hover:scale-105"
         />
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink-1000/70 via-transparent to-transparent" />
@@ -308,12 +317,16 @@ function ProjectGrid() {
       <span className="font-mono text-xs tracking-[0.35em] text-bio-emerald">
         02 / PROJECTS
       </span>
-      <h2 className="mb-10 mt-2 font-display text-4xl font-semibold text-text-100">
+      <h2 className="mb-10 mt-2 font-display text-3xl font-semibold text-text-100 sm:text-4xl">
         Selected Work
       </h2>
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {projects.map((p) => (
-          <ProjectCard key={p.title} project={p} />
+          <ProjectCard
+            key={p.title}
+            project={p}
+            sizes="(max-width: 640px) 92vw, (max-width: 1024px) 46vw, 22rem"
+          />
         ))}
       </div>
       <div className="mt-12 flex justify-center">
@@ -325,15 +338,7 @@ function ProjectGrid() {
 
 export function ProjectsScene({ progress }: { progress: MotionValue<number> }) {
   const { pointerX, pointerY, reducedMotion } = useVolumetric();
-
-  const [lite, setLite] = useState(false);
-  useEffect(() => {
-    const mq = window.matchMedia("(pointer: coarse)");
-    setLite(mq.matches);
-    const on = (e: MediaQueryListEvent) => setLite(e.matches);
-    mq.addEventListener("change", on);
-    return () => mq.removeEventListener("change", on);
-  }, []);
+  const lite = useCoarsePointer();
 
   const camZ = useSpring(progress, { stiffness: 80, damping: 26, restDelta: 0.0005 });
   const count = projects.length;
@@ -348,7 +353,7 @@ export function ProjectsScene({ progress }: { progress: MotionValue<number> }) {
   const specimen = useTransform(focalIndex, (i) => String(i + 1).padStart(2, "0"));
   const bayName = useTransform(focalIndex, (i) => projects[i].bay as string);
 
-  if (reducedMotion) return <ProjectGrid />;
+  if (reducedMotion || lite) return <ProjectGrid />;
 
   return (
     <div className="relative isolate flex flex-1 flex-col">

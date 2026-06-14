@@ -51,9 +51,11 @@ const NODES: NodeDef[] = [
     label: "EDUCATION",
     body: (
       <>
-        <Hi>BSc Computer Science</Hi> · Warwick
+        <Hi>BSc Computer Science</Hi> ·{" "}
+        <span className="whitespace-nowrap">Warwick</span>
         <br />
-        <Hi>MSc Artificial Intelligence</Hi> · St Andrews
+        <Hi>MSc Artificial Intelligence</Hi> ·{" "}
+        <span className="whitespace-nowrap">St Andrews</span>
       </>
     ),
   },
@@ -258,7 +260,7 @@ function RadialDiagram({ progress }: { progress: MotionValue<number> }) {
             className="relative z-10 size-32 bg-contain bg-center bg-no-repeat drop-shadow-[0_0_28px_rgba(16,185,129,0.5)]"
           />
         </div>
-        <span className="font-mono text-xs tracking-[0.3em] text-text-300">
+        <span className="font-mono text-[11px] tracking-[0.08em] text-text-300 sm:text-xs sm:tracking-[0.3em]">
           DESIGNER · DEVELOPER · CREATOR
         </span>
       </div>
@@ -268,42 +270,61 @@ function RadialDiagram({ progress }: { progress: MotionValue<number> }) {
 
 function Stacked() {
   return (
-    <div className="mx-auto w-full max-w-md space-y-5 py-10">
-      <div className="flex flex-col items-center gap-3">
+    <div className="mx-auto w-full max-w-md px-1 py-12">
+      <span className="font-mono text-xs tracking-[0.3em] text-bio-emerald">
+        01 / ABOUT
+      </span>
+
+      <div className="mb-10 mt-6 flex flex-col items-center gap-3 text-center">
         <div
           aria-label="Xini logo"
           role="img"
-          className="size-24 bg-contain bg-center bg-no-repeat drop-shadow-[0_0_20px_rgba(16,185,129,0.45)]"
+          className="size-20 bg-contain bg-center bg-no-repeat drop-shadow-[0_0_22px_rgba(16,185,129,0.45)]"
           style={{ backgroundImage: "url(/icon.svg)" }}
         />
-        <span className="font-mono text-xs tracking-[0.3em] text-text-300">
+        <span className="font-mono text-[11px] tracking-[0.16em] text-text-300">
           DESIGNER · DEVELOPER · CREATOR
         </span>
       </div>
-      {NODES.map((n) =>
-        n.href ? (
-          <a
-            key={n.label}
-            href={n.href}
-            className="block rounded-xl border border-white/10 glass px-4 py-3"
-          >
-            <span className="mb-1 block font-mono text-[10px] tracking-[0.3em] text-bio-emerald">
-              {n.label}
-            </span>
-            <p className="text-sm leading-snug text-text-100">{n.body}</p>
-          </a>
-        ) : (
-          <div
-            key={n.label}
-            className="rounded-xl border border-white/10 glass px-4 py-3"
-          >
-            <span className="mb-1 block font-mono text-[10px] tracking-[0.3em] text-bio-emerald">
-              {n.label}
-            </span>
-            <p className="text-sm leading-snug text-text-100">{n.body}</p>
-          </div>
-        )
-      )}
+
+      <div className="relative flex flex-col gap-4 pl-7">
+        <span
+          aria-hidden
+          className="pointer-events-none absolute left-[6px] top-5 bottom-6 w-px bg-gradient-to-b from-bio-emerald/50 via-bio-emerald/25 to-transparent"
+        />
+        {NODES.map((n) => {
+          const inner = (
+            <>
+              <span
+                aria-hidden
+                className={`absolute -left-7 top-[22px] size-3 rounded-full border-2 border-bio-emerald shadow-[0_0_10px_1px_rgba(16,185,129,0.55)] ${
+                  n.href ? "bg-bio-emerald" : "bg-ink-900"
+                }`}
+              />
+              <span className="mb-1.5 block font-mono text-[10px] tracking-[0.25em] text-bio-emerald">
+                {n.label}
+              </span>
+              <p className="text-sm leading-relaxed text-text-100">{n.body}</p>
+            </>
+          );
+          return n.href ? (
+            <a
+              key={n.label}
+              href={n.href}
+              className="relative rounded-2xl border border-bio-emerald/35 glass px-5 py-4 transition-colors hover:border-bio-emerald/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bio-emerald"
+            >
+              {inner}
+            </a>
+          ) : (
+            <div
+              key={n.label}
+              className="relative rounded-2xl border border-white/10 glass px-5 py-4"
+            >
+              {inner}
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }

@@ -22,21 +22,44 @@ interface ContactDef {
   name: string;
   Icon: IconComponent;
   link: string;
+  detail: string;
   x: number;
   y: number;
 }
 
 const contacts: ContactDef[] = [
-  { name: "Email", Icon: Mail, link: "mailto:xini@saltancy.com", x: 20, y: 28 },
-  { name: "GitHub", Icon: GithubIcon, link: "https://github.com/XiniDev", x: 80, y: 28 },
+  {
+    name: "Email",
+    Icon: Mail,
+    link: "mailto:xini@saltancy.com",
+    detail: "xini@saltancy.com",
+    x: 20,
+    y: 28,
+  },
+  {
+    name: "GitHub",
+    Icon: GithubIcon,
+    link: "https://github.com/XiniDev",
+    detail: "@XiniDev",
+    x: 80,
+    y: 28,
+  },
   {
     name: "LinkedIn",
     Icon: LinkedinIcon,
     link: "https://www.linkedin.com/in/xinidev/",
+    detail: "in/xinidev",
     x: 20,
     y: 72,
   },
-  { name: "Twitter", Icon: XTwitter, link: "https://x.com/XiniDev", x: 80, y: 72 },
+  {
+    name: "Twitter",
+    Icon: XTwitter,
+    link: "https://x.com/XiniDev",
+    detail: "@XiniDev",
+    x: 80,
+    y: 72,
+  },
 ];
 
 const WORDMARK_FILL: CSSProperties = {
@@ -51,11 +74,9 @@ const WORDMARK_FILL: CSSProperties = {
 function ContactNode({
   contact,
   reduced,
-  mode,
 }: {
   contact: ContactDef;
   reduced: boolean;
-  mode: "radial" | "grid";
 }) {
   const { name, Icon, link, x, y } = contact;
   const ref = useRef<HTMLAnchorElement>(null);
@@ -108,8 +129,6 @@ function ContactNode({
     </motion.a>
   );
 
-  if (mode === "grid") return orb;
-
   return (
     <>
       <svg
@@ -147,7 +166,7 @@ function SaltancyCore({ reduced }: { reduced: boolean }) {
     <div className="relative flex items-center justify-center">
       <span
         aria-hidden
-        className="pointer-events-none absolute left-1/2 top-1/2 size-[26rem] -translate-x-1/2 -translate-y-1/2 rounded-full"
+        className="pointer-events-none absolute left-1/2 top-1/2 size-80 -translate-x-1/2 -translate-y-1/2 rounded-full md:size-[26rem]"
         style={{
           background:
             "radial-gradient(circle, rgba(16,185,129,0.2), transparent 62%)",
@@ -155,14 +174,14 @@ function SaltancyCore({ reduced }: { reduced: boolean }) {
       />
       <span
         aria-hidden
-        className={`pointer-events-none absolute left-1/2 top-1/2 size-80 rounded-full border border-dashed border-bio-emerald/25 ${
+        className={`pointer-events-none absolute left-1/2 top-1/2 size-64 rounded-full border border-dashed border-bio-emerald/25 md:size-80 ${
           reduced ? "" : "core-ring-spin"
         }`}
         style={{ transform: "translate(-50%, -50%)" }}
       />
       <span
         aria-hidden
-        className="pointer-events-none absolute left-1/2 top-1/2 size-[17rem] -translate-x-1/2 -translate-y-1/2 rounded-full border border-bio-emerald/15"
+        className="pointer-events-none absolute left-1/2 top-1/2 size-56 -translate-x-1/2 -translate-y-1/2 rounded-full border border-bio-emerald/15 md:size-[17rem]"
       />
 
       <div className="relative flex w-72 flex-col items-center gap-3 rounded-2xl border border-bio-emerald/30 glass-strong px-7 py-7 text-center shadow-[0_0_60px_-14px_rgba(16,185,129,0.55)] md:w-80">
@@ -209,12 +228,12 @@ export function ContactScene() {
     <div className="relative isolate flex flex-1 flex-col overflow-hidden px-6">
       <span
         aria-hidden
-        className="pointer-events-none absolute left-[5%] top-[8%] -z-10 select-none font-display text-[20vw] font-bold leading-none text-white/[0.03]"
+        className="pointer-events-none absolute left-[5%] top-[8%] -z-10 hidden select-none font-display text-[20vw] font-bold leading-none text-white/[0.03] md:block"
       >
         03
       </span>
 
-      <h2 className="flex items-center justify-center gap-4 px-8 pt-16 font-mono text-xs font-normal tracking-[0.4em] text-text-300 md:pt-20">
+      <h2 className="hidden items-center justify-center gap-4 px-8 pt-16 font-mono text-xs font-normal tracking-[0.4em] text-text-300 md:flex md:pt-20">
         <span className="h-px w-10 bg-bio-emerald/30" />
         LET&apos;S TEAM UP
         <span className="h-px w-10 bg-bio-emerald/30" />
@@ -227,7 +246,7 @@ export function ContactScene() {
             style={{ rotateX, rotateY }}
           >
             {contacts.map((c) => (
-              <ContactNode key={c.name} contact={c} reduced={reducedMotion} mode="radial" />
+              <ContactNode key={c.name} contact={c} reduced={reducedMotion} />
             ))}
             <div
               className="absolute left-1/2 top-1/2 z-20"
@@ -238,17 +257,47 @@ export function ContactScene() {
           </motion.div>
         </div>
 
-        <div className="flex w-full max-w-md flex-col items-center gap-10 py-6 md:hidden">
+        <div className="mx-auto w-full max-w-md px-1 py-12 md:hidden">
+          <span className="font-mono text-xs tracking-[0.3em] text-bio-emerald">
+            03 / CONTACT
+          </span>
+          <h2 className="mb-8 mt-2 font-display text-3xl font-semibold text-text-100">
+            Let&apos;s Team Up
+          </h2>
+
           <SaltancyCore reduced={reducedMotion} />
-          <div className="grid w-full grid-cols-2 gap-4">
-            {contacts.map((c) => (
-              <ContactNode key={c.name} contact={c} reduced={reducedMotion} mode="grid" />
-            ))}
+
+          <div className="mt-8 flex w-full flex-col gap-3">
+            {contacts.map((c) => {
+              const isMail = c.link.startsWith("mailto");
+              return (
+                <a
+                  key={c.name}
+                  href={c.link}
+                  target={isMail ? undefined : "_blank"}
+                  rel={isMail ? undefined : "noopener noreferrer"}
+                  className="group flex items-center gap-4 rounded-2xl border border-white/10 glass px-4 py-3.5 transition-colors hover:border-bio-emerald/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bio-emerald"
+                >
+                  <span className="flex size-11 shrink-0 items-center justify-center rounded-xl border border-bio-emerald/20 bg-bio-emerald/10">
+                    <c.Icon className="size-5 text-bio-emerald drop-shadow-[0_0_10px_rgba(16,185,129,0.55)]" />
+                  </span>
+                  <span className="flex min-w-0 flex-col">
+                    <span className="text-base font-medium text-text-100">
+                      {c.name}
+                    </span>
+                    <span className="truncate font-mono text-[11px] tracking-wide text-text-500">
+                      {c.detail}
+                    </span>
+                  </span>
+                  <ArrowUpRight className="ml-auto size-4 shrink-0 text-text-300 transition-colors group-hover:text-bio-emerald" />
+                </a>
+              );
+            })}
           </div>
         </div>
       </div>
 
-      <div className="flex items-center justify-center gap-4 pb-10 font-mono text-xs tracking-[0.35em] text-text-500">
+      <div className="flex items-center justify-center gap-4 pb-10 font-mono text-[11px] tracking-[0.2em] text-text-500 sm:text-xs sm:tracking-[0.35em]">
         <span className="h-px w-8 bg-text-500/40" />
         END OF TRANSMISSION
         <span className="h-px w-8 bg-text-500/40" />

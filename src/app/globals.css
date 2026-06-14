@@ -70,11 +70,16 @@
 }
 
 html {
-  scroll-padding-top: var(--nav-h);
+  scroll-padding-top: calc(var(--nav-h) + env(safe-area-inset-top));
+  overscroll-behavior-y: none;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+  overflow-x: clip;
 }
 
 .no-scrollbar::-webkit-scrollbar {
@@ -214,6 +219,32 @@ body {
   flex-direction: column;
   min-height: 100svh;
   overflow: hidden;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right)
+    env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+
+@media (pointer: coarse) {
+  .scene-flow-touch {
+    min-height: 0;
+  }
+  .scene-flow-touch .scene-stage {
+    position: static;
+    display: block;
+    min-height: 0;
+    overflow: visible;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .scene-flow-narrow {
+    min-height: 0;
+  }
+  .scene-flow-narrow .scene-stage {
+    position: static;
+    display: block;
+    min-height: 0;
+    overflow: visible;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

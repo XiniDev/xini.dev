@@ -18,13 +18,13 @@ export default function Home() {
         <Scene id="hero" budgetVh={150}>
           <HeroScene />
         </Scene>
-        <Scene id="about" budgetVh={300}>
+        <Scene id="about" budgetVh={300} className="scene-flow-narrow">
           {({ progress }) => <AboutScene progress={progress} />}
         </Scene>
-        <Scene id="projects" budgetVh={500}>
+        <Scene id="projects" budgetVh={500} className="scene-flow-touch">
           {({ progress }) => <ProjectsScene progress={progress} />}
         </Scene>
-        <Scene id="contact" budgetVh={200}>
+        <Scene id="contact" budgetVh={200} className="scene-flow-narrow">
           <ContactScene />
         </Scene>
       </main>

@@ -21,7 +21,9 @@ export default function Canvas({ onReady }: { onReady?: () => void }) {
     canvas.style.height = "100%";
     container.appendChild(canvas);
 
-    const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+    const fine = window.matchMedia("(pointer: fine)").matches;
+    const dpr = Math.min(window.devicePixelRatio || 1, fine ? 1.5 : 1);
+    const minFrameMs = fine ? 0 : 1000 / 30;
     let renderer: Renderer;
     try {
       renderer = new Renderer({
@@ -39,14 +41,9 @@ export default function Canvas({ onReady }: { onReady?: () => void }) {
 
     const gl = renderer.gl;
 
-    const fine = window.matchMedia("(pointer: fine)").matches;
-    const minSide = Math.min(
-      container.clientWidth || window.innerWidth,
-      container.clientHeight || window.innerHeight
-    );
     const reducedNow = uniformsRef.current.uReducedMotion > 0.5;
     const caps = detectFluidCaps(renderer);
-    const useSim = !!caps && !reducedNow && !(!fine && minSide < 480);
+    const useSim = !!caps && !reducedNow && fine;
 
     gl.clearColor(0.02, 0.063, 0.051, 1);
 
@@ -113,7 +110,7 @@ export default function Canvas({ onReady }: { onReady?: () => void }) {
         U.uClick.value.set(ux, uyTop);
       }
     };
-    window.addEventListener("pointerdown", onPointerDown);
+    if (fine) window.addEventListener("pointerdown", onPointerDown);
 
     let raf = 0;
     let disposed = false;
@@ -127,6 +124,7 @@ export default function Canvas({ onReady }: { onReady?: () => void }) {
     let velX = 0;
     let velY = 0;
     let last = performance.now();
+    let lastDraw = 0;
     let firstSimFrame = true;
 
     const active = () => visible && onScreen && !disposed;
@@ -136,6 +134,11 @@ export default function Canvas({ onReady }: { onReady?: () => void }) {
         raf = 0;
         return;
       }
+      if (minFrameMs && now - lastDraw < minFrameMs - 2) {
+        raf = requestAnimationFrame(loop);
+        return;
+      }
+      lastDraw = now;
       const u = uniformsRef.current;
       const reduced = u.uReducedMotion > 0.5;
 

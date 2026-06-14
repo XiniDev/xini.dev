@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState, type CSSProperties } from "react";
+import { type CSSProperties } from "react";
 import { motion, useTransform, type Variants } from "framer-motion";
 
 import { useVolumetric } from "@/components/volumetric/context";
+import { useCoarsePointer } from "@/lib/use-coarse-pointer";
 import { HeroCTA } from "./hero-cta";
 
 const REVEAL_EASE = [0.16, 1, 0.3, 1] as const;
@@ -23,22 +24,14 @@ function Dot() {
   return (
     <span
       aria-hidden
-      className="mx-2 inline-block size-[5px] -translate-y-[3px] rounded-full align-middle bg-bio-emerald shadow-[0_0_8px_var(--bio-emerald)]"
+      className="mx-1 inline-block size-[5px] -translate-y-[3px] rounded-full align-middle bg-bio-emerald shadow-[0_0_8px_var(--bio-emerald)] sm:mx-2"
     />
   );
 }
 
 export function HeroScene() {
   const { pointerX, pointerY, reducedMotion } = useVolumetric();
-
-  const [coarse, setCoarse] = useState(false);
-  useEffect(() => {
-    const mq = window.matchMedia("(pointer: coarse)");
-    setCoarse(mq.matches);
-    const on = (e: MediaQueryListEvent) => setCoarse(e.matches);
-    mq.addEventListener("change", on);
-    return () => mq.removeEventListener("change", on);
-  }, []);
+  const coarse = useCoarsePointer();
 
   const g = !reducedMotion && !coarse ? 1 : 0;
   const wordX = useTransform(pointerX, [-1, 1], [-18 * g, 18 * g]);
@@ -113,7 +106,7 @@ export function HeroScene() {
         <motion.p
           variants={rise}
           style={{ x: tagX, y: tagY }}
-          className="mt-6 mb-10 font-mono text-base tracking-[0.2em] text-text-100 sm:text-xl"
+          className="mt-6 mb-10 font-mono text-sm tracking-[0.06em] text-text-100 sm:text-xl sm:tracking-[0.2em]"
         >
           Designer <Dot /> Developer <Dot /> Creator
         </motion.p>

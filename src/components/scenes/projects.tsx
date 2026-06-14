@@ -34,7 +34,8 @@ const projects: Project[] = [
     description:
       "Saltancy is my consultancy company that provides comprehensive, end-to-end technical consultancy and custom software development tailored to specific business requirements. Our core engineering services encompass full-stack web application development, cross-platform mobile apps, scalable backend architecture, cloud deployment, and seamless third-party API integrations. This is Saltancy's landing page.",
     image: "/projects/saltancy-web.webp",
-    link: "https://github.com/XiniDev/saltancy-web",
+    link: "https://www.saltancy.com",
+    live: true,
     bay: "WEB",
   },
   {
@@ -43,6 +44,7 @@ const projects: Project[] = [
       "Vault of Excellence is a scalable commerce and tutoring platform built on Next.js and Supabase. It enables educators to bridge the gap between content and sales by providing customizable webpages. Tutors can curate instructional materials and market them through personalized storefronts, directly connecting their expertise to students.",
     image: "/projects/voe.webp",
     link: "https://voetutor.com",
+    live: true,
     bay: "WEB",
   },
   {
@@ -107,7 +109,6 @@ const projects: Project[] = [
       "Overthrow Synthetica is a game jam demo created in collaboration with Codethulu over two weeks for the Warwick Game Dev Society. It showcases advanced game development techniques using ThreeJS and WebGL.",
     image: "/projects/overthrow-synthetica.webp",
     link: "https://github.com/BlueTentProductions/overthrow-synthetica",
-    live: true,
     bay: "GAMES",
   },
   {

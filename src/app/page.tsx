@@ -1,33 +1,32 @@
-"use client";
+import { Hud, FlowHead } from "@/components/facet/hud";
+import { Home } from "@/components/facet/home";
+import { About } from "@/components/facet/about";
+import { Projects } from "@/components/facet/projects";
+import { Contact, SiteFooter } from "@/components/facet/contact";
+import FacetEngine from "@/components/facet/engine";
 
-import { VolumetricProvider } from "@/components/volumetric/context";
-import { CanvasMount } from "@/components/volumetric/canvas-mount";
-import { HudFrame } from "@/components/volumetric/hud-frame";
-import { Scene } from "@/components/volumetric/scene";
-import { HeroScene } from "@/components/scenes/hero";
-import { AboutScene } from "@/components/scenes/about";
-import { ProjectsScene } from "@/components/scenes/projects";
-import { ContactScene } from "@/components/scenes/contact";
-
-export default function Home() {
+export default function Page() {
   return (
-    <VolumetricProvider>
-      <CanvasMount />
-      <HudFrame />
-      <main className="relative z-10">
-        <Scene id="hero" budgetVh={150}>
-          <HeroScene />
-        </Scene>
-        <Scene id="about" budgetVh={300} className="scene-flow-narrow">
-          {({ progress }) => <AboutScene progress={progress} />}
-        </Scene>
-        <Scene id="projects" budgetVh={500} className="scene-flow-touch">
-          {({ progress }) => <ProjectsScene progress={progress} />}
-        </Scene>
-        <Scene id="contact" budgetVh={200} className="scene-flow-narrow">
-          <ContactScene />
-        </Scene>
-      </main>
-    </VolumetricProvider>
+    <>
+      <Hud />
+      <FlowHead />
+      <div id="viewport">
+        <div id="world">
+          <i className="wstroke" aria-hidden="true" />
+          <i className="wstroke" aria-hidden="true" />
+          <i className="wstroke" aria-hidden="true" />
+          <i className="wstroke" aria-hidden="true" />
+          <i className="wstroke" aria-hidden="true" />
+          <i className="wstroke" aria-hidden="true" />
+          <Home />
+          <About />
+          <Projects />
+          <Contact />
+        </div>
+      </div>
+      <div id="spacer" aria-hidden="true"></div>
+      <SiteFooter />
+      <FacetEngine />
+    </>
   );
 }

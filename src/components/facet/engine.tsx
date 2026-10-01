@@ -63,13 +63,8 @@ export default function FacetEngine() {
     }
 
     const STOP_NAMES = ["Home", "About", "Projects", "Contact"];
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const BAYS = [
-      { name: "Web", start: 0 },
-      { name: "AI", start: 4 },
-      { name: "Games", start: 7 }
-    ];
     const N = cards.length;
+    const cardBays = cards.map((c) => c.dataset.bay ?? "");
 
     /* segments of the lap, lengths in vh */
     const SEGS: Seg[] = [
@@ -77,7 +72,7 @@ export default function FacetEngine() {
       { hop: [0, 1], len: 95 },
       { dwell: 1, len: 110 },
       { hop: [1, 2], len: 95 },
-      { dwell: 2, len: 520 },
+      { dwell: 2, len: 52 * Math.max(N - 1, 1) },
       { hop: [2, 3], len: 95 },
       { dwell: 3, len: 105 }
     ];
@@ -115,10 +110,6 @@ export default function FacetEngine() {
     }
     function smooth(t: number) {
       return t * t * (3 - 2 * t);
-    }
-
-    function bayOf(i: number) {
-      return i < 4 ? "Web" : i < 7 ? "AI" : "Games";
     }
 
     function pathPos(t: number) {
@@ -240,7 +231,7 @@ export default function FacetEngine() {
       if (spec !== lastSpec) {
         lastSpec = spec;
         specEl!.textContent = String(spec + 1).padStart(2, "0");
-        const b = bayOf(spec);
+        const b = cardBays[spec];
         if (b !== lastBay) {
           lastBay = b;
           bayEl!.textContent = b;

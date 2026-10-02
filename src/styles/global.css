@@ -96,6 +96,7 @@ a {
 .mark {
   display: inline-flex;
   align-items: center;
+  min-width: 44px;
   min-height: 44px;
   font-family: var(--f125);
   font-stretch: 125%;
@@ -932,8 +933,8 @@ html.js:not(.no-gl) .finale.fit-no-step .outro .step {
   }
 
   .fbody .flink {
-    margin: -8px 0 -12px;
-    padding: 12px 0;
+    margin: -11px 0 -15px;
+    padding: 15px 0;
     font-size: 13px;
   }
 

@@ -112,7 +112,7 @@ describe('landing mapping', () => {
     expect(count(KIND.cardEdge) + count(KIND.thumbEdge)).toBe(4000);
     expect(count(KIND.thumbFill)).toBe(2200);
     expect(count(KIND.text)).toBe(3800);
-    expect([...form.owner].filter((o, i) => form.kind[i] === KIND.text).every((o) => o === 0 || o === 1)).toBe(true);
+    expect([...form.owner].filter((_o, i) => form.kind[i] === KIND.text).every((o) => o === 0 || o === 1)).toBe(true);
   });
 });
 

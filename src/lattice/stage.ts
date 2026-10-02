@@ -473,6 +473,7 @@ export async function start(api: BootApi): Promise<void> {
       aStart: geometry.getAttribute('aStart').array,
       aRand: geometry.getAttribute('aRand').array,
     });
+    const loseExtension = renderer.getContext().getExtension('WEBGL_lose_context');
     const scrollTime = () => scrub.progress() * TIMELINE.total;
     const settle = async (timeout = 8000) => {
       const until = performance.now() + timeout;
@@ -544,8 +545,8 @@ export async function start(api: BootApi): Promise<void> {
         const now = readLanding(pin, featured).screen;
         return { xy, kind: [...landing.reply.kind], owner: [...landing.reply.owner], cards: now.cards, lines: now.lines, builtLines: landing.screen.lines.length };
       },
-      loseContext: () => renderer.getContext().getExtension('WEBGL_lose_context')?.loseContext(),
-      restoreContext: () => renderer.getContext().getExtension('WEBGL_lose_context')?.restoreContext(),
+      loseContext: () => loseExtension?.loseContext(),
+      restoreContext: () => loseExtension?.restoreContext(),
       pointerMove: (x: number, y: number) => {
         pointer.x = x;
         pointer.y = y;

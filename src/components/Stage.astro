@@ -16,6 +16,19 @@ const rail = [
     <canvas class="gl" aria-hidden="true"></canvas>
     <div class="vignette" aria-hidden="true"></div>
     <h1 class="sr-only" id="home">{site.h1}</h1>
+    <ol class="rail" aria-label={site.railLabel}>
+      {
+        rail.map((r, i) => (
+          <li>
+            <button type="button" data-go={i}>
+              <span class="lbl">{r.label}</span>
+              <span class="sr-only">{site.railSection}</span>
+              <b>{r.step}</b>
+            </button>
+          </li>
+        ))
+      }
+    </ol>
     <div class="beats">
       <div class="beat intro" data-beat="0">
         <p class="statement">{site.intro.statement}</p>
@@ -57,18 +70,5 @@ const rail = [
         </script>
       </div>
     </div>
-    <ol class="rail" aria-label={site.railLabel}>
-      {
-        rail.map((r, i) => (
-          <li>
-            <button type="button" data-go={i}>
-              <span class="lbl">{r.label}</span>
-              <span class="sr-only">{site.railSection}</span>
-              <b>{r.step}</b>
-            </button>
-          </li>
-        ))
-      }
-    </ol>
   </div>
 </section>

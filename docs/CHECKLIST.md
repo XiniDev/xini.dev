@@ -85,18 +85,24 @@ The success criteria from spec §17, copied word for word and grouped as in the 
 
 ## G. Accessibility
 
-- [ ] **G1** axe-core finds no serious or critical issues in the default, reduced-motion and no-WebGL modes. *Verify by:* Automated
-- [ ] **G2** Every interactive element is reachable by keyboard with a visible focus ring; the skip link works; focus into the finale jumps to it. *Verify by:* E2E test 7
+- [x] **G1** axe-core finds no serious or critical issues in the default, reduced-motion and no-WebGL modes. *Verify by:* Automated
+  - Evidence: `tests/e2e/a11y.spec.ts` (G1) runs `@axe-core/playwright` with the WCAG 2.0/2.1/2.2 A and AA and best-practice tags. It finds 0 serious or critical violations in all four cases: default mode (top and finale), reduced motion, no WebGL (stage chunk blocked) and the 404 page. Chromium and WebKit, at 390×844, 768×1024 and 1440×900.
+- [x] **G2** Every interactive element is reachable by keyboard with a visible focus ring; the skip link works; focus into the finale jumps to it. *Verify by:* E2E test 7
+  - Evidence: `tests/e2e/a11y.spec.ts` (G2 and test 7), in Chromium at 390×844 and 1440×900. Tab visits every rendered link, button and summary (indexed so none can hide behind a duplicate), and each shows `:focus-visible` with `outline: 2px solid rgb(61, 255, 143)` at a 3px offset. Tabbing to voetutor.com jumps to the finale with the cards at opacity 1. The skip link is first and moves focus to `#work-heading`. Moving the rail ahead of the content in the DOM fixed a skipped rail. WebKit's Tab key skips links, like Safari's default.
 - [ ] **G3** **[Needs Xini]** A screen reader reads all beat copy in order, including inactive beats. *Verify by:* VoiceOver or NVDA pass
-- [ ] **G4** Reduced motion behaves exactly as §8.10 describes. *Verify by:* E2E test 5 and manual
-- [ ] **G5** All text meets 4.5:1 contrast. *Verify by:* Automated plus the table in §7.1
-- [ ] **G6** Touch targets on phones are at least 44×44px. *Verify by:* Manual measurement
+- [x] **G4** Reduced motion behaves exactly as §8.10 describes. *Verify by:* E2E test 5 and manual
+  - Evidence: `tests/e2e/a11y.spec.ts` (G4 and test 5) with `reducedMotion: 'reduce'`: no fly-in (intro is 1 at start); morphs are whole numbers at every sample; beats change at the same scroll positions as the normal timeline, with opacity only and no transform; `calm` is 1, so there's no time noise, turbulence or pulses; pointer influence stays 0; the cue and intro copy animations are `none`; About jumps instantly; and 0 animation frames run in the second after scrolling stops. Chromium and WebKit.
+- [x] **G5** All text meets 4.5:1 contrast. *Verify by:* Automated plus the table in §7.1
+  - Evidence: `tests/unit/contrast.test.ts`: ink, body, mute and signal each reach at least 4.5:1 on `--void`, `--thumb`, the card background over void and the top-bar scrim. It also reproduces the §7.1 figures (19.3, 12.9, 7.6, 15.3). axe's colour-contrast rule raises no violation (G1).
+- [x] **G6** Touch targets on phones are at least 44×44px. *Verify by:* Manual measurement
+  - Evidence: `tests/e2e/a11y.spec.ts` (G6) at 390×844 in Chromium and WebKit. Every visible link, button and summary is at least 44×44: the nav, the mark (now `min-width: 44px`), the rail buttons, the GitHub rows, the Older summary, the footer links, the focused skip link, and the card links at 6.4. Card-link padding uses negative margins so it adds no height.
 
 ## H. Resilience
 
 - [x] **H1** With JavaScript off, or with the stage chunk blocked, all content is readable in normal flow with no blank areas. *Verify by:* E2E test 6 and a no-JS check
   - Evidence: `tests/e2e/fallback.spec.ts` covers two cases: JavaScript disabled, and the stage chunk blocked (which falls back to `no-gl`). In both, all 5 beats and 3 cards are at opacity 1, stacked in normal flow, and the canvas, rail and vignette are hidden. Passes in Chromium and WebKit at all three sizes.
-- [ ] **H2** WebGL context loss switches to the fallback layout without errors. *Verify by:* Force `WEBGL_lose_context` in a test
+- [x] **H2** WebGL context loss switches to the fallback layout without errors. *Verify by:* Force `WEBGL_lose_context` in a test
+  - Evidence: `tests/e2e/a11y.spec.ts` (H2): at time 3.0, `WEBGL_lose_context.loseContext()` switches to `no-gl` with no console errors or page errors. Beat 02 (the one being read) stays on screen at opacity 1, and every beat and card is at opacity 1 in flow. `restoreContext()` brings back the pinned stage at morph 2. Chromium and WebKit.
 - [ ] **H3** No console errors or warnings in Chrome, Safari and Firefox. *Verify by:* E2E test 1 and the manual pass
 - [ ] **H4** No horizontal scrolling at any width from 320 to 2560px. *Verify by:* E2E test 2
 - [ ] **H5** At 844×390 (landscape phone) no copy is clipped. *Verify by:* Screenshot

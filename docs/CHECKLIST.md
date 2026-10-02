@@ -100,6 +100,16 @@ The success criteria from spec §17, copied word for word and grouped as in the 
 
 **Definition of done:** every ID in A to K is ticked in `docs/CHECKLIST.md` with its evidence, and Xini has signed off B3 and D3.
 
+## Setup done by Xini (Cloudflare dashboard)
+
+Xini does these in the Cloudflare dashboard and ticks each one when it's done. Until `GITHUB_TOKEN` exists, every build uses the committed GitHub snapshot (DECISIONS §1.2).
+
+- [ ] **[Done by Xini]** Turn off Email Address Obfuscation for the `xini.dev` zone (DECISIONS §2.6). Unblocks H1, A7 and K3 in production.
+- [ ] **[Done by Xini]** Create the Pages deploy hook for `xini-dev`. Its URL becomes the Worker secret `DEPLOY_HOOK_URL` (DECISIONS §1.3). Unblocks E4.
+- [ ] **[Done by Xini]** Set `GITHUB_USERNAME=XiniDev` and a fine-grained, read-only `GITHUB_TOKEN` in Pages, for both production and preview (DECISIONS §1.2). Unblocks K2.
+- [ ] **[Done by Xini]** Add `www.xini.dev` as a proxied record with a 301 to the apex (DECISIONS §1.2). Unblocks K1.
+- [ ] **[Done by Xini]** Deploy the daily-rebuild Worker once (`wrangler deploy`, then `wrangler secret put DEPLOY_HOOK_URL`). This also needs your Cloudflare login. Unblocks E4.
+
 ## Manual device pass (§16.4)
 
 Record the median fps from a performance trace over the whole stage scroll (F6).

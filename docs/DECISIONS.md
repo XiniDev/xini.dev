@@ -1,10 +1,10 @@
 # Decisions
 
-Status of every entry: **proposed, waiting for Xini** (2 October 2026). No site code has been written yet. Evidence for each entry is in [`AUDIT.md`](AUDIT.md).
+Xini decided these on 2 October 2026, except entries marked **Proposed** or **Open**. Those keep their default until Xini answers. No site code has been written yet. Evidence for each entry is in [`AUDIT.md`](AUDIT.md).
 
-## 1. The five decisions from §4
+## 1. The five decisions from §4 (decided)
 
-| Decision | Recommendation | Reason |
+| Decision | Decided | Reason |
 |---|---|---|
 | Framework | **Migrate to Astro 7:** static output, one client-side island for the stage, no UI framework. | Next.js passes all five §4 checks, but it can't meet F3. Its runtime alone is 145 KB gzipped, and the first-paint JS budget is 30 KB. |
 | Deploy target | **Keep Cloudflare Pages project `xini-dev`:** Git integration, apex `xini.dev`, production branch `master`. Build into `out/`. | §4 says keep the host. Building into `out/` leaves the Pages build settings unchanged, and they apply to every branch, so `master` keeps deploying until the merge. |
@@ -24,7 +24,9 @@ Status of every entry: **proposed, waiting for Xini** (2 October 2026). No site 
 | Static output or ISR | Static export: yes. ISR: no, export mode and Pages don't support it. | Static: yes, the default |
 | Self-hosted fonts | Yes (`next/font`) | Yes (fontsource or local files) |
 
-The test is necessary but not sufficient. On the current build, `/` sends **145 KB of gzipped JS** to modern browsers. 2.8 KB of that is the site's own code; the rest is the React and Next runtime, which every App Router page loads to hydrate. F3 caps first-paint JS at **30 KB**, and §0 says a criterion can't be quietly weakened. Keeping Next.js would therefore mean failing F3 by design, so the recommendation is Astro, as §4's own fallback describes.
+The test is necessary but not sufficient. On the current build, `/` sends **145 KB of gzipped JS** to modern browsers. 2.8 KB of that is the site's own code; the rest is the React and Next runtime, which every App Router page loads to hydrate. F3 caps first-paint JS at **30 KB**, and §0 says a criterion can't be quietly weakened. Keeping Next.js would therefore mean failing F3 by design.
+
+**Decided (Xini, 2 Oct 2026): Astro**, as §4's own fallback describes.
 
 Consequences:
 
@@ -35,8 +37,13 @@ Consequences:
 ### 1.2 Deploy target
 
 - **Output folder `out/`.** Set Astro's `outDir` to `./out`. Pages applies one build command and one output folder to every branch, so switching to `dist` would break `master` deploys before the merge. Keeping `out/` needs no dashboard change. Branch previews such as `rework-lattice.xini-dev.pages.dev` would then build with the same settings.
-- **www.** `www.xini.dev` doesn't resolve today, so anyone who types it gets a browser error. Recommendation: add a proxied `www` record and one redirect rule, `www.xini.dev/*` → `https://xini.dev/${1}` (301). *Needs Xini (dashboard).* If you'd rather keep no www, K1 is checked against that instead.
-- **Environment variables.** Set `GITHUB_USERNAME=XiniDev` and `GITHUB_TOKEN` (a fine-grained token with read-only access to public repositories) for both the production and preview environments. Treat the token as required in practice. Pages builds share outbound IPs, so the 60-requests-an-hour anonymous limit is likely already spent by other builds. A failed fetch falls back to the snapshot, and then the daily refresh changes nothing. *Needs Xini (dashboard).*
+- **www.** `www.xini.dev` doesn't resolve today, so anyone who types it gets a browser error. **Decided:** add a proxied `www` record and one redirect rule, `www.xini.dev/*` → `https://xini.dev/${1}` (301). *Xini sets this up in the dashboard.* K1 is checked against it.
+- **Environment variables.** `GITHUB_USERNAME=XiniDev` and `GITHUB_TOKEN` (a fine-grained token with read-only access to public repositories), set for both the production and preview environments. *Xini sets these in the dashboard.* Treat the token as required in practice. Pages builds share outbound IPs, so the 60-requests-an-hour anonymous limit is likely already spent by other builds. A failed fetch falls back to the snapshot, and then the daily refresh changes nothing.
+- **Until the token exists, builds use the snapshot. Decided.**
+  - Without `GITHUB_TOKEN`, a build reads `src/data/github-snapshot.json` and logs a warning saying so. It makes no anonymous fetch.
+  - With the token, it fetches live and falls back to the snapshot on failure, as §10.5 says.
+  - `npm run snapshot:github` still works anonymously on a local machine, which is how the first snapshot gets made in M2.
+  - This makes the token a requirement for live data, a departure from §15, which lists it as optional. It's consistent with the point above.
 - `xini-dev.pages.dev` keeps serving a copy of the site. The canonical tag takes care of SEO, so no action is needed.
 
 ### 1.3 Refresh mechanism
@@ -45,14 +52,14 @@ The flow: a Worker cron trigger (`0 3 * * *`) sends a POST to the Pages deploy h
 
 - The Worker lives in this repo, for example in `workers/daily-rebuild/`. It stores the hook URL as a Worker secret (`DEPLOY_HOOK_URL`). Its runs appear in the Cloudflare dashboard, which is the evidence E4 asks for.
 - This differs from §10.5, which names a GitHub Actions schedule. The hook is the same; only the trigger changes. A GitHub schedule fails in exactly the case this feature exists for: the list reorders when *other* repos get pushes, which is when this repo sits quiet. Once GitHub disables a schedule, it never re-enables itself.
-- *Needs Xini:* create the deploy hook, and deploy the Worker once with `wrangler`. Both need your Cloudflare login.
+- **Decided.** *Xini creates the deploy hook.* Deploying the Worker (`wrangler deploy`, then `wrangler secret put DEPLOY_HOOK_URL`) also needs Xini's Cloudflare login.
 
 ### 1.4 Icon
 
 - **Old mark.** A clean vector: six straight-edged polygons. Recolouring is clean technically, but the result doesn't read well. In one colour it becomes a figure-of-eight. In three tones of signal the X only shows from about 180px up. It fails §4's "reads well recoloured" test.
 - **Spec fallback ("XINI" in Archivo, width 125, weight 800).** Legible at 180 and 512px, but a smear at 16px, which is the size tabs and bookmarks use.
 - **Recommendation.** Use the X polygon from the wordmark (letter one of the prototype's `wordmark()`), signal on void, for `favicon.svg`, `apple-touch-icon.png` (180px) and a 512px maskable PNG with the content inside the safe zone. Also ship a 32px `favicon.ico`, because browsers request `/favicon.ico` whether or not the page links it. The particles draw this same X first, so the tab icon matches the hero.
-- This replaces the spec's fallback, so it needs your yes. The literal alternative is "XINI" at 180 and 512px with the X at 16 and 32px, but two marks are weaker than one.
+- **Decided:** the wordmark X at every size, replacing the spec's fallback. The old mark is retired.
 
 ### 1.5 Old routes
 
@@ -72,17 +79,19 @@ The flow: a Worker cron trigger (`0 3 * * *`) sends a POST to the Pages deploy h
 
 In the WebGL layout, the browser's own fragment scrolling can't reach a beat inside the sticky pin. The boot script therefore maps the initial hash and `hashchange` events to the jump targets (§2.4).
 
+**Decided:** as in the table.
+
 ## 2. Spec conflicts and gaps the audit found
 
-Each of these needs your call. The default is what I'll build if you don't answer. The affected criteria are in brackets.
+Each entry has a status. **Accepted** means Xini decided it on 2 October 2026; Xini's "spec gaps 1–5" are §2.1, 2.2, 2.3, 2.4 and 2.6. **Proposed** means the default stays until Xini answers. The affected criteria are in brackets.
 
-### 2.1 As written, the shader makes the landing fail D1 [D1, D2, D3]
+### 2.1 As written, the shader makes the landing fail D1 [D1, D2, D3] — Accepted
 
 At `lock = 1` the vertex shader keeps an idle noise term of `0.01 × (1 − calm)`, about ±1.6px at 1440×900. A Monte Carlo puts the drawn edge points within 2px at 80.6–91.5% at 1440×900 and 89.5–94.1% at 390×844. D1 requires at least 95% (AUDIT, appendix A.2).
 
 §16.2 test 8 projects the `aE` attribute on the CPU, which scores 98.4–100%. The test as written would therefore pass while the drawn landing fails.
 
-**Default:**
+**Decided:** fade the idle noise out as the cards lock, and make test 8 check the positions the shader actually draws.
 
 - Scale the idle noise by `(1 − lock)` through a new `uLock` uniform. §8.6 step 1 already intends this: "everything that could offset the final form settles to identity".
 - Make the test hook apply the same vertex displacement in TypeScript, sharing its constants with the shader, so the test measures what is drawn.
@@ -90,7 +99,7 @@ At `lock = 1` the vertex shader keeps an idle noise term of `0.01 × (1 − calm
 
 You'd see one change: the landed card outlines stop shimmering.
 
-### 2.2 The finale doesn't fit at 844×390 or 320×568 [H5, D1, B3]
+### 2.2 The finale doesn't fit at 844×390 or 320×568 [H5, D1, B3] — Accepted
 
 With the prototype's CSS, the finale runs past the bottom of the pinned screen:
 
@@ -99,22 +108,27 @@ With the prototype's CSS, the finale runs past the bottom of the pinned screen:
 
 It fits at every other §11 size. The tightest are 360×740 (36px spare) and 1280×720 (92px spare). The pin uses `overflow: hidden`, so the cards get clipped and the particles would land on boxes that are partly off screen. H5 can't pass as specified. Adding repo links to the Gloam and DBridger cards (§19 question 3) makes each stacked phone card one line taller.
 
-**Default:** a compact finale for short viewports, with the rules chosen by measurement in M1. Ship a rule set only if it measures as fitting at every §11 size. Candidate rules:
+**Decided:** a compact finale for viewports where the finale doesn't fit, with the rules chosen by measurement in M1. Two constraints:
+
+- **Drop the card thumbnails before cutting any copy.**
+- **Keep only rules that measure as fitting.** A rule ships only if the finale measures as fitting at every §11 size, checked by an automated test.
+
+Without a thumbnail, the landing samples card edges and text only. The prototype's sampler already handles a card with no thumbnail. Candidate rules, from the proposal, now applied after the thumbnails go:
 
 - At heights of 560px or less: three columns of the horizontal phone card, and no finale intro line.
 - On narrow, short phones: drop the tags line, and drop the thumbnail if that is still not enough.
 
 Remove whole lines rather than clamping text. `Range.getClientRects()` still returns rectangles for lines hidden by `line-clamp`, so particles would land on text nobody can see. This changes the composition, so it's part of your B3 sign-off.
 
-### 2.3 The intro copy fade conflicts with first paint [F2, §8.1, §8.7]
+### 2.3 The intro copy fade conflicts with first paint [F2, §8.1, §8.7] — Accepted
 
 §8.1 requires the intro copy to be visible at first paint. That copy is also the Largest Contentful Paint element. §8.7 keeps the prototype's scripted fade-in, which starts 1.0s after the script runs.
 
 With lazy loading, the stage arrives an unknown time after first paint. A `gsap.from` fade at that point would hide copy that is already on screen and fade it back in: a visible blink that also pushes LCP later.
 
-**Default:** run the copy fade in CSS from first paint, with the same motion: 0.9s, 0.09s stagger, rising from 22px. Drop the 1.0s delay, and turn the fade off under reduced motion. The particle fly-in still starts when the stage is ready, as §8.7 says. LCP then lands about one frame after first paint.
+**Decided:** run the copy fade in CSS from first paint, with the same motion: 0.9s, 0.09s stagger, rising from 22px. Drop the 1.0s delay, and turn the fade off under reduced motion. The particle fly-in still starts when the stage is ready, as §8.7 says. LCP then lands about one frame after first paint.
 
-### 2.4 Nothing defines the page between first paint and stage start [H1, C4, G2]
+### 2.4 Nothing defines the page between first paint and stage start [H1, C4, G2] — Accepted
 
 The inline `<head>` script adds the `js` class, so the pinned layout applies from first paint. But the copy choreography and the jump function live in the lazy chunk, which arrives after an idle callback (up to 1.2s) plus a download of about 200 KB. Until then:
 
@@ -124,7 +138,7 @@ The inline `<head>` script adds the `js` class, so the pinned layout applies fro
 
 On a slow connection this lasts seconds. If the chunk never arrives, it lasts until something triggers the fallback.
 
-**Default:** the boot script, which counts towards the first-paint budget, takes on four jobs:
+**Decided:** the boot script, which counts towards the first-paint budget, takes on four jobs:
 
 - the maths between scroll position and timeline time
 - the jump function
@@ -133,7 +147,7 @@ On a slow connection this lasts seconds. If the chunk never arrives, it lasts un
 
 When the stage starts, it takes over the same elements. The page is readable at every moment, so no arbitrary timeout is needed. The no-WebGL fallback triggers only on real failure: the import fails, WebGL2 context creation fails, or the context is lost. Estimated size: about 1.5 KB gzipped.
 
-### 2.5 The project summaries need rewriting [A4, A5, E6]
+### 2.5 The project summaries need rewriting [A4, A5, E6] — Proposed (default applies)
 
 §10.2 wants a one-sentence summary for each project, A4 bans copy from the old site, and A5 requires UK English. The 12 old blurbs run to 1–3 sentences each and use US spellings.
 
@@ -145,7 +159,7 @@ When the stage starts, it takes over the same elements. The page is readable at 
 
 You review the diff in M2.
 
-### 2.6 Cloudflare rewrites the email link [§6.6, H1, A7, K3]
+### 2.6 Cloudflare rewrites the email link [§6.6, H1, A7, K3] — Accepted
 
 Email Address Obfuscation (AUDIT §2) causes three problems:
 
@@ -153,23 +167,31 @@ Email Address Obfuscation (AUDIT §2) causes three problems:
 - It adds a script the build doesn't control, and §2 says to add nothing.
 - A link check against production finds `/cdn-cgi/l/email-protection#…` instead of a `mailto:` link.
 
-**Default:** turn Email Address Obfuscation off for the `xini.dev` zone. The address is already public on the live site, so this exposes nothing new. *Needs Xini (dashboard).*
+**Decided:** turn Email Address Obfuscation off for the `xini.dev` zone. The address is already public on the live site, so this exposes nothing new. *Xini turns it off in the dashboard.* Until then, production keeps rewriting the link; the build output itself is clean.
 
-### 2.7 Projects the §10.2 merge rules don't cover [E1, E6]
+### 2.7 Projects the §10.2 merge rules don't cover [E1, E6] — Proposed (defaults apply)
 
 - **Overthrow Synthetica** lives in `BlueTentProductions/overthrow-synthetica`, outside `type=owner`, so it never joins. **Default:** fetch every curated `repo` whose owner isn't `GITHUB_USERNAME` with `GET /repos/{owner}/{name}`, and merge it exactly like an owned repo: same token, same snapshot, same rules.
 - **ECS Platformer Demo** links to `XiniDev/Golden-Gun`, which has been renamed to `ecs-platformer-demo`. **Default:** store the current name, and have the build warn whenever a curated `repo` matches nothing, so future renames show up.
 - **WSMath** has neither a repo nor a date, so rule 3 drops it. **Default:** leave it out until you give it an `updated` month.
 - **Repos without descriptions** (AdventOfCode23 and 24, EnGarde, graphics-shooter-game) and the **`xini.dev` repo** itself. **Default:** list them all, showing an empty description line rather than placeholder text, and start `hiddenRepos` empty. Tell me any you want hidden.
 
-### 2.8 Featured images [§9, E6]
+### 2.8 Featured images [§9, E6] — Decided (§19 question 6)
 
 - The source images stop at 800px wide, so the 1200px `srcset` entry would mean upscaling. **Default:** offer 480 and 800px only until larger sources exist. A card about 480px wide on a 2× screen wants about 1000px.
 - DBridger (800×559) and VOETutor (800×590) aren't 16:10. **Default:** crop DBridger around its centre. Crop VOETutor's top 90 rows, which removes the signed-in header with its personal greeting and leaves exactly 800×500.
 - All three are 49 KB or less at 800px as WebP, inside the 80 KB budget, and AVIF will be smaller.
 - New logged-out screenshots at least 1200px wide would be better for all three.
 
-### 2.9 Copy claims I couldn't trace to the repo data [A4]
+**Decided:** use the three current images, cropped to 16:10, with VOETutor's signed-in header removed. Xini will supply fresh 1600×1000 screenshots later, so **swapping an image must be a one-file change.** How that works:
+
+- Each project image is one source file, `src/assets/projects/<slug>.<ext>`. The extension can be png, jpg, webp or avif, and the build finds the file by slug.
+- The current DBridger and VOETutor files are committed already cropped to 800×500, VOETutor with its top 90 rows removed. That means there are no per-image crop settings anywhere.
+- The build always centre-crops to 16:10 and generates the 480, 800 and 1200px widths in AVIF and WebP. It skips any width larger than the source, so a 1600×1000 file gains the 1200px width automatically.
+- The size report checks the 80 KB budget at 800px.
+- The alt text lives in `src/data/projects.ts`. It needs editing only if a new screenshot shows something different.
+
+### 2.9 Copy claims I couldn't trace to the repo data [A4] — Open (default applies)
 
 The copy rule says every claim must trace to a real project or real experience.
 
@@ -189,7 +211,7 @@ The copy rule says every claim must trace to a real project or real experience.
 
 **Default:** keep the copy as written, since it may rest on work outside your public repos. Only you can confirm it.
 
-### 2.10 Security headers (not in the spec) [optional]
+### 2.10 Security headers (not in the spec) [optional] — Proposed (not built without a yes)
 
 Beat 03 says "Secure by default", but today's responses carry only `referrer-policy`, and a technical reader can check that in seconds.
 
@@ -225,16 +247,16 @@ None of these needs a decision. They're recorded so that nothing changes silentl
 - **M2: the GitHub user repos endpoint returns public repos only, even with a token.** That's what we want here. Gloam and DBridger are public. VOETutor has no public repo, and featured cards don't need dates.
 - **M7: Cloudflare's managed robots.txt adds its content-signals block to ours.** Confirm that Lighthouse's robots.txt audit still passes (SEO 100).
 
-## 4. Open questions (§19): findings and defaults
+## 4. Open questions (§19): findings and decisions
 
-| # | Question | What the audit found | Default |
+| # | Question | What the audit found | Decision (2 Oct 2026) |
 |---|---|---|---|
-| 1 | GitHub username | The old site links `github.com/XiniDev`, which has 25 public repos (AUDIT §3). | `XiniDev` |
-| 2 | VOETutor: own product or client work, Saltancy credit, summary | No public repo. voetutor.com doesn't mention Saltancy. Its own description: "a curated marketplace of vetted IB educators… HD video lessons… on demand". That supports most of §6.4, but not "progress tracking" or "secure video". The old site filed it under Web, marked Live, as "built on Next.js and Supabase". | §6.4 copy, no credit line. Please confirm or drop the two untraced phrases. |
-| 3 | Links for Gloam and DBridger | Both repos are public: `XiniDev/Gloam` (last push 1 Oct 2026) and `XiniDev/dbridger` (8 Mar 2026). Neither has a demo URL. | **Link each card to its repo**, with the link text "Source on GitHub". The audit found real URLs, and "no links" was only the default for when it didn't. |
-| 4 | Footer contact | Email `xini@saltancy.com`, GitHub `XiniDev`, LinkedIn `in/xinidev`, plus X `@XiniDev`. Cloudflare currently obfuscates the email (§2.6). | Email, GitHub and LinkedIn, as §6.6 lists. X stays in the data but isn't shown, and it's left out of `sameAs`, unless you want it. |
-| 5 | Keep the old icon? | A clean vector, but in one colour it reads as a figure-of-eight (§1.4). | No. Use the wordmark X for all sizes. |
-| 6 | Featured images | `gloam.webp` 800×500 (already 16:10), `dbridger.webp` 800×559, `voe.webp` 800×590 (signed-in header). Nothing is wider than 800px. | These three, cropped to 16:10 as in §2.8, at 480 and 800px. Better screenshots welcome. |
-| 7 | Scroll length | Nothing in the audit bears on it. | 560vh. It's one constant, so judge it on a real device in M8. |
-| 8 | Analytics | None on the page. Cloudflare's zone analytics are server-side and need no script. | Add nothing. |
-| 9 | Debug readout | — | `?hud` only |
+| 1 | GitHub username | The old site links `github.com/XiniDev`, which has 25 public repos (AUDIT §3). | **Decided:** `XiniDev` |
+| 2 | VOETutor: own product or client work, Saltancy credit, summary | No public repo. voetutor.com doesn't mention Saltancy. Its own description: "a curated marketplace of vetted IB educators… HD video lessons… on demand". That supports most of §6.4, but not "progress tracking" or "secure video". The old site filed it under Web, marked Live, as "built on Next.js and Supabase". | **Open.** Xini's reply left both choices unfilled: "[keep / cut]" for the two phrases, and "[no credit line / add \"Built through Saltancy\"]". Until Xini answers, the build uses the spec default: the §6.4 copy as written, with no credit line. |
+| 3 | Links for Gloam and DBridger | Both repos are public: `XiniDev/Gloam` (last push 1 Oct 2026) and `XiniDev/dbridger` (8 Mar 2026). Neither has a demo URL. | **Decided:** link each card to its repo, with the link text "Source on GitHub". |
+| 4 | Footer contact | Email `xini@saltancy.com`, GitHub `XiniDev`, LinkedIn `in/xinidev`, plus X `@XiniDev`. Cloudflare currently obfuscates the email (§2.6). | **Decided:** the footer shows `xini@saltancy.com`, GitHub and LinkedIn. X stays in the data but isn't shown, and it's left out of `sameAs`. |
+| 5 | Keep the old icon? | A clean vector, but in one colour it reads as a figure-of-eight (§1.4). | **Decided:** retire the old icon and use the wordmark X at all sizes. |
+| 6 | Featured images | `gloam.webp` 800×500 (already 16:10), `dbridger.webp` 800×559, `voe.webp` 800×590 (signed-in header). Nothing is wider than 800px. | **Decided:** these three, cropped to 16:10 with VOETutor's signed-in header removed. Fresh 1600×1000 screenshots will follow, and each swap is a one-file change (§2.8). |
+| 7 | Scroll length | Nothing in the audit bears on it. | **Decided:** 560vh. Judge it on a real device in M8. |
+| 8 | Analytics | None on the page. Cloudflare's zone analytics are server-side and need no script. | **Decided:** no analytics. |
+| 9 | Debug readout | — | **Decided:** show the HUD only with `?hud`. |

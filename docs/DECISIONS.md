@@ -225,7 +225,7 @@ Email Address Obfuscation (AUDIT §2) causes three problems:
 
 ### 2.7 Projects the §10.2 merge rules don't cover [E1, E6] — Proposed (defaults apply)
 
-- **Overthrow Synthetica** lives in `BlueTentProductions/overthrow-synthetica`, outside `type=owner`, so it never joins. **Default:** fetch every curated `repo` whose owner isn't `GITHUB_USERNAME` with `GET /repos/{owner}/{name}`, and merge it exactly like an owned repo: same token, same snapshot, same rules.
+- **Overthrow Synthetica** lives in `BlueTentProductions/overthrow-synthetica`, outside `type=owner`, so it never joins. **Default:** fetch every curated `repo` whose owner isn't `GITHUB_USERNAME` with `GET /repos/{owner}/{name}`, and merge it exactly like an owned repo: same token, same snapshot, same rules. **Changed 3 Oct 2026 (Xini):** the project won't be updated again, so it no longer links a repo. It's listed from `projects.ts` alone, with `updated: '2023-10'` and its GitHub URL, and the build never asks GitHub about it. The other-owner fetch stays in place for any future curated repo.
 - **ECS Platformer Demo** links to `XiniDev/Golden-Gun`, which has been renamed to `ecs-platformer-demo`. **Default:** store the current name, and have the build warn whenever a curated `repo` matches nothing, so future renames show up.
 - **WSMath** has neither a repo nor a date, so rule 3 drops it. **Default:** leave it out until you give it an `updated` month.
 - **Repos without descriptions** (AdventOfCode23 and 24, EnGarde, graphics-shooter-game) and the **`xini.dev` repo** itself. **Default:** list them all, showing an empty description line rather than placeholder text, and start `hiddenRepos` empty. Tell me any you want hidden.

@@ -138,7 +138,8 @@ export const projects: Project[] = [
     name: 'Overthrow Synthetica',
     summary: 'Two-week, two-person game jam demo for the Warwick Game Dev Society, made with my teammate Codethulu using Three.js and WebGL.',
     tags: ['Three.js', 'WebGL'],
-    repo: 'BlueTentProductions/overthrow-synthetica',
+    url: 'https://github.com/BlueTentProductions/overthrow-synthetica',
+    updated: '2023-10',
     image: {
       src: 'overthrow-synthetica',
       alt: 'The Overthrow Synthetica title logo in white over pink Japanese characters.',

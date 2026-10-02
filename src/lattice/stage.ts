@@ -127,7 +127,17 @@ export async function start(api: BootApi): Promise<void> {
   const profile = lowPower ? POINTS.lowPower : POINTS.desktop;
   const count = profile.count;
 
-  const renderer = new WebGLRenderer({ canvas, antialias: false, powerPreference: 'high-performance' });
+  const context = canvas.getContext('webgl2', {
+    alpha: false,
+    antialias: false,
+    depth: true,
+    stencil: false,
+    premultipliedAlpha: true,
+    preserveDrawingBuffer: false,
+    powerPreference: 'high-performance',
+  });
+  if (!context) throw new Error('WebGL2 is unavailable');
+  const renderer = new WebGLRenderer({ canvas, context, antialias: false, powerPreference: 'high-performance' });
   const dpr = Math.min(devicePixelRatio || 1, profile.dprCap);
   renderer.setPixelRatio(dpr);
   renderer.setClearColor(new Color(getComputedStyle(root).getPropertyValue('--void').trim()), 1);

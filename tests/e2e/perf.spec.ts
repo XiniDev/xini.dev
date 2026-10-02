@@ -27,6 +27,13 @@ test.describe('performance', () => {
 
   test('F5: no main-thread task over 50 ms after first paint, including stage start-up @perf', async ({ page, browserName }) => {
     test.skip(browserName !== 'chromium', 'the Long Tasks API is Chromium-only');
+    await page.goto('about:blank');
+    const renderer = await page.evaluate(() => {
+      const gl = document.createElement('canvas').getContext('webgl2');
+      const info = gl?.getExtension('WEBGL_debug_renderer_info');
+      return info && gl ? String(gl.getParameter(info.UNMASKED_RENDERER_WEBGL)) : '';
+    });
+    test.skip(/SwiftShader/i.test(renderer), 'a software GPU turns GPU work into main-thread work; F5 is measured on real GPUs (DECISIONS §3, M8)');
     await page.addInitScript(() => {
       const w = window as unknown as { __long: { start: number; duration: number }[] };
       w.__long = [];

@@ -1,6 +1,7 @@
 const { chromium } = require('@playwright/test');
 
-const gpu = process.platform === 'win32' ? ' --use-angle=d3d11 --ignore-gpu-blocklist' : '';
+const gpu = process.platform === 'win32' ? '--use-angle=d3d11 --ignore-gpu-blocklist' : '';
+const rootInContainer = process.platform === 'linux' && process.getuid?.() === 0 ? ' --no-sandbox' : '';
 const median = (minScore) => ['error', { minScore, aggregationMethod: 'median-run' }];
 const atMost = (maxNumericValue) => ['error', { maxNumericValue, aggregationMethod: 'median-run' }];
 
@@ -12,8 +13,7 @@ module.exports = {
       startServerReadyTimeout: 120000,
       url: ['http://127.0.0.1:8795/'],
       numberOfRuns: 3,
-      chromePath: chromium.executablePath(),
-      settings: { chromeFlags: `--headless=new${gpu}` },
+      settings: { chromePath: chromium.executablePath(), chromeFlags: `${gpu}${rootInContainer}`.trim() },
     },
     assert: {
       assertions: {

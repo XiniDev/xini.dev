@@ -1,0 +1,17 @@
+---
+import { site } from '../data/site';
+import { updatedLabel, type Item } from '../lib/github';
+
+interface Props {
+  item: Item;
+}
+
+const { item } = Astro.props;
+---
+
+<li class="row">
+  <a href={item.url} target="_blank" rel="noopener">{item.name}<span class="sr-only">{site.newTab}</span></a>
+  <p class="desc">{item.description}</p>
+  <span class="lang">{item.language ?? ''}</span>
+  <time class="date" datetime={item.date}>{updatedLabel(item.date)}</time>
+</li>

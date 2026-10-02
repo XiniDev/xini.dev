@@ -32,7 +32,7 @@ test.describe('A4 and A5: copy', () => {
     const skip = new Set<string>([site.url, site.lang, site.saltancy, site.contact.github, site.contact.linkedin, site.contact.x, site.contact.githubUser, site.person.worksFor.url, site.newTab]);
     for (const text of strings(site)) {
       if (skip.has(text) || text.startsWith('http')) continue;
-      if ([...strings(site.person), ...strings(site.more)].includes(text)) continue;
+      if ([...strings(site.person), site.more.empty, site.more.emptyLink].includes(text)) continue;
       expect(all, `missing: ${text}`).toContain(text.trim());
     }
     for (const phrase of OLD_SITE_PHRASES) expect(all, phrase).not.toContain(phrase);

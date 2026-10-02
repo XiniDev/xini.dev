@@ -77,3 +77,17 @@ test('I4: unknown URLs get the 404 page, in the site tokens and type, linking ho
   expect(look.family.startsWith('Archivo')).toBe(true);
   expect(look.stretch).toBe('125%');
 });
+
+test('E6: a card without an image shows the dotted placeholder, never a broken image', async ({ page }) => {
+  await page.goto('/');
+  const thumb = await page.$eval('.fthumb', (el) => {
+    const s = getComputedStyle(el);
+    return { image: s.backgroundImage, colour: s.backgroundColor };
+  });
+  expect(thumb.image).toContain('radial-gradient');
+  expect(thumb.colour).toBe('rgb(3, 16, 10)');
+  await page.$eval('.fthumb', (el) => el.replaceChildren());
+  expect(await page.$eval('.fthumb', (el) => getComputedStyle(el).backgroundImage)).toContain('radial-gradient');
+  const altColour = await page.$eval('.fthumb img, .featured img', (img) => getComputedStyle(img).color).catch(() => 'none');
+  expect(['rgba(0, 0, 0, 0)', 'none']).toContain(altColour);
+});

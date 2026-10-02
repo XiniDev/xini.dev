@@ -9,11 +9,14 @@ The success criteria from spec §17, copied word for word and grouped as in the 
 - [ ] **A1** At 1440×900 and 390×844, the first screen shows the XINI wordmark, the statement and the credentials line without scrolling. *Verify by:* Screenshot at time 0
 - [ ] **A2** Beats 01–03 never mention a project: their text contains none of "Gloam", "DBridger" or "VOETutor". *Verify by:* E2E text assertion
 - [ ] **A3** The finale shows exactly Gloam, DBridger and VOETutor, in that order, with the copy from §6.4. *Verify by:* E2E text assertion
-- [ ] **A4** All copy matches §6 word for word; no copy from the old site remains, and no banned phrase appears anywhere. *Verify by:* Diff against `site.ts`; grep the build output
-- [ ] **A5** UK English spelling throughout. *Verify by:* Review
+- [x] **A4** All copy matches §6 word for word; no copy from the old site remains, and no banned phrase appears anywhere. *Verify by:* Diff against `site.ts`; grep the build output
+  - Evidence: `tests/e2e/copy.spec.ts`: every string in `src/data/site.ts` appears word for word on `/` or `/404` (only the empty-state line is skipped, because the list isn't empty). None of the 29 old-site phrases from the audit and none of the 7 banned phrases appear in the rendered text, the attributes or the title. `tests/unit/source.test.ts` greps the source for the banned phrases too.
+- [x] **A5** UK English spelling throughout. *Verify by:* Review
+  - Evidence: `tests/e2e/copy.spec.ts` (UK English) finds no -ize/-yze or US forms (color, center, behavior, modeling, catalog and so on) in the rendered text of `/` and `/404`. I also reviewed the copy, summaries and alt text by hand. The one US spelling in the GitHub data ("Dockerized", notes-api) is replaced by its curated summary and never renders.
 - [x] **A6** Saltancy is linked from the nav and the footer, opening in a new tab with `rel="noopener"`. *Verify by:* E2E
   - Evidence: `tests/e2e/content.spec.ts` (A6) checks that the nav and footer links go to https://saltancy.com with `target="_blank"`, `rel="noopener"` and the hidden "(opens in a new tab)" text. Passes in Chromium and WebKit at 390×844, 768×1024 and 1440×900.
-- [ ] **A7** No link in production points to `#`, a placeholder or a dead URL. *Verify by:* Link checker over the build output
+- [x] **A7** No link in production points to `#`, a placeholder or a dead URL. *Verify by:* Link checker over the build output
+  - Evidence: `npm run links` (`scripts/check-links.ts`) over the build: 70 links on 2 pages and 30 external URLs, with no placeholder, missing internal file, missing fragment target or dead link. LinkedIn answers every automated request with 999, for real and made-up profiles alike, so it can't be checked by machine. The URL is the one from the old site that Xini confirmed (§19 question 4).
 
 ## B. Visual fidelity
 
@@ -45,12 +48,17 @@ The success criteria from spec §17, copied word for word and grouped as in the 
 
 ## E. Projects and GitHub ordering
 
-- [ ] **E1** The build lists repositories for `GITHUB_USERNAME`, ordered by `pushed_at` (newest first), with archived and stale items under "Older projects". *Verify by:* Unit tests and build output
-- [ ] **E2** Featured projects, forks and hidden repos never appear in the list. *Verify by:* Unit tests
-- [ ] **E3** The build succeeds with GitHub unreachable, uses the snapshot and logs a warning. *Verify by:* Run the build with the network blocked
+- [x] **E1** The build lists repositories for `GITHUB_USERNAME`, ordered by `pushed_at` (newest first), with archived and stale items under "Older projects". *Verify by:* Unit tests and build output
+  - Evidence: Unit tests (`tests/unit/github.test.ts`: newest first, archived and stale items in older, ties alphabetical, 12-item cap) and the build log `[github] source=snapshot user=XiniDev fetched=26 included=23 recent=11 older=12`. `tests/e2e/github.spec.ts` checks that the rendered rows match the merged, ordered data.
+- [x] **E2** Featured projects, forks and hidden repos never appear in the list. *Verify by:* Unit tests
+  - Evidence: `tests/unit/github.test.ts` (merge): featured projects, forks, `hidden` projects and `hiddenRepos` entries never appear. `tests/e2e/github.spec.ts` confirms Gloam, DBridger, VOETutor and the `bitventory` fork are absent from the rendered list.
+- [x] **E3** The build succeeds with GitHub unreachable, uses the snapshot and logs a warning. *Verify by:* Run the build with the network blocked
+  - Evidence: `GITHUB_TOKEN=dummy GITHUB_API_URL=http://127.0.0.1:59999 npx astro build` exits 0 and logs `[github] using the committed snapshot from 2026-10-02T15:19:15.049Z: fetch failed (connect ECONNREFUSED 127.0.0.1:59999)`. Unit tests cover a thrown fetch, a 403 rate limit, no token, and a missing snapshot.
 - [ ] **E4** **[Needs Xini]** The daily refresh is configured and documented, and has run successfully at least once. *Verify by:* CI or host logs
-- [ ] **E5** Each row shows name, description, language and "Updated Mon YYYY". *Verify by:* E2E
-- [ ] **E6** Every project from the old site is migrated into `projects.ts` with its image where one exists; missing images show the placeholder. *Verify by:* Compare with the audit table
+- [x] **E5** Each row shows name, description, language and "Updated Mon YYYY". *Verify by:* E2E
+  - Evidence: `tests/e2e/github.spec.ts`: each of the 23 rows has the name (linked to the homepage or repo), the description, the language and `Updated Mon YYYY` with a `datetime`. GitHub has no description for 5 repos (getajobman, AdventOfCode23, AdventOfCode24, EnGarde, graphics-shooter-game) and no language for 3, so those cells are empty (DECISIONS 2.7). Adding descriptions on GitHub fills them on the next daily build.
+- [x] **E6** Every project from the old site is migrated into `projects.ts` with its image where one exists; missing images show the placeholder. *Verify by:* Compare with the audit table
+  - Evidence: `tests/unit/projects.test.ts`: all 12 audit-table projects are in `projects.ts`, each with its image file in `src/assets/projects/`, descriptive alt text, a one-sentence summary and a real link. `tests/e2e/content.spec.ts` (E6) shows that an empty thumbnail keeps the dotted `--thumb` placeholder and that broken-image alt text is transparent.
 
 ## F. Performance
 

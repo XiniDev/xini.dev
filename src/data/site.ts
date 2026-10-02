@@ -76,7 +76,7 @@ export const site = {
     email: 'xini@saltancy.com',
     githubUser: 'XiniDev',
     github: 'https://github.com/XiniDev',
-    linkedin: 'https://www.linkedin.com/in/xinidev/',
+    linkedin: 'https://www.linkedin.com/in/xinidev',
     x: 'https://x.com/XiniDev',
   },
   saltancy: 'https://saltancy.com',

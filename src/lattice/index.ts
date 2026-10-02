@@ -12,6 +12,7 @@ export type BootApi = {
   loadImages(): void;
   onFallback(listener: () => void): void;
   onLayout(listener: () => void): void;
+  followHash(): void;
 };
 
 const HASH_TARGETS: Record<string, number> = {
@@ -170,6 +171,9 @@ export function boot(): BootApi | undefined {
     onLayout(listener) {
       layoutListeners.push(listener);
     },
+    followHash() {
+      if (!visitorMoved) followHash();
+    },
   };
 
   document.querySelectorAll<HTMLElement>('[data-go]').forEach((el) =>
@@ -188,6 +192,9 @@ export function boot(): BootApi | undefined {
     if (staged() && timeAt() < TIMELINE.finaleFocusBefore) jump(TIMELINE.jumpTargets[4], true);
   });
 
+  let visitorMoved = false;
+  for (const type of ['wheel', 'touchstart', 'keydown', 'pointerdown'])
+    addEventListener(type, () => (visitorMoved = true), { once: true, passive: true });
   const followHash = () => {
     const target = HASH_TARGETS[location.hash];
     if (target !== undefined) jump(target, true);

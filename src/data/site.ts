@@ -80,6 +80,14 @@ export const site = {
     x: 'https://x.com/XiniDev',
   },
   saltancy: 'https://saltancy.com',
+  og: {
+    image: 'https://xini.dev/og.png',
+    width: 1200,
+    height: 630,
+    alt: 'The XINI wordmark drawn in green particles on a near-black background.',
+    siteName: 'xini.dev',
+    locale: 'en_GB',
+  },
   person: {
     name: 'Xini',
     jobTitle: 'Systems engineer',

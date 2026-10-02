@@ -486,6 +486,7 @@ export async function start(api: BootApi): Promise<void> {
   }
 
   update();
+  api.followHash();
 
   if (import.meta.env.MODE === 'test') {
     const attrs = () => ({

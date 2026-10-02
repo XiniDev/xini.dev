@@ -114,9 +114,12 @@ The success criteria from spec §17, copied word for word and grouped as in the 
 
 ## I. SEO and sharing
 
-- [ ] **I1** Title, description, canonical, Open Graph, Twitter and JSON-LD tags are present and validate. *Verify by:* Validators
-- [ ] **I2** `og.png` is 1200×630 and shows the particle wordmark. *Verify by:* Inspect
-- [ ] **I3** `sitemap.xml` and `robots.txt` exist; every retired old URL returns 301 to its decided target. *Verify by:* `curl -I` each old URL
+- [x] **I1** Title, description, canonical, Open Graph, Twitter and JSON-LD tags are present and validate. *Verify by:* Validators
+  - Evidence: `tests/e2e/seo.spec.ts` (I1) checks the §6.1 title, description, canonical `https://xini.dev/` and `lang="en-GB"`. It checks the Open Graph tags (type, site name, locale, title, description, url, image with type, size and alt) and the Twitter `summary_large_image` tags. It parses the JSON-LD `Person` (name, url, jobTitle "Systems engineer", the two `CollegeOrUniversity` entries in `alumniOf`, `worksFor` Saltancy, `sameAs` GitHub and LinkedIn) and confirms every URL is absolute HTTPS. Validated locally against the schema.org types; no content was sent to an external validator.
+- [x] **I2** `og.png` is 1200×630 and shows the particle wordmark. *Verify by:* Inspect
+  - Evidence: `npm run og` (`scripts/og.ts`) renders the intro frame at 1200×630 after the fly-in finishes, with the DOM text hidden, and writes `public/og.png`. `tests/e2e/seo.spec.ts` (I2) confirms `/og.png` is served as `image/png` at exactly 1200×630, with about 1.9% of its pixels in particle green. I viewed it: the XINI wordmark in particles on `--void`.
+- [x] **I3** `sitemap.xml` and `robots.txt` exist; every retired old URL returns 301 to its decided target. *Verify by:* `curl -I` each old URL
+  - Evidence: `curl -I` against the production build under `wrangler pages dev` (Pages' `_redirects` and 404 handling). `/icon.svg` → `301 Location: /favicon.svg`. `/`, `/favicon.ico`, `/robots.txt` and `/sitemap.xml` → 200. Old build files (`/index.txt`, `/__next._full.txt`, `/_not-found.html`, `/_next/static/chunks/*`, `/projects/*.webp`, `/assets/index-*`) → 404, as DECISIONS §1.5 decided. `tests/e2e/seo.spec.ts` asserts all of this and that `#projects`, `#work`, `#about`, `#home` and `#contact` land on their sections.
 - [x] **I4** The 404 page uses the site's tokens and type and links home. *Verify by:* Visit an unknown URL
   - Evidence: `tests/e2e/content.spec.ts` (I4): `/no-such-page` returns 404 with the §6.7 heading, body and a link to `/`. It has no canvas, a `--void` background and Archivo at width 125.
 

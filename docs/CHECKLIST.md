@@ -46,11 +46,15 @@ The success criteria from spec §17, copied word for word and grouped as in the 
 
 ## D. The landing
 
-- [ ] **D1** At time 6.65, at least 95% of each card's edge particles lie within 2px of its card or thumbnail borders, at 1440×900 and 390×844. *Verify by:* E2E test 8
-- [ ] **D2** Every title and text line's particles sit inside that line's rectangle expanded by 3px. *Verify by:* E2E test 8
+- [x] **D1** At time 6.65, at least 95% of each card's edge particles lie within 2px of its card or thumbnail borders, at 1440×900 and 390×844. *Verify by:* E2E test 8
+  - Evidence: `tests/e2e/landing.spec.ts` (test 8) at 1440×900 and 390×844, in Chromium and WebKit, at time 6.65. It projects the positions the shader actually draws: `drawnPosition()`, a TypeScript port of the vertex shader, run with the live uniforms and the points' world matrix and camera. For each of the three cards, at least 95% of its edge particles lie within 2px of the card or thumbnail border. The idle noise fades out with `uLock` (DECISIONS 2.1).
+- [x] **D2** Every title and text line's particles sit inside that line's rectangle expanded by 3px. *Verify by:* E2E test 8
+  - Evidence: Same test: every text particle sits inside its own line rectangle (from `Range.getClientRects()`) expanded by 3px. There are 0 outliers across all lines at both sizes and in both engines, and also after the resize, the rotation, the late font load and the summary change.
 - [ ] **D3** **[Needs Xini]** After the crossfade, the cards are at full opacity, the particles at 28% of base, and there is no visible jump or misalignment. *Verify by:* Screenshot at 6.65 and manual review
-- [ ] **D4** The landing realigns within 200 ms of a resize, an orientation change and the font load. *Verify by:* E2E test 8 (resize case) and manual rotation
-- [ ] **D5** Changing a card's summary in `projects.ts` realigns the landing with no other code change. *Verify by:* Edit, rebuild and rerun test 8
+- [x] **D4** The landing realigns within 200 ms of a resize, an orientation change and the font load. *Verify by:* E2E test 8 (resize case) and manual rotation
+  - Evidence: `tests/e2e/landing.spec.ts` (D4) in Chromium and WebKit. Resizing 1440×900 → 1280×720 and rotating 390×844 → 844×390 both rebuild the landing in under 200 ms after the last resize event (120 ms debounce plus the worker). A font face that finishes loading after the stage starts triggers a rebuild in under 200 ms. All of them re-pass the test 8 alignment.
+- [x] **D5** Changing a card's summary in `projects.ts` realigns the landing with no other code change. *Verify by:* Edit, rebuild and rerun test 8
+  - Evidence: I appended a sentence to DBridger's summary in `src/data/projects.ts`, rebuilt, and test 8 passed in all four browser and size projects with no other change (2 Oct 2026). I then reverted the edit. `tests/e2e/landing.spec.ts` (D5) also edits a card's text live: the MutationObserver rebuilds the landing, and test 8 still passes.
 
 ## E. Projects and GitHub ordering
 

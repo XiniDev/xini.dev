@@ -399,7 +399,9 @@ export async function start(api: BootApi): Promise<void> {
   }).observe(canvas);
   addEventListener('orientationchange', scheduleLanding);
   api.onLayout(scheduleLanding);
-  document.fonts?.ready.then(rebuildLanding);
+  const afterFonts = () => document.fonts?.ready.then(() => rebuildLanding());
+  afterFonts();
+  document.fonts?.addEventListener('loading', afterFonts);
   new MutationObserver(scheduleLanding).observe(featured, { subtree: true, childList: true, characterData: true });
 
   addEventListener(

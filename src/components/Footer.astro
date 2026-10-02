@@ -1,0 +1,24 @@
+---
+import { site } from '../data/site';
+---
+
+<footer class="foot" id="contact">
+  <div class="foot-inner">
+    <h2>{site.footer.heading}</h2>
+    <p class="email"><a href={`mailto:${site.contact.email}`}>{site.contact.email}</a></p>
+    <p class="client">
+      {site.footer.clientLead}<a href={site.saltancy} target="_blank" rel="noopener"
+        >{site.footer.clientLink}<span class="sr-only">{site.newTab}</span></a
+      >{site.footer.clientTail}
+    </p>
+    <ul class="links">
+      <li>
+        <a href={site.contact.github} target="_blank" rel="noopener">{site.footer.github}<span class="sr-only">{site.newTab}</span></a>
+      </li>
+      <li>
+        <a href={site.contact.linkedin} target="_blank" rel="noopener">{site.footer.linkedin}<span class="sr-only">{site.newTab}</span></a>
+      </li>
+    </ul>
+    <p class="copy">{site.footer.copyright}</p>
+  </div>
+</footer>

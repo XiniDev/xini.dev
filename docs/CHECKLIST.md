@@ -11,13 +11,16 @@ The success criteria from spec §17, copied word for word and grouped as in the 
 - [ ] **A3** The finale shows exactly Gloam, DBridger and VOETutor, in that order, with the copy from §6.4. *Verify by:* E2E text assertion
 - [ ] **A4** All copy matches §6 word for word; no copy from the old site remains, and no banned phrase appears anywhere. *Verify by:* Diff against `site.ts`; grep the build output
 - [ ] **A5** UK English spelling throughout. *Verify by:* Review
-- [ ] **A6** Saltancy is linked from the nav and the footer, opening in a new tab with `rel="noopener"`. *Verify by:* E2E
+- [x] **A6** Saltancy is linked from the nav and the footer, opening in a new tab with `rel="noopener"`. *Verify by:* E2E
+  - Evidence: `tests/e2e/content.spec.ts` (A6) checks that the nav and footer links go to https://saltancy.com with `target="_blank"`, `rel="noopener"` and the hidden "(opens in a new tab)" text. Passes in Chromium and WebKit at 390×844, 768×1024 and 1440×900.
 - [ ] **A7** No link in production points to `#`, a placeholder or a dead URL. *Verify by:* Link checker over the build output
 
 ## B. Visual fidelity
 
-- [ ] **B1** All colours come from the tokens in §7.1 (plus the particle colours in the stage config); no other colour literals exist. *Verify by:* Grep CSS and components
-- [ ] **B2** Archivo is self-hosted and both axes work: beat headings render at width 125 and weight 760. *Verify by:* Computed styles and a visual check
+- [x] **B1** All colours come from the tokens in §7.1 (plus the particle colours in the stage config); no other colour literals exist. *Verify by:* Grep CSS and components
+  - Evidence: `tests/unit/source.test.ts` (B1) finds no hex, rgb, hsl or named colour in any CSS, Astro, TS or GLSL file outside `src/styles/tokens.ts` and `src/lattice/config.ts`. The CSS `:root` block, `theme-color` and the manifest are generated from `tokens.ts`.
+- [x] **B2** Archivo is self-hosted and both axes work: beat headings render at width 125 and weight 760. *Verify by:* Computed styles and a visual check
+  - Evidence: `tests/e2e/content.spec.ts` (B2): the beat h2 computes to `font-stretch: 125%` and `font-weight: 760` in Archivo. Exactly one Archivo face loads, from the site's own origin (`/_astro/archivo-latin-wdth-normal.*.woff2`), and no request leaves the origin.
 - [ ] **B3** **[Needs Xini]** Each beat at 1440×900 and 390×844 matches the prototype's composition: copy placement, form placement and scale, rail position. *Verify by:* Xini signs off the `docs/qa/` screenshots
 - [ ] **B4** No racing or circuit asset, component or style remains in the repository. *Verify by:* Grep against the audit inventory
 - [ ] **B5** The favicon set (SVG, 180px, 512px maskable) uses the decided icon in signal on void. *Verify by:* Inspect the build output
@@ -71,7 +74,8 @@ The success criteria from spec §17, copied word for word and grouped as in the 
 
 ## H. Resilience
 
-- [ ] **H1** With JavaScript off, or with the stage chunk blocked, all content is readable in normal flow with no blank areas. *Verify by:* E2E test 6 and a no-JS check
+- [x] **H1** With JavaScript off, or with the stage chunk blocked, all content is readable in normal flow with no blank areas. *Verify by:* E2E test 6 and a no-JS check
+  - Evidence: `tests/e2e/fallback.spec.ts` covers two cases: JavaScript disabled, and the stage chunk blocked (which falls back to `no-gl`). In both, all 5 beats and 3 cards are at opacity 1, stacked in normal flow, and the canvas, rail and vignette are hidden. Passes in Chromium and WebKit at all three sizes.
 - [ ] **H2** WebGL context loss switches to the fallback layout without errors. *Verify by:* Force `WEBGL_lose_context` in a test
 - [ ] **H3** No console errors or warnings in Chrome, Safari and Firefox. *Verify by:* E2E test 1 and the manual pass
 - [ ] **H4** No horizontal scrolling at any width from 320 to 2560px. *Verify by:* E2E test 2
@@ -82,7 +86,8 @@ The success criteria from spec §17, copied word for word and grouped as in the 
 - [ ] **I1** Title, description, canonical, Open Graph, Twitter and JSON-LD tags are present and validate. *Verify by:* Validators
 - [ ] **I2** `og.png` is 1200×630 and shows the particle wordmark. *Verify by:* Inspect
 - [ ] **I3** `sitemap.xml` and `robots.txt` exist; every retired old URL returns 301 to its decided target. *Verify by:* `curl -I` each old URL
-- [ ] **I4** The 404 page uses the site's tokens and type and links home. *Verify by:* Visit an unknown URL
+- [x] **I4** The 404 page uses the site's tokens and type and links home. *Verify by:* Visit an unknown URL
+  - Evidence: `tests/e2e/content.spec.ts` (I4): `/no-such-page` returns 404 with the §6.7 heading, body and a link to `/`. It has no canvas, a `--void` background and Archivo at width 125.
 
 ## J. Code quality and documentation
 

@@ -1,0 +1,12 @@
+---
+import Base from '../layouts/Base.astro';
+import { site } from '../data/site';
+---
+
+<Base title={site.notFound.title} robots="noindex">
+  <main class="lost">
+    <h1>{site.notFound.heading}</h1>
+    <p>{site.notFound.body}</p>
+    <p><a href="/">{site.notFound.link}</a></p>
+  </main>
+</Base>

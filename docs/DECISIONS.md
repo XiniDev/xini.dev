@@ -1,6 +1,6 @@
 # Decisions
 
-Xini decided these on 2 October 2026, except entries marked **Proposed** or **Open**. Those keep their default until Xini answers. No site code has been written yet. Evidence for each entry is in [`AUDIT.md`](AUDIT.md).
+Xini decided these on 2 October 2026, except entries marked **Proposed** or **Open**. Those keep their default until Xini answers. The build follows these from M1 on. Evidence for each entry is in [`AUDIT.md`](AUDIT.md).
 
 ## 1. The five decisions from §4 (decided)
 
@@ -119,6 +119,30 @@ Without a thumbnail, the landing samples card edges and text only. The prototype
 - On narrow, short phones: drop the tags line, and drop the thumbnail if that is still not enough.
 
 Remove whole lines rather than clamping text. `Range.getClientRects()` still returns rectangles for lines hidden by `line-clamp`, so particles would land on text nobody can see. This changes the composition, so it's part of your B3 sign-off.
+
+**As built (M1).** No fixed set of media queries fits every size. 360×740 needs the thumbnails dropped even though it's a normal phone, and 320×568 still overflows after dropping the thumbnails, the intro line and the tags. So the boot script measures and applies cumulative levels only until the finale fits:
+
+1. Drop the thumbnails.
+2. Lay the stacked cards out as a three-column row. This step only applies when the cards are stacked and the finale is at least 560px wide.
+3. Cut the finale intro line.
+4. Cut the tags.
+5. Cut the step number.
+
+It re-measures on resize and after the fonts load. Copy cut in steps 3–5 is hidden visually, not with `display: none`, so screen readers still read it (G3), and the landing ignores those 1px boxes.
+
+The card link's 44px tap area now uses negative margins, so it adds no height.
+
+Measured overflow in px (positive means clipped). Each column adds one more level:
+
+| Viewport | Base | Thumbnails | Intro line | Tags | Step number |
+|---|---|---|---|---|---|
+| 320×568 | +239 | +110 | +63 | +9 | **−23** |
+| 360×740 | **−11** | | | | |
+| 375×667 (not in §11) | +35 | **−25** | | | |
+| 844×390 | +164 | +10 | **−14** | | |
+| 667×375 (not in §11) | +230 | +190, then the row layout fits | | | |
+
+`tests/e2e/layout.spec.ts` asserts that the finale and every beat sit inside the pinned screen at every §11 size, in Chromium and WebKit.
 
 ### 2.3 The intro copy fade conflicts with first paint [F2, §8.1, §8.7] — Accepted
 

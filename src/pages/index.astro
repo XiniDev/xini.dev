@@ -1,0 +1,20 @@
+---
+import Base from '../layouts/Base.astro';
+import TopBar from '../components/TopBar.astro';
+import Stage from '../components/Stage.astro';
+import Footer from '../components/Footer.astro';
+import { site } from '../data/site';
+---
+
+<Base title={site.title} description={site.description} canonical={site.url}>
+  <a class="skip" href="#work" data-go="4">{site.skip}</a>
+  <TopBar />
+  <main>
+    <Stage />
+  </main>
+  <Footer />
+  <script>
+    import { boot } from '../lattice/index.ts';
+    boot();
+  </script>
+</Base>

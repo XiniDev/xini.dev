@@ -1,0 +1,55 @@
+---
+import { site } from '../data/site';
+import type { Project } from '../data/projects';
+import { pictureFor } from '../lib/images';
+
+interface Props {
+  project: Project;
+}
+
+const { project } = Astro.props;
+const picture = project.image ? await pictureFor(project.image.src) : undefined;
+const link = project.url
+  ? { href: project.url, label: project.url.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '') }
+  : project.repo
+    ? { href: `https://github.com/${project.repo}`, label: site.sourceLink }
+    : undefined;
+const sizes = '(max-width: 760px) 84px, (min-width: 1700px) 510px, calc((100vw - 2 * clamp(16px, 3.2vw, 48px) - 40px) / 3 - 24px)';
+---
+
+<li class="fcard">
+  <div class="fthumb">
+    {
+      picture && project.image && (
+        <picture>
+          {picture.sources.map((s) => (
+            <source type={s.type} srcset={s.srcset} sizes={sizes} />
+          ))}
+          <img
+            src={picture.fallback.src}
+            srcset={picture.fallback.srcset}
+            sizes={sizes}
+            width={picture.fallback.width}
+            height={picture.fallback.height}
+            alt={project.image.alt}
+            loading="lazy"
+            decoding="async"
+          />
+        </picture>
+      )
+    }
+  </div>
+  <div class="fbody">
+    <h3>{project.name}</h3>
+    <p class="summary">{project.summary}</p>
+    <p class="tags">{project.tags.join(', ')}</p>
+    {
+      link && (
+        <a class="flink" href={link.href} target="_blank" rel="noopener">
+          {link.label}
+          <span class="sr-only">{site.newTab}</span>
+        </a>
+      )
+    }
+  </div>
+</li>

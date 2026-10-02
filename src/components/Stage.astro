@@ -1,0 +1,74 @@
+---
+import { site } from '../data/site';
+import { featured } from '../data/projects';
+import { STAGE_VH } from '../lattice/config';
+import FeaturedCard from './FeaturedCard.astro';
+
+const rail = [
+  { label: site.intro.rail, step: '00' },
+  ...site.beats.map((b) => ({ label: b.rail, step: b.step })),
+  { label: site.finale.rail, step: site.finale.step },
+];
+---
+
+<section class="stage" id="top" aria-label={site.stageLabel} style={`--stage-vh:${STAGE_VH}`}>
+  <div class="pin">
+    <canvas class="gl" aria-hidden="true"></canvas>
+    <div class="vignette" aria-hidden="true"></div>
+    <h1 class="sr-only" id="home">{site.h1}</h1>
+    <div class="beats">
+      <div class="beat intro" data-beat="0">
+        <p class="statement">{site.intro.statement}</p>
+        <p class="creds">{site.intro.credentials}</p>
+        <span class="cue" aria-hidden="true"><i></i>{site.intro.cue}</span>
+      </div>
+      {
+        site.beats.map((b, i) => (
+          <div class="beat" data-beat={i + 1} id={i === 0 ? 'about' : undefined}>
+            <span class="step">{b.step}</span>
+            <h2>{b.heading}</h2>
+            <p class="text">{b.body}</p>
+            <p class="stack">{b.support}</p>
+          </div>
+        ))
+      }
+      <div class="finale" id="work">
+        <div class="beat outro" data-beat="4">
+          <span class="step">{site.finale.step}</span>
+          <h2 id="work-heading" tabindex="-1">{site.finale.heading}</h2>
+          <p class="text">{site.finale.body}</p>
+        </div>
+        <ul class="featured" id="projects" aria-labelledby="work-heading">
+          {featured.map((p) => <FeaturedCard project={p} />)}
+        </ul>
+        <script is:inline>
+          (function (h) {
+            if (!h.contains('js') || h.contains('no-gl')) return;
+            document.querySelectorAll('.featured source, .featured img').forEach(function (e) {
+              ['srcset', 'src'].forEach(function (a) {
+                var v = e.getAttribute(a);
+                if (v) {
+                  e.setAttribute('data-' + a, v);
+                  e.removeAttribute(a);
+                }
+              });
+            });
+          })(document.documentElement.classList);
+        </script>
+      </div>
+    </div>
+    <ol class="rail" aria-label={site.railLabel}>
+      {
+        rail.map((r, i) => (
+          <li>
+            <button type="button" data-go={i}>
+              <span class="lbl">{r.label}</span>
+              <span class="sr-only">{site.railSection}</span>
+              <b>{r.step}</b>
+            </button>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</section>

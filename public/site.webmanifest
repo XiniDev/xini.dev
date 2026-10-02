@@ -1,0 +1,21 @@
+{
+  "name": "Xini",
+  "short_name": "Xini",
+  "start_url": "/",
+  "display": "browser",
+  "background_color": "#020806",
+  "theme_color": "#020806",
+  "icons": [
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

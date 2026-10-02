@@ -201,20 +201,27 @@ The success criteria from spec §17, copied word for word and grouped as in the 
 
 ## K. Deployment
 
-- [ ] **K1** **[Ready for Xini]** Production serves <https://xini.dev> with the existing domain setup (www behaviour as decided in the audit). *Verify by:* Visit both hosts
+- [x] **K1** **[Ready for Xini]** Production serves <https://xini.dev> with the existing domain setup (www behaviour as decided in the audit). *Verify by:* Visit both hosts
   - Steps:
     1. Merge `rework/lattice` into `master` and push. Pages deploys the new site.
     2. Visit https://xini.dev: it should be the Lattice site.
     3. Run `curl -I https://www.xini.dev/`. It should return 301 with `location: https://xini.dev/`, once the www record and redirect rule from the setup tasks exist.
+  - Evidence (2 Oct 2026, 23:21 UTC):
+    - https://xini.dev serves the Lattice site: merge `92c5f41`, title "Xini, systems engineer".
+    - `curl -I https://www.xini.dev/` returns 301 with `location: https://xini.dev/`.
+    - `https://www.xini.dev/some/path?x=1` returns 301 to `https://xini.dev/some/path?x=1`, so the path and query string are kept.
 - [ ] **K2** **[Ready for Xini]** Production environment variables are set, and the first production build fetched GitHub successfully. *Verify by:* Build log
   - Steps:
     1. In Pages → `xini-dev` → Settings → Environment variables, confirm `GITHUB_USERNAME` and `GITHUB_TOKEN` exist for Production.
     2. Open the first production build's log and confirm `[github] source=live user=XiniDev fetched=… included=…`. If it says `source=snapshot`, the token is missing or invalid.
-- [ ] **K3** **[Ready for Xini]** The E2E smoke tests (1, 2, 4 and 6) pass against the production URL. *Verify by:* CI against production
+  - First attempt (2 Oct 2026, 23:11 UTC, deployment `dc0c5062`): the variables are set, but the log says `using the committed snapshot … GitHub responded 403 Forbidden for https://api.github.com/repos/BlueTentProductions/overthrow-synthetica`. The token works for XiniDev's repos, but that organisation refuses fine-grained tokens, and one refused repo used to discard all the live data. This is fixed in code (DECISIONS §3, 3 Oct 2026): that repo is now read without the token, and the list stays live. Tick K2 once the next production build logs `[github] source=live`.
+- [x] **K3** **[Ready for Xini]** The E2E smoke tests (1, 2, 4 and 6) pass against the production URL. *Verify by:* CI against production
   - Steps:
     1. After the production deploy, run `npm run test:e2e:prod`. It runs smoke tests 1, 2, 4 and 6 against https://xini.dev in Chromium and WebKit.
     2. Every test should pass. Turn off Email Obfuscation first, so the production page carries no extra script.
     3. The same smoke tests already pass against the local production build (`tests/e2e/smoke.spec.ts`).
+  - First production run (2 Oct 2026, 22:35 UTC, merge `92c5f41` live at 22:32): `npm run test:e2e:prod` gave 14 passed and 2 skipped by design, in Chromium and WebKit. Not ticked yet: Email Obfuscation is still on (the footer link is `/cdn-cgi/l/email-protection#…`), so step 2's condition isn't met. Rerun after turning it off.
+  - Evidence (2 Oct 2026, 23:21 UTC): Email Obfuscation is off, and the footer link is `mailto:xini@saltancy.com`. `npm run test:e2e:prod` gives 14 passed and 2 skipped by design, in Chromium and WebKit.
 
 **Definition of done:** every ID in A to K is ticked in `docs/CHECKLIST.md` with its evidence, and Xini has signed off B3 and D3.
 
@@ -222,11 +229,11 @@ The success criteria from spec §17, copied word for word and grouped as in the 
 
 Xini does these in the Cloudflare dashboard and ticks each one when it's done. Until `GITHUB_TOKEN` exists, every build uses the committed GitHub snapshot (DECISIONS §1.2).
 
-- [ ] **[Done by Xini]** Turn off Email Address Obfuscation for the `xini.dev` zone (DECISIONS §2.6). Unblocks H1, A7 and K3 in production.
-- [ ] **[Done by Xini]** Create the Pages deploy hook for `xini-dev`. Its URL becomes the Worker secret `DEPLOY_HOOK_URL` (DECISIONS §1.3). Unblocks E4.
+- [x] **[Done by Xini]** Turn off Email Address Obfuscation for the `xini.dev` zone (DECISIONS §2.6). Unblocks H1, A7 and K3 in production.
+- [x] **[Done by Xini]** Create the Pages deploy hook for `xini-dev`. Its URL becomes the Worker secret `DEPLOY_HOOK_URL` (DECISIONS §1.3). Unblocks E4.
 - [ ] **[Done by Xini]** Set `GITHUB_USERNAME=XiniDev` and a fine-grained, read-only `GITHUB_TOKEN` in Pages, for both production and preview (DECISIONS §1.2). Unblocks K2.
-- [ ] **[Done by Xini]** Add `www.xini.dev` as a proxied record with a 301 to the apex (DECISIONS §1.2). Unblocks K1.
-- [ ] **[Done by Xini]** Deploy the daily-rebuild Worker once (`wrangler deploy`, then `wrangler secret put DEPLOY_HOOK_URL`). This also needs your Cloudflare login. Unblocks E4.
+- [x] **[Done by Xini]** Add `www.xini.dev` as a proxied record with a 301 to the apex (DECISIONS §1.2). Unblocks K1.
+- [x] **[Done by Xini]** Deploy the daily-rebuild Worker once (`wrangler deploy`, then `wrangler secret put DEPLOY_HOOK_URL`). This also needs your Cloudflare login. Unblocks E4.
 
 ## Manual device pass (§16.4)
 

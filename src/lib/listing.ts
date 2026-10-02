@@ -20,6 +20,7 @@ export function githubListing(): Promise<Listing> {
       const used = loaded.source === 'snapshot' ? `the committed snapshot from ${loaded.fetchedAt}` : 'no data (empty state)';
       console.warn(`[github] using ${used}: ${loaded.reason}`);
     }
+    for (const warning of loaded.warnings) console.warn(`[github] ${warning}`);
     const { items, warnings } = merge(loaded.repos, projects, { hiddenRepos: listing.hiddenRepos });
     for (const warning of warnings) console.warn(`[github] ${warning}`);
     const ordered = forDisplay(orderProjects(items, { now: new Date(), legacyMonths: listing.legacyMonths }), listing.recentMax);

@@ -43,20 +43,25 @@ const item = (name: string, date: string, archived = false): Item => ({
 
 const NOW = new Date('2026-10-02T12:00:00Z');
 
-function fakeFetch(pages: Record<string, { body: unknown; link?: string; status?: number }>): FetchLike & { calls: string[]; auth: (string | undefined)[] } {
+type FakePage = { body: unknown; link?: string; status?: number; remaining?: string };
+
+function fakeFetch(pages: Record<string, FakePage & { anonymous?: FakePage }>): FetchLike & { calls: string[]; auth: (string | undefined)[] } {
   const calls: string[] = [];
   const auth: (string | undefined)[] = [];
   const impl = (async (url: string, init: { headers: Record<string, string> }) => {
     calls.push(url);
     auth.push(init.headers.Authorization);
-    const page = pages[url];
-    if (!page) throw new Error(`unexpected request ${url}`);
+    const entry = pages[url];
+    if (!entry) throw new Error(`unexpected request ${url}`);
+    const page = init.headers.Authorization ? entry : (entry.anonymous ?? entry);
     const status = page.status ?? 200;
     return {
       ok: status < 400,
       status,
       statusText: status < 400 ? 'OK' : 'Forbidden',
-      headers: { get: (h: string) => (h.toLowerCase() === 'link' ? (page.link ?? null) : null) },
+      headers: {
+        get: (h: string) => (h.toLowerCase() === 'link' ? (page.link ?? null) : h.toLowerCase() === 'x-ratelimit-remaining' ? (page.remaining ?? null) : null),
+      },
       json: async () => page.body,
     };
   }) as FetchLike;
@@ -174,8 +179,47 @@ describe('fetching', () => {
       [first]: { body: [repo('a', '2026-09-01T00:00:00Z')] },
       [`${API}/repos/Other/thing`]: { body: { ...repo('thing', '2025-01-01T00:00:00Z'), full_name: 'Other/thing' } },
     });
-    const repos = await fetchAll('XiniDev', [{ slug: 't', name: 'T', summary: '', tags: [], repo: 'Other/thing' }], { api: API, fetchImpl });
+    const { repos, warnings } = await fetchAll('XiniDev', [{ slug: 't', name: 'T', summary: '', tags: [], repo: 'Other/thing' }], { api: API, fetchImpl });
     expect(repos.map((r) => r.full_name)).toEqual(['XiniDev/a', 'Other/thing']);
+    expect(warnings).toEqual([]);
+  });
+
+  describe('when an organisation refuses the token for its public repo', () => {
+    const curated = [{ slug: 't', name: 'T', summary: '', tags: [], repo: 'Other/thing' }];
+    const foreign = `${API}/repos/Other/thing`;
+    const live = { ...repo('thing', '2026-09-20T00:00:00Z'), full_name: 'Other/thing' };
+    const old = { ...repo('thing', '2025-01-01T00:00:00Z'), full_name: 'Other/thing' };
+    const owned = { body: [repo('a', '2026-09-01T00:00:00Z')] };
+
+    it('reads it again without the token, and everything stays live', async () => {
+      const fetchImpl = fakeFetch({ [first]: owned, [foreign]: { body: {}, status: 403, remaining: '4999', anonymous: { body: live } } });
+      const { repos, warnings } = await fetchAll('XiniDev', curated, { api: API, fetchImpl, token: 't' });
+      expect(repos).toContainEqual(live);
+      expect(warnings).toEqual([expect.stringContaining('read it without the token')]);
+      expect(fetchImpl.auth.slice(1)).toEqual(['Bearer t', undefined]);
+    });
+
+    it('keeps that repo’s snapshot entry when it can’t be read at all', async () => {
+      const fetchImpl = fakeFetch({ [first]: owned, [foreign]: { body: {}, status: 403, remaining: '4999' } });
+      const { repos, warnings } = await fetchAll('XiniDev', curated, { api: API, fetchImpl, token: 't', previous: [old] });
+      expect(repos.map((r) => r.full_name)).toEqual(['XiniDev/a', 'Other/thing']);
+      expect(repos).toContainEqual(old);
+      expect(warnings).toEqual([expect.stringContaining('kept its snapshot entry')]);
+    });
+
+    it('leaves it out, with a warning, when there is no snapshot entry', async () => {
+      const fetchImpl = fakeFetch({ [first]: owned, [foreign]: { body: {}, status: 403, remaining: '4999' } });
+      const { repos, warnings } = await fetchAll('XiniDev', curated, { api: API, fetchImpl, token: 't' });
+      expect(repos.map((r) => r.full_name)).toEqual(['XiniDev/a']);
+      expect(warnings).toEqual([expect.stringContaining('left it out')]);
+    });
+
+    it('does not retry a rate limit without the token', async () => {
+      const fetchImpl = fakeFetch({ [first]: owned, [foreign]: { body: {}, status: 403, remaining: '0', anonymous: { body: live } } });
+      const { repos } = await fetchAll('XiniDev', curated, { api: API, fetchImpl, token: 't', previous: [old] });
+      expect(repos).toContainEqual(old);
+      expect(fetchImpl.calls.filter((c) => c === foreign)).toHaveLength(1);
+    });
   });
 
   it('parses the Link header', () => {
@@ -206,6 +250,21 @@ describe('loadRepos and the snapshot', () => {
     const loaded = await loadRepos({ ...base, token: 't', fetchImpl });
     expect(loaded.source).toBe('snapshot');
     expect(loaded.reason).toContain('403');
+  });
+
+  it('stays live when only an other-owner repo fails, keeping that repo from the snapshot', async () => {
+    const other = { ...repo('thing', '2025-01-01T00:00:00Z'), full_name: 'Other/thing' };
+    const path = join(dir, 'with-other.json');
+    writeFileSync(path, JSON.stringify({ fetchedAt: '2026-10-01T00:00:00Z', username: 'XiniDev', repos: [repo('snap', '2026-09-01T00:00:00Z'), other] }));
+    const fetchImpl = fakeFetch({
+      [`${base.api}/users/XiniDev/repos?type=owner&sort=pushed&per_page=100`]: { body: [repo('fresh', '2026-10-02T00:00:00Z')] },
+      [`${base.api}/repos/Other/thing`]: { body: {}, status: 403, remaining: '4999' },
+    });
+    const curated = [{ slug: 't', name: 'T', summary: '', tags: [], repo: 'Other/thing' }];
+    const loaded = await loadRepos({ ...base, snapshotPath: path, projects: curated, token: 't', fetchImpl });
+    expect(loaded.source).toBe('live');
+    expect(loaded.repos.map((r) => r.full_name)).toEqual(['XiniDev/fresh', 'Other/thing']);
+    expect(loaded.warnings).toEqual([expect.stringContaining('kept its snapshot entry')]);
   });
 
   it('uses the snapshot without a token, and makes no request', async () => {

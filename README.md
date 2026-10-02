@@ -78,7 +78,7 @@ At build time, `src/lib/listing.ts` calls `GET /users/{GITHUB_USERNAME}/repos?ty
   - Archived and older repos go into a closed "Older projects (N)" section.
   - Ties sort alphabetically.
 
-Every build logs `[github] source=… fetched=… included=… recent=… older=…`. If GitHub fails or rate-limits, or there's no token, the build uses `src/data/github-snapshot.json` and logs why. GitHub is never a reason for the build to fail. Run `npm run snapshot:github` and commit the result whenever the list changes meaningfully.
+Every build logs `[github] source=… fetched=… included=… recent=… older=…`. If GitHub fails or rate-limits, or there's no token, the build uses `src/data/github-snapshot.json` and logs why. A curated repo owned by someone else is the exception. If its organisation refuses the token (some refuse fine-grained tokens even for public repos), it's read without the token. If that fails too, it keeps its snapshot entry. Either way it logs a warning, and the rest of the list stays live. GitHub is never a reason for the build to fail. Run `npm run snapshot:github` and commit the result whenever the list changes meaningfully.
 
 **Daily refresh.** The Worker in `workers/daily-rebuild/` has a cron trigger at 03:00 UTC that POSTs the Pages deploy hook, and the rebuild re-fetches GitHub (DECISIONS §1.3). To deploy it once, with your Cloudflare login:
 

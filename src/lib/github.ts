@@ -40,6 +40,17 @@ export type FetchLike = (url: string, init: { headers: Record<string, string> })
 
 export type FetchOptions = { token?: string; fetchImpl?: FetchLike; api?: string };
 
+export class GitHubError extends Error {
+  readonly status: number;
+  readonly rateLimited: boolean;
+
+  constructor(message: string, status: number, rateLimited: boolean) {
+    super(message);
+    this.status = status;
+    this.rateLimited = rateLimited;
+  }
+}
+
 export const DEFAULT_API = 'https://api.github.com';
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
@@ -83,7 +94,10 @@ function headers(token?: string): Record<string, string> {
 
 async function getJson(url: string, { token, fetchImpl = fetch as FetchLike }: FetchOptions) {
   const res = await fetchImpl(url, { headers: headers(token) });
-  if (!res.ok) throw new Error(`GitHub responded ${res.status} ${res.statusText} for ${url}`);
+  if (!res.ok) {
+    const rateLimited = res.status === 429 || res.headers.get('x-ratelimit-remaining') === '0';
+    throw new GitHubError(`GitHub responded ${res.status} ${res.statusText} for ${url}`, res.status, rateLimited);
+  }
   return { body: await res.json(), next: nextLink(res.headers.get('link')) };
 }
 
@@ -106,14 +120,38 @@ export async function fetchRepo(fullName: string, options: FetchOptions = {}): P
   return toRepo(body);
 }
 
-export async function fetchAll(username: string, projects: Project[], options: FetchOptions = {}): Promise<Repo[]> {
+const message = (error: unknown) => (error instanceof Error ? error.message : String(error));
+
+async function fetchForeign(fullName: string, options: FetchOptions, previous: Repo[]): Promise<{ repo?: Repo; warning?: string }> {
+  try {
+    return { repo: await fetchRepo(fullName, options) };
+  } catch (error) {
+    const refused = error instanceof GitHubError && (error.status === 401 || error.status === 403) && !error.rateLimited;
+    if (refused && options.token) {
+      try {
+        return { repo: await fetchRepo(fullName, { ...options, token: undefined }), warning: `${fullName}: ${message(error)}; read it without the token` };
+      } catch {}
+    }
+    const kept = previous.find((r) => lower(r.full_name) === lower(fullName));
+    return { repo: kept, warning: `${fullName}: ${message(error)}; ${kept ? 'kept its snapshot entry' : 'left it out'}` };
+  }
+}
+
+export async function fetchAll(
+  username: string,
+  projects: Project[],
+  { previous = [], ...options }: FetchOptions & { previous?: Repo[] } = {},
+): Promise<{ repos: Repo[]; warnings: string[] }> {
   const owned = await fetchOwnerRepos(username, options);
   const known = new Set(owned.map((r) => lower(r.full_name)));
   const foreign = projects
     .map((p) => p.repo)
     .filter((repo): repo is string => !!repo && ownerOf(repo) !== lower(username) && !known.has(lower(repo)));
-  const extra = await Promise.all([...new Set(foreign)].map((repo) => fetchRepo(repo, options)));
-  return [...owned, ...extra];
+  const extra = await Promise.all([...new Set(foreign)].map((repo) => fetchForeign(repo, options, previous)));
+  return {
+    repos: [...owned, ...extra.flatMap((e) => (e.repo ? [e.repo] : []))],
+    warnings: extra.flatMap((e) => (e.warning ? [e.warning] : [])),
+  };
 }
 
 export function merge(
@@ -205,7 +243,7 @@ export async function readSnapshot(path: string): Promise<Snapshot | undefined> 
   }
 }
 
-export type Loaded = { repos: Repo[]; source: 'live' | 'snapshot' | 'none'; reason?: string; fetchedAt?: string };
+export type Loaded = { repos: Repo[]; source: 'live' | 'snapshot' | 'none'; reason?: string; fetchedAt?: string; warnings: string[] };
 
 export async function loadRepos({
   username,
@@ -222,16 +260,16 @@ export async function loadRepos({
   fetchImpl?: FetchLike;
   api?: string;
 }): Promise<Loaded> {
-  const fallback = async (reason: string): Promise<Loaded> => {
-    const snapshot = await readSnapshot(snapshotPath);
-    if (snapshot && lower(snapshot.username) === lower(username)) {
-      return { repos: snapshot.repos, source: 'snapshot', reason, fetchedAt: snapshot.fetchedAt };
-    }
-    return { repos: [], source: 'none', reason: `${reason}; no usable snapshot for ${username}` };
-  };
+  const read = await readSnapshot(snapshotPath);
+  const snapshot = read && lower(read.username) === lower(username) ? read : undefined;
+  const fallback = (reason: string): Loaded =>
+    snapshot
+      ? { repos: snapshot.repos, source: 'snapshot', reason, fetchedAt: snapshot.fetchedAt, warnings: [] }
+      : { repos: [], source: 'none', reason: `${reason}; no usable snapshot for ${username}`, warnings: [] };
   if (!token) return fallback('GITHUB_TOKEN is not set');
   try {
-    return { repos: await fetchAll(username, projects, { token, fetchImpl, api }), source: 'live' };
+    const { repos, warnings } = await fetchAll(username, projects, { token, fetchImpl, api, previous: snapshot?.repos });
+    return { repos, source: 'live', warnings };
   } catch (error) {
     const cause = error instanceof Error && error.cause instanceof Error ? ` (${error.cause.message})` : '';
     return fallback(error instanceof Error ? `${error.message}${cause}` : String(error));

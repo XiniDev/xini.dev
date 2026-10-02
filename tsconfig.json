@@ -5,7 +5,8 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-    "noImplicitOverride": true
+    "noImplicitOverride": true,
+    "erasableSyntaxOnly": true
   },
   "include": [".astro/types.d.ts", "src/**/*", "scripts/**/*", "tests/**/*", "*.config.ts"],
   "exclude": ["out", "out-test", "workers", "node_modules"]

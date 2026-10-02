@@ -1,23 +1,23 @@
 {
-  "fetchedAt": "2026-10-02T22:25:58.046Z",
+  "fetchedAt": "2026-10-02T23:35:20.928Z",
   "username": "XiniDev",
   "repos": [
     {
       "name": "xini.dev",
       "full_name": "XiniDev/xini.dev",
-      "description": "My personal website :D",
+      "description": "Personal site of Xini, systems engineer: featured projects, background and contact details.",
       "html_url": "https://github.com/XiniDev/xini.dev",
-      "homepage": null,
+      "homepage": "https://xini.dev",
       "language": "TypeScript",
       "topics": [],
-      "pushed_at": "2026-10-01T10:22:46Z",
+      "pushed_at": "2026-10-02T22:31:46Z",
       "archived": false,
       "fork": false
     },
     {
       "name": "Gloam",
       "full_name": "XiniDev/Gloam",
-      "description": "A tabletop DND simulator",
+      "description": "Self-hosted 3D virtual tabletop for fifth-edition RPGs in the browser, with automated spells from the open rules, line of sight and physics dice.",
       "html_url": "https://github.com/XiniDev/Gloam",
       "homepage": null,
       "language": "TypeScript",
@@ -29,7 +29,7 @@
     {
       "name": "saltancy-web",
       "full_name": "XiniDev/saltancy-web",
-      "description": null,
+      "description": "Website for Saltancy, a technical consultancy for web, backend and mobile systems, built with Next.js, Tailwind CSS and Motion.",
       "html_url": "https://github.com/XiniDev/saltancy-web",
       "homepage": "https://saltancy-web.vercel.app",
       "language": "TypeScript",
@@ -41,7 +41,7 @@
     {
       "name": "getajobman",
       "full_name": "XiniDev/getajobman",
-      "description": null,
+      "description": "Job tracker in Next.js and Supabase that reads a posting from its URL and drafts a tailored CV and cover letter with a language model.",
       "html_url": "https://github.com/XiniDev/getajobman",
       "homepage": "https://getajobman.vercel.app",
       "language": "TypeScript",
@@ -53,7 +53,7 @@
     {
       "name": "dbridger",
       "full_name": "XiniDev/dbridger",
-      "description": "DBridger is a secure, native desktop AI gateway that lets you query local databases in plain English using Gemini, featuring automated PII masking and local SQL execution.",
+      "description": "PyQt6 desktop app that queries a local SQLite database in plain English through Gemini, masking emails and card numbers before the model sees them.",
       "html_url": "https://github.com/XiniDev/dbridger",
       "homepage": null,
       "language": "Python",
@@ -65,7 +65,7 @@
     {
       "name": "limit-order-book",
       "full_name": "XiniDev/limit-order-book",
-      "description": "Mini project to make an LOB to understand the market",
+      "description": "Limit order book matching engine in C++ and Python with price-time priority, limit and market orders, and O(1) cancellation.",
       "html_url": "https://github.com/XiniDev/limit-order-book",
       "homepage": null,
       "language": "C++",
@@ -77,7 +77,7 @@
     {
       "name": "AI-Search-Algorithms",
       "full_name": "XiniDev/AI-Search-Algorithms",
-      "description": "AI Search Algorithms Implementation",
+      "description": "Coursework: breadth-first, depth-first, uniform-cost, best-first, A* and SMA* search in Java, with bidirectional modes, routing flights on a polar grid.",
       "html_url": "https://github.com/XiniDev/AI-Search-Algorithms",
       "homepage": null,
       "language": "Java",
@@ -89,7 +89,7 @@
     {
       "name": "LeadingOnesDAC",
       "full_name": "XiniDev/LeadingOnesDAC",
-      "description": "Masters Dissertation Project",
+      "description": "MSc dissertation: dynamic algorithm configuration on the LeadingOnes benchmark with DDQN and model-based Dyna-DDQN agents.",
       "html_url": "https://github.com/XiniDev/LeadingOnesDAC",
       "homepage": null,
       "language": "Jupyter Notebook",
@@ -101,7 +101,7 @@
     {
       "name": "wincrazyyy.github.io",
       "full_name": "XiniDev/wincrazyyy.github.io",
-      "description": "source code for wincrazyyy.github.io",
+      "description": "Earlier React version of the WS Math tutoring website, with IBDP, A-Level and IGCSE course pages, pricing, reviews and an enquiry form.",
       "html_url": "https://github.com/XiniDev/wincrazyyy.github.io",
       "homepage": null,
       "language": "TypeScript",
@@ -113,7 +113,7 @@
     {
       "name": "Jungle-Board-Game-Java",
       "full_name": "XiniDev/Jungle-Board-Game-Java",
-      "description": "Jungle Board Game in Java",
+      "description": "The Jungle board game in Java with a Swing GUI for two local players, legal-move highlighting and hand-drawn piece art.",
       "html_url": "https://github.com/XiniDev/Jungle-Board-Game-Java",
       "homepage": null,
       "language": "Java",
@@ -125,7 +125,7 @@
     {
       "name": "NullVector-Processing",
       "full_name": "XiniDev/NullVector-Processing",
-      "description": "Processing Platformer - NullVector",
+      "description": "2D platformer in Processing (Java) with its own physics and contact resolution, pathfinding enemies and a two-phase boss fight.",
       "html_url": "https://github.com/XiniDev/NullVector-Processing",
       "homepage": null,
       "language": "Processing",
@@ -137,7 +137,7 @@
     {
       "name": "notes-api",
       "full_name": "XiniDev/notes-api",
-      "description": "This simple Notes API demonstrates RESTful service design with secure user authentication, Dockerized deployment, and MongoDB integration. Built to reinforce modern backend development practices for scalable systems.",
+      "description": "REST API for per-user notes on Express and MongoDB, with JWT authentication, hashed passwords, an admin role and tag search, run with Docker Compose.",
       "html_url": "https://github.com/XiniDev/notes-api",
       "homepage": null,
       "language": "JavaScript",
@@ -149,7 +149,7 @@
     {
       "name": "aws-streaming-demo",
       "full_name": "XiniDev/aws-streaming-demo",
-      "description": "Video Streaming Service Demo that uses AWS S3 and CloudFront CDN with other tools",
+      "description": "React and Vite demo that streams video through Amazon CloudFront.",
       "html_url": "https://github.com/XiniDev/aws-streaming-demo",
       "homepage": null,
       "language": "TypeScript",
@@ -161,7 +161,7 @@
     {
       "name": "firebase-auth-demo",
       "full_name": "XiniDev/firebase-auth-demo",
-      "description": "Demo for Firebase Authentication",
+      "description": "React demo of Firebase Authentication: email and Google sign-in, a protected dashboard route, and deploys to Firebase Hosting from GitHub Actions.",
       "html_url": "https://github.com/XiniDev/firebase-auth-demo",
       "homepage": null,
       "language": "TypeScript",
@@ -173,7 +173,7 @@
     {
       "name": "AutoScroller",
       "full_name": "XiniDev/AutoScroller",
-      "description": "One of those fake mobile ad games type thingy",
+      "description": "Godot 4 prototype of a 3D auto-runner: the player moves forward on its own, steers left and right, and jumps to avoid falling off.",
       "html_url": "https://github.com/XiniDev/AutoScroller",
       "homepage": null,
       "language": "GDScript",
@@ -185,7 +185,7 @@
     {
       "name": "ecs-platformer-demo",
       "full_name": "XiniDev/ecs-platformer-demo",
-      "description": "Understanding ECS System in Game Dev",
+      "description": "2D platformer demo in C++ and SDL2 built on an entity component system (after Austin Morlan's design), with physics, collision and weapons.",
       "html_url": "https://github.com/XiniDev/ecs-platformer-demo",
       "homepage": null,
       "language": "C",
@@ -197,7 +197,7 @@
     {
       "name": "EnGarde",
       "full_name": "XiniDev/EnGarde",
-      "description": null,
+      "description": "Turn-based fencing game in Python and pygame, played against scripted bots or reinforcement-learning agents (DQN and self-play DRQN) trained with PyTorch.",
       "html_url": "https://github.com/XiniDev/EnGarde",
       "homepage": null,
       "language": "Python",
@@ -209,7 +209,7 @@
     {
       "name": "graphics-shooter-game",
       "full_name": "XiniDev/graphics-shooter-game",
-      "description": null,
+      "description": "Totem Hunter: a first-person shooter in three.js where you light totems to stop enemies spawning, with two guns, aim-down-sights and loot crates.",
       "html_url": "https://github.com/XiniDev/graphics-shooter-game",
       "homepage": null,
       "language": "JavaScript",
@@ -221,7 +221,7 @@
     {
       "name": "bitventory",
       "full_name": "XiniDev/bitventory",
-      "description": "A simple, flexible inventory engine for pygame projects",
+      "description": "Inventory system for pygame with item stacking, stack splitting, sorting and drag-and-drop between windows (fork of codethulu/bitventory).",
       "html_url": "https://github.com/XiniDev/bitventory",
       "homepage": null,
       "language": "Python",
@@ -233,7 +233,7 @@
     {
       "name": "deutsche-bank-mentorship",
       "full_name": "XiniDev/deutsche-bank-mentorship",
-      "description": "cs261 coursework",
+      "description": "University group project: a mentoring platform with mentor suggestions, milestones, sessions, ratings and chat, built in React and Django.",
       "html_url": "https://github.com/XiniDev/deutsche-bank-mentorship",
       "homepage": null,
       "language": "TypeScript",
@@ -245,7 +245,7 @@
     {
       "name": "En-Garde--old-",
       "full_name": "XiniDev/En-Garde--old-",
-      "description": "Fencing is supposed to be reaction speed based, but this game is a turn based fencing game? An interesting concept indeed...",
+      "description": "Earlier terminal version of EnGarde in C: a turn-based fencing game where you plan up to six actions a turn against a bot or a friend.",
       "html_url": "https://github.com/XiniDev/En-Garde--old-",
       "homepage": null,
       "language": "C",
@@ -257,7 +257,7 @@
     {
       "name": "JumpAndShoot",
       "full_name": "XiniDev/JumpAndShoot",
-      "description": "Very Simple FPS Game. My second Unity game!",
+      "description": "Simple first-person shooter made in Unity 2019.3, shared as a Windows build.",
       "html_url": "https://github.com/XiniDev/JumpAndShoot",
       "homepage": null,
       "language": null,
@@ -269,7 +269,7 @@
     {
       "name": "AngryBallGame",
       "full_name": "XiniDev/AngryBallGame",
-      "description": "Warning! This game will make you break your keyboard!",
+      "description": "Early Unity 2018.4 game, shared as a Windows build.",
       "html_url": "https://github.com/XiniDev/AngryBallGame",
       "homepage": null,
       "language": null,

@@ -14,7 +14,7 @@
     "preview": "wrangler pages dev out --port 8788 --ip 127.0.0.1",
     "check": "astro check && tsc --noEmit -p workers/daily-rebuild",
     "test": "vitest run",
-    "test:e2e": "npm run build:test && playwright test",
+    "test:e2e": "npm run build:test && playwright test --grep-invert @perf && playwright test --grep @perf --workers=1",
     "lhci": "npm run build && lhci autorun",
     "size": "node scripts/size-report.ts",
     "links": "node scripts/check-links.ts",

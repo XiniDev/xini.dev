@@ -13,7 +13,7 @@ import {
   Vector2,
   Vector3,
   WebGLRenderer,
-} from 'three';
+} from './three.ts';
 import { gsap } from 'gsap';
 import type { BootApi } from './index.ts';
 import {
@@ -108,7 +108,10 @@ const dustDefines = () => ({
 
 type Hook = Record<string, unknown>;
 
+const yieldToMain = () => new Promise<void>((resolve) => setTimeout(resolve, 0));
+
 export async function start(api: BootApi): Promise<void> {
+  await yieldToMain();
   const root = document.documentElement;
   const stage = document.querySelector<HTMLElement>('.stage')!;
   const pin = stage.querySelector<HTMLElement>('.pin')!;
@@ -128,6 +131,7 @@ export async function start(api: BootApi): Promise<void> {
   const dpr = Math.min(devicePixelRatio || 1, profile.dprCap);
   renderer.setPixelRatio(dpr);
   renderer.setClearColor(new Color(getComputedStyle(root).getPropertyValue('--void').trim()), 1);
+  await yieldToMain();
 
   const worker = new Worker(new URL('./worker.ts', import.meta.url), { type: 'module' });
   const pendingLanding = new Map<number, (reply: LandingReply) => void>();
@@ -157,6 +161,7 @@ export async function start(api: BootApi): Promise<void> {
   };
 
   const [forms, firstLanding] = await Promise.all([formsReady, requestLanding()]);
+  await yieldToMain();
 
   const scene = new Scene();
   const camera = new PerspectiveCamera(CAMERA.fov, canvas.clientWidth / Math.max(1, canvas.clientHeight), CAMERA.near, CAMERA.far);
@@ -166,12 +171,19 @@ export async function start(api: BootApi): Promise<void> {
   const geometry = new BufferGeometry();
   const attribute = (data: Float32Array, size: number) => new BufferAttribute(data, size);
   geometry.setAttribute('position', attribute(forms.forms[0]!, 3));
-  geometry.setAttribute('aB', attribute(forms.forms[1]!, 3));
-  geometry.setAttribute('aC', attribute(forms.forms[2]!, 3));
-  geometry.setAttribute('aD', attribute(forms.forms[3]!, 3));
-  geometry.setAttribute('aE', attribute(firstLanding.reply.positions, 3));
   geometry.setAttribute('aStart', attribute(forms.start, 3));
   geometry.setAttribute('aRand', attribute(forms.rand, 4));
+  const landingAttribute = attribute(firstLanding.reply.positions, 3);
+  const later: [string, BufferAttribute][] = [
+    ['aB', attribute(forms.forms[1]!, 3)],
+    ['aC', attribute(forms.forms[2]!, 3)],
+    ['aD', attribute(forms.forms[3]!, 3)],
+    ['aE', landingAttribute],
+  ];
+  const uploadNext = () => {
+    const next = later.shift();
+    if (next) geometry.setAttribute(...next);
+  };
 
   const S = createState(reduce);
   const uniforms = {
@@ -217,6 +229,8 @@ export async function start(api: BootApi): Promise<void> {
   dust.frustumCulled = false;
   scene.add(dust);
 
+  await yieldToMain();
+
   let landing = firstLanding;
   let landingVersion = 1;
   let landingBuiltAt = performance.now();
@@ -225,9 +239,8 @@ export async function start(api: BootApi): Promise<void> {
     clearTimeout(landingTimer);
     const built = await requestLanding();
     if (built.reply.id !== landingId) return;
-    const target = geometry.getAttribute('aE') as BufferAttribute;
-    (target.array as Float32Array).set(built.reply.positions);
-    target.needsUpdate = true;
+    (landingAttribute.array as Float32Array).set(built.reply.positions);
+    landingAttribute.needsUpdate = true;
     landing = built;
     landingVersion++;
     landingBuiltAt = performance.now();
@@ -267,6 +280,7 @@ export async function start(api: BootApi): Promise<void> {
   const render = (now: number) => {
     const t = reduce ? 0 : (now - t0) / 1000;
     const m = S.morph;
+    if (m > 0) while (later.length) uploadNext();
     const narrow = narrowQuery.matches;
     uniforms.uTime.value = t;
     uniforms.uMorph.value = m;
@@ -324,6 +338,7 @@ export async function start(api: BootApi): Promise<void> {
     dust.rotation.y = -group.rotation.y * DUST.counterRotation;
     setActive(Math.max(0, Math.min(4, Math.round(m))));
     renderer.render(scene, camera);
+    uploadNext();
     frames++;
 
     if (hud) {
@@ -349,12 +364,18 @@ export async function start(api: BootApi): Promise<void> {
   function kick() {
     if (want() && !raf) raf = requestAnimationFrame(frame);
   }
+  let introTween: gsap.core.Tween | undefined;
   const update = () => {
-    if (want()) kick();
-    else if (raf) {
-      cancelAnimationFrame(raf);
-      raf = 0;
+    if (want()) {
+      if (introTween?.paused()) introTween.resume();
+      kick();
+      return;
     }
+    if (raf) cancelAnimationFrame(raf);
+    raf = 0;
+    scrub?.finish();
+    introTween?.pause();
+    gsap.ticker.sleep();
   };
 
   const resize = () => {
@@ -383,14 +404,17 @@ export async function start(api: BootApi): Promise<void> {
   const teardown = () => killTimeline(tl, scrub, [...beats, featured, rail, vignette]);
   api.onFallback(teardown);
 
+  await yieldToMain();
+  if (api.timeAt() > 0) while (later.length) uploadNext();
   if (reduce || api.timeAt() > INTRO.skipAfter) S.intro = 1;
   else {
     introPlayed = true;
-    gsap.to(S, { intro: 1, duration: INTRO.duration, delay: INTRO.delay, ease: INTRO.ease });
+    introTween = gsap.to(S, { intro: 1, duration: INTRO.duration, delay: INTRO.delay, ease: INTRO.ease });
   }
 
   if (renderer.extensions.has('KHR_parallel_shader_compile')) await renderer.compileAsync(scene, camera);
   else renderer.compile(scene, camera);
+  await yieldToMain();
   api.handOff();
 
   new ResizeObserver(() => {

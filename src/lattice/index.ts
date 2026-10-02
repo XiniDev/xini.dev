@@ -22,6 +22,21 @@ const HASH_TARGETS: Record<string, number> = {
   '#projects': TIMELINE.jumpTargets[4],
 };
 
+function afterFirstPaint(run: () => void) {
+  const painted = () => performance.getEntriesByName('first-contentful-paint').length > 0;
+  if (painted()) return run();
+  if (!PerformanceObserver.supportedEntryTypes?.includes('paint')) {
+    requestAnimationFrame(() => requestAnimationFrame(run));
+    return;
+  }
+  const observer = new PerformanceObserver(() => {
+    if (!painted()) return;
+    observer.disconnect();
+    run();
+  });
+  observer.observe({ type: 'paint', buffered: true });
+}
+
 export function boot(): BootApi | undefined {
   const root = document.documentElement;
   const stage = document.querySelector<HTMLElement>('.stage');
@@ -192,16 +207,23 @@ export function boot(): BootApi | undefined {
   }
   paint();
 
+  const nextTask = () => new Promise<void>((resolve) => setTimeout(resolve, 0));
+  const loadStage = async () => {
+    await import('./three.ts');
+    await nextTask();
+    await import('gsap');
+    await nextTask();
+    return import('./stage.ts');
+  };
   const start = () =>
-    import('./stage.ts')
+    loadStage()
       .then((stageModule) => stageModule.start(api))
       .catch(() => fallback());
-  requestAnimationFrame(() =>
-    requestAnimationFrame(() => {
-      if ('requestIdleCallback' in window) requestIdleCallback(start, { timeout: IDLE_LOAD.timeoutMs });
-      else setTimeout(start, IDLE_LOAD.timeoutMs);
-    }),
-  );
+  const whenIdle = () => {
+    if ('requestIdleCallback' in window) requestIdleCallback(start, { timeout: IDLE_LOAD.timeoutMs });
+    else setTimeout(start, IDLE_LOAD.timeoutMs);
+  };
+  afterFirstPaint(whenIdle);
 
   return api;
 }

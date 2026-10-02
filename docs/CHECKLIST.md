@@ -72,11 +72,16 @@ The success criteria from spec §17, copied word for word and grouped as in the 
 
 ## F. Performance
 
-- [ ] **F1** Lighthouse mobile medians: Performance ≥ 90, Accessibility 100, Best Practices ≥ 95, SEO 100. *Verify by:* Lighthouse CI
-- [ ] **F2** LCP ≤ 2.5 s, CLS ≤ 0.02, TBT ≤ 200 ms (Lighthouse mobile). *Verify by:* Lighthouse CI
-- [ ] **F3** First-paint JS ≤ 30 KB gz, CSS ≤ 20 KB gz, stage chunk ≤ 200 KB gz, font ≤ 95 KB. *Verify by:* Build size report
-- [ ] **F4** The stage chunk requests start after First Contentful Paint. *Verify by:* Network waterfall
-- [ ] **F5** No main-thread task over 50 ms after first paint, including stage start-up. *Verify by:* Performance trace
+- [x] **F1** Lighthouse mobile medians: Performance ≥ 90, Accessibility 100, Best Practices ≥ 95, SEO 100. *Verify by:* Lighthouse CI
+  - Evidence: `npm run lhci`: Lighthouse 12.6.1, mobile, simulated throttling, 3 runs against the production build served by `wrangler pages dev`. Median-run scores: Performance 0.98 (runs 0.98, 0.98, 1.00), Accessibility 1, Best Practices 1, SEO 1. Every `lighthouserc.cjs` assertion passes.
+- [x] **F2** LCP ≤ 2.5 s, CLS ≤ 0.02, TBT ≤ 200 ms (Lighthouse mobile). *Verify by:* Lighthouse CI
+  - Evidence: Same lhci run, medians: LCP 1,537 ms (budget 2,500), CLS 0.0003 (budget 0.02), TBT 166 ms (budget 200). Across runs, TBT ranged from 57 to 167 ms and LCP from 1,526 to 1,548 ms. Earlier runs the same day had TBT medians of 30 ms; DECISIONS §3 (M6) has the analysis.
+- [x] **F3** First-paint JS ≤ 30 KB gz, CSS ≤ 20 KB gz, stage chunk ≤ 200 KB gz, font ≤ 95 KB. *Verify by:* Build size report
+  - Evidence: `npm run build` ends with the size report (`scripts/size-report.ts`, gzip -9). First-paint JS 3.9 KB gz (budget 30), first-paint CSS 3.8 KB gz (budget 20), first-paint total 12.2 KB gz (budget 60), stage graph 162.4 KB gz (three 126.0, gsap 26.5, stage 6.3, worker 3.6; budget 200), font 88.0 KB as one preloaded WOFF2 (budget 95), featured images at 800w ≤ 46.5 KB (budget 80).
+- [x] **F4** The stage chunk requests start after First Contentful Paint. *Verify by:* Network waterfall
+  - Evidence: `tests/e2e/perf.spec.ts` (F4), Chromium and WebKit at 390×844 and 1440×900. Every lazy chunk (three, gsap, stage, worker) has a resource `startTime` later than `first-contentful-paint`, and the served HTML has no `modulepreload` links. The boot waits for the real FCP entry before scheduling the idle import.
+- [x] **F5** No main-thread task over 50 ms after first paint, including stage start-up. *Verify by:* Performance trace
+  - Evidence: `tests/e2e/perf.spec.ts` (F5 @perf), Chromium at 390×844 and 1440×900, run alone with one worker. The Long Tasks API records no task over 50 ms after FCP through stage start-up and a full scroll. At Lighthouse's 4× CPU throttle the phone profile has no stage task over 50 ms; the only one is the `font-display: swap` relayout, in runs where FCP beats the font. Details in DECISIONS §3 (M6).
 - [ ] **F6** **[Needs Xini]** Median ≥ 55 fps on the desktop reference and ≥ 50 fps on the phone reference, scrolling the whole stage. *Verify by:* Performance traces recorded in the checklist
 - [x] **F7** No animation frames run while the stage is off screen or the tab is hidden. *Verify by:* Performance trace
   - Evidence: `tests/e2e/stage.spec.ts` (F7) counts every `requestAnimationFrame` callback. It records 0 frames over 1s once the stage is scrolled off screen, and 0 once the document reports hidden, against more than 5 frames over 0.5s while the stage is on screen. This needed ScrollTrigger replaced (DECISIONS 2.11). Passes in Chromium and WebKit.

@@ -285,6 +285,16 @@ None of these needs a decision. They're recorded so that nothing changes silentl
 - **M3 (as built): `compileAsync` only runs when `KHR_parallel_shader_compile` exists.** Otherwise three.js logs a console warning, which H3 forbids, and falls back to the same synchronous compile anyway.
 - **Tests: Chromium e2e runs on this machine's real GPU** (`--use-angle=d3d11`). Headless SwiftShader makes Chromium's GPU stack log "GPU stall due to ReadPixels" while it composites the canvas. That's environment noise, and the page never calls `readPixels`. On a Linux CI runner without a GPU those driver messages come back, and test 1 will report them.
 - **Tests: WebKit's Tab key skips links**, like Safari's default. Its keyboard tests focus links directly, and the Tab-order checks run in Chromium and Firefox.
+- **M6 (as built): stage start-up is split into tasks.** three.js is imported through `src/lattice/three.ts`, which re-exports only the classes the stage uses, so the separate import still tree-shakes.
+  - The boot waits for the real `first-contentful-paint` entry, not a double `requestAnimationFrame`, before scheduling the idle import (F4).
+  - three.js, GSAP and the stage code are imported one after another with a yield between, so each module graph evaluates in its own task.
+  - `start()` yields between its steps: renderer, worker and DOM read, geometry, timeline, compile.
+  - The first frame uploads only the attributes the intro draws (position, start shell, randoms). The other forms follow one per frame, or all at once if the stage starts mid-page.
+- **M6: long tasks, measured.**
+  - **Unthrottled** (Chromium on the RTX 2080 desktop, 1440×900 and 390×844, three runs each): no task over 50 ms after FCP, which is what F5 checks.
+  - **Lighthouse's 4× CPU throttle at the phone profile (9,000 points):** no stage task over 50 ms. The only exception is the font-swap relayout (82–90 ms) in runs where FCP happens before Archivo arrives. That relayout comes from `font-display: swap`, which §7.2 requires, and the metric-matched fallbacks keep it shift-free.
+  - **4× throttle at the 18,000-point desktop profile:** the first stage frame sometimes takes 51 ms. A desktop never runs at 4× throttle; F6 on real devices is Xini's measurement.
+  - **Lighthouse mobile medians:** TBT 30 ms in the first M6 run and 166 ms in the final one (individual runs 57–167 ms), against the 200 ms budget. Lighthouse simulates 4× by scaling the tasks in its own trace, and tracing overhead inflates them. Its biggest item is the frame in which GSAP's tick and the first stage render share a task. Under the same mobile emulation without tracing, no frame after FCP takes over 30 ms.
 - **M7: Cloudflare's managed robots.txt adds its content-signals block to ours.** Confirm that Lighthouse's robots.txt audit still passes (SEO 100).
 
 ## 4. Open questions (§19): findings and decisions

@@ -66,7 +66,7 @@ export function buildTimeline({
   return tl;
 }
 
-export type Scrub = { update(): void; progress(): number; kill(): void };
+export type Scrub = { update(): void; progress(): number; finish(): void; kill(): void };
 
 export function scrubTimeline(
   tl: gsap.core.Timeline,
@@ -91,6 +91,10 @@ export function scrubTimeline(
   return {
     update,
     progress,
+    finish() {
+      tween?.progress(1);
+      tween = undefined;
+    },
     kill() {
       removeEventListener('scroll', update);
       removeEventListener('resize', update);

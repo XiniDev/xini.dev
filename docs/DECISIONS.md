@@ -248,6 +248,18 @@ Beat 03 says "Secure by default", but today's responses carry only `referrer-pol
 
 The obfuscation script from §2.6 would break that CSP, which is one more reason to turn it off. This is small, but it's outside the spec, so it needs your yes.
 
+### 2.11 ScrollTrigger can't meet F7, so the timeline is scrubbed by a small driver instead [F7, §12, §8.3] — Forced (found in M3)
+
+§8.3 says to scrub the timeline with ScrollTrigger, but F7 and §12 require zero animation frames while the stage is off screen. ScrollTrigger 3.15 can't meet that. While it's enabled, it keeps a `requestAnimationFrame` loop running permanently: `_rafBugFix`, about 60 frames a second. Measured in M3, the loop kept running with the stage scrolled off screen, so F7 fails by construction.
+
+**As built:** the same paused GSAP timeline, scrubbed by `scrubTimeline` in `src/lattice/timeline.ts`. It reproduces ScrollTrigger's behaviour:
+
+- **Range:** start is `top top`; end is `bottom bottom`, which is the sticky pin's release point, `stage top + stage height − pin height`.
+- **Scrub:** each scroll tweens the timeline's progress over 1s with `ease: 'expo'`, the ease ScrollTrigger's own scrub tween uses.
+- **Reduced motion:** progress is set directly, with no smoothing.
+
+GSAP's ticker then sleeps after 30 idle frames (`gsap.config({ autoSleep: 30 })`). In the F7 test, frames drop to zero within 2.5s of the stage leaving the screen. Removing ScrollTrigger also takes about 18 KB out of the stage chunk. The §8.3 timeline itself (times, eases, totals) and the jump maths are unchanged.
+
 ## 3. Implementation notes
 
 None of these needs a decision. They're recorded so that nothing changes silently.
@@ -269,6 +281,10 @@ None of these needs a decision. They're recorded so that nothing changes silentl
   - The HUD appears only with `?hud`.
   - Touch pointers are ignored.
 - **M2: the GitHub user repos endpoint returns public repos only, even with a token.** That's what we want here. Gloam and DBridger are public. VOETutor has no public repo, and featured cards don't need dates.
+- **M3 (as built): forms, the start shell, dust and the landing sampling all run in the worker.** The main thread only reads the rectangles. Each form uses its own seeded stream (`seedFor()` in `config.ts`).
+- **M3 (as built): `compileAsync` only runs when `KHR_parallel_shader_compile` exists.** Otherwise three.js logs a console warning, which H3 forbids, and falls back to the same synchronous compile anyway.
+- **Tests: Chromium e2e runs on this machine's real GPU** (`--use-angle=d3d11`). Headless SwiftShader makes Chromium's GPU stack log "GPU stall due to ReadPixels" while it composites the canvas. That's environment noise, and the page never calls `readPixels`. On a Linux CI runner without a GPU those driver messages come back, and test 1 will report them.
+- **Tests: WebKit's Tab key skips links**, like Safari's default. Its keyboard tests focus links directly, and the Tab-order checks run in Chromium and Firefox.
 - **M7: Cloudflare's managed robots.txt adds its content-signals block to ours.** Confirm that Lighthouse's robots.txt audit still passes (SEO 100).
 
 ## 4. Open questions (§19): findings and decisions

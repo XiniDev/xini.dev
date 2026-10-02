@@ -29,6 +29,7 @@ export function boot(): BootApi | undefined {
 
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const beats = [...stage.querySelectorAll<HTMLElement>('.beat')];
+  const pin = stage.querySelector<HTMLElement>('.pin');
   const featured = stage.querySelector<HTMLElement>('.featured');
   const finale = stage.querySelector<HTMLElement>('.finale');
   const finaleHeading = stage.querySelector<HTMLElement>('#work-heading');
@@ -40,7 +41,7 @@ export function boot(): BootApi | undefined {
 
   let range = (): StageRange => {
     const start = stage.getBoundingClientRect().top + scrollY;
-    return { start, end: start + stage.offsetHeight - innerHeight };
+    return { start, end: start + stage.offsetHeight - (pin?.clientHeight ?? innerHeight) };
   };
 
   const timeAt = (y = scrollY) => {
@@ -74,7 +75,6 @@ export function boot(): BootApi | undefined {
     });
   };
 
-  const pin = stage.querySelector<HTMLElement>('.pin');
   const fitFinale = () => {
     if (!finale || !pin || !featured) return;
     finale.classList.remove(...FINALE_FIT.steps.map((step) => `fit-${step}`));
@@ -186,7 +186,10 @@ export function boot(): BootApi | undefined {
   addEventListener('resize', relayout);
   addEventListener('scroll', schedule, { passive: true });
   addEventListener('resize', schedule);
-  if (location.hash) followHash();
+  if (location.hash) {
+    followHash();
+    addEventListener('load', () => requestAnimationFrame(followHash), { once: true });
+  }
   paint();
 
   const start = () =>

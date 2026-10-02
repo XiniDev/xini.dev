@@ -1,6 +1,7 @@
 import { defineConfig, type Project } from '@playwright/test';
 
 const PORT = 8789;
+export const CHROMIUM_GPU = process.platform === 'win32' ? ['--use-angle=d3d11', '--ignore-gpu-blocklist'] : [];
 const sizes = {
   phone: { width: 390, height: 844 },
   tablet: { width: 768, height: 1024 },
@@ -10,7 +11,12 @@ const sizes = {
 const projects: Project[] = (['chromium', 'webkit'] as const).flatMap((browserName) =>
   (Object.keys(sizes) as (keyof typeof sizes)[]).map((size) => ({
     name: `${browserName}-${size}`,
-    use: { browserName, viewport: sizes[size], hasTouch: size === 'phone' },
+    use: {
+      browserName,
+      viewport: sizes[size],
+      hasTouch: size === 'phone',
+      ...(browserName === 'chromium' ? { launchOptions: { args: CHROMIUM_GPU } } : {}),
+    },
   })),
 );
 

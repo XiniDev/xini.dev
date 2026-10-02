@@ -27,13 +27,18 @@ test.describe('layout at every §11 size', () => {
       await page.goto('/');
       await page.evaluate(() => document.fonts.ready);
       const fit = await page.evaluate(() => {
-        const pin = document.querySelector('.pin')!.getBoundingClientRect();
-        const bar = document.querySelector('.top')!.getBoundingClientRect();
-        const blocks = [...document.querySelectorAll('.beat:not(.outro), .finale')].map((el) => {
-          const r = el.getBoundingClientRect();
-          return { name: el.className, top: r.top - pin.top, bottom: r.bottom - pin.top };
-        });
-        return { pinHeight: pin.height, barBottom: bar.height, blocks };
+        const pin = document.querySelector<HTMLElement>('.pin')!;
+        const offset = (el: HTMLElement) => {
+          let top = 0;
+          for (let node: HTMLElement | null = el; node && node !== pin; node = node.offsetParent as HTMLElement | null) top += node.offsetTop;
+          return top;
+        };
+        const blocks = [...document.querySelectorAll<HTMLElement>('.beat:not(.outro), .finale')].map((el) => ({
+          name: el.className,
+          top: offset(el),
+          bottom: offset(el) + el.offsetHeight,
+        }));
+        return { pinHeight: pin.clientHeight, blocks };
       });
       for (const b of fit.blocks) {
         expect(b.bottom, `${width}×${height} ${b.name} bottom`).toBeLessThanOrEqual(fit.pinHeight);

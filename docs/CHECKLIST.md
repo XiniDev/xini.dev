@@ -6,7 +6,8 @@ The success criteria from spec §17, copied word for word and grouped as in the 
 
 ## A. Content and positioning
 
-- [ ] **A1** At 1440×900 and 390×844, the first screen shows the XINI wordmark, the statement and the credentials line without scrolling. *Verify by:* Screenshot at time 0
+- [x] **A1** At 1440×900 and 390×844, the first screen shows the XINI wordmark, the statement and the credentials line without scrolling. *Verify by:* Screenshot at time 0
+  - Evidence: `tests/e2e/stage.spec.ts` (A1) at 1440×900 and 390×844 in Chromium and WebKit: after the fly-in (intro = 1, morph = 0), the statement and credentials line sit inside the first viewport at opacity 1. More than 1% of the pixels above the statement are particle green, which is the XINI wordmark. The time-0 screenshots are in `docs/qa/`.
 - [ ] **A2** Beats 01–03 never mention a project: their text contains none of "Gloam", "DBridger" or "VOETutor". *Verify by:* E2E text assertion
 - [ ] **A3** The finale shows exactly Gloam, DBridger and VOETutor, in that order, with the copy from §6.4. *Verify by:* E2E text assertion
 - [x] **A4** All copy matches §6 word for word; no copy from the old site remains, and no banned phrase appears anywhere. *Verify by:* Diff against `site.ts`; grep the build output
@@ -30,13 +31,18 @@ The success criteria from spec §17, copied word for word and grouped as in the 
 
 ## C. Motion and interaction
 
-- [ ] **C1** Beat changes, morphs and the crossfade happen at the timeline times in §8.3 (within ±0.05 units). *Verify by:* E2E at sampled scroll positions
-- [ ] **C2** Scrolling backwards reverses every morph and copy change exactly. *Verify by:* Manual and E2E
-- [ ] **C3** The rail marks the current beat, shows its label, and jumps to the correct target when clicked. *Verify by:* E2E
-- [ ] **C4** Work, About and the skip link jump to their targets; Work leaves the cards fully visible. *Verify by:* E2E
+- [x] **C1** Beat changes, morphs and the crossfade happen at the timeline times in §8.3 (within ±0.05 units). *Verify by:* E2E at sampled scroll positions
+  - Evidence: `tests/e2e/stage.spec.ts` (C1 and C2) samples 17 times either side of each §8.3 boundary, ±0.05. Intro out by 0.85; beat 01 hidden at 1.07 and in by 1.55 with morph 1; the same pattern for beats 02 and 03; lock 0 at 4.95 and 1 at 6.05; cards and fade 0 at 5.95 and 1 at 6.40. Passes in Chromium and WebKit.
+- [x] **C2** Scrolling backwards reverses every morph and copy change exactly. *Verify by:* Manual and E2E
+  - Evidence: Same test, reverse pass: it revisits each recorded scroll position from 6.65 back to 0.45 and gets identical morph, lock, fade, beat opacities and card opacity at every sample. Passes in Chromium and WebKit.
+- [x] **C3** The rail marks the current beat, shows its label, and jumps to the correct target when clicked. *Verify by:* E2E
+  - Evidence: `tests/e2e/stage.spec.ts` (C3 and test 3): clicking each rail button lands within ±0.05 of its jump target. The expected beat is then the most visible copy block, its button has `aria-current="step"` and its label is at opacity 1. At 6.4 the rail is hidden. Passes in Chromium and WebKit.
+- [x] **C4** Work, About and the skip link jump to their targets; Work leaves the cards fully visible. *Verify by:* E2E
+  - Evidence: `tests/e2e/stage.spec.ts` (C4): Work lands at 6.4 with all three cards inside the viewport at opacity 1, and About lands at 1.5. The skip link (Tab, in Chromium) jumps to 6.4 and moves focus to `#work-heading`. WebKit's Tab key skips links like Safari's default, so there the test focuses the skip link directly before pressing Enter.
 - [ ] **C5** **[Needs Xini]** Pointer repulsion and tilt work on desktop and are off during lock, under reduced motion and on touch. *Verify by:* Manual
 - [ ] **C6** **[Needs Xini]** Network pulses appear only while the network is on screen. *Verify by:* Manual
-- [ ] **C7** The fly-in plays once on a fresh load at the top, and is skipped when the stage loads mid-page or under reduced motion. *Verify by:* Manual and E2E
+- [x] **C7** The fly-in plays once on a fresh load at the top, and is skipped when the stage loads mid-page or under reduced motion. *Verify by:* Manual and E2E
+  - Evidence: `tests/e2e/stage.spec.ts` (C7): on a fresh load at the top, `introPlayed` is true and intro rises to 1. A fresh load of `/#about` starts mid-page with `introPlayed` false and intro already 1. The reduced-motion case is covered by test 5 (G4). Passes in Chromium and WebKit.
 
 ## D. The landing
 
@@ -68,8 +74,10 @@ The success criteria from spec §17, copied word for word and grouped as in the 
 - [ ] **F4** The stage chunk requests start after First Contentful Paint. *Verify by:* Network waterfall
 - [ ] **F5** No main-thread task over 50 ms after first paint, including stage start-up. *Verify by:* Performance trace
 - [ ] **F6** **[Needs Xini]** Median ≥ 55 fps on the desktop reference and ≥ 50 fps on the phone reference, scrolling the whole stage. *Verify by:* Performance traces recorded in the checklist
-- [ ] **F7** No animation frames run while the stage is off screen or the tab is hidden. *Verify by:* Performance trace
-- [ ] **F8** Point counts and pixel-ratio caps match §8.4 on desktop and low-power devices. *Verify by:* `?hud` readout
+- [x] **F7** No animation frames run while the stage is off screen or the tab is hidden. *Verify by:* Performance trace
+  - Evidence: `tests/e2e/stage.spec.ts` (F7) counts every `requestAnimationFrame` callback. It records 0 frames over 1s once the stage is scrolled off screen, and 0 once the document reports hidden, against more than 5 frames over 0.5s while the stage is on screen. This needed ScrollTrigger replaced (DECISIONS 2.11). Passes in Chromium and WebKit.
+- [x] **F8** Point counts and pixel-ratio caps match §8.4 on desktop and low-power devices. *Verify by:* `?hud` readout
+  - Evidence: `tests/e2e/stage.spec.ts` (F8) reads the `?hud` readout. At 1440×900 with DPR 2 and 8 cores: "18,000 points … pixel ratio 1.5". At 390×844 with DPR 3: "9,000 points … pixel ratio 1.25". At 1440×900 with 4 cores: "9,000 points … pixel ratio 1.25". There is no readout without `?hud`.
 
 ## G. Accessibility
 

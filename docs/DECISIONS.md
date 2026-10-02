@@ -144,6 +144,18 @@ Measured overflow in px (positive means clipped). Each column adds one more leve
 
 `tests/e2e/layout.spec.ts` asserts that the finale and every beat sit inside the pinned screen at every §11 size, in Chromium and WebKit.
 
+**Re-measured on 2 Oct 2026, after the copy review (§2.12).** The finale intro line is gone, so its level is gone too. The levels are now: thumbnails, row, tags, step number. The review asked for the thumbnails back wherever they now fit. They don't fit anywhere new. The deleted line freed one line of height, but the cards gained more: the VOETutor credit line, and technology tags that wrap to two lines in the three-column row. Chromium and WebKit measure the same to the pixel:
+
+| Viewport | Base | Thumbnails | Row | Tags | Step number | Applied now | Applied before |
+|---|---|---|---|---|---|---|---|
+| 320×568 | +208 | +113 | n/a | +29 | **−3** | thumbnails, tags, step | thumbnails, intro, tags, step |
+| 360×740 | **−36** | | | | | none | none |
+| 844×390 | +174 | +20 | n/a | **−16** | | thumbnails, tags | thumbnails, intro |
+| 375×667 (not in §11) | +38 | **−57** | | | | thumbnails | thumbnails |
+| 667×375 (not in §11) | +223 | +182 | +23 | **−9** | | thumbnails, row, tags | thumbnails, row |
+
+Every other §11 size fits with everything shown, as before. One regression to note: at 844×390 the tags line, and the VOETutor credit line with it (both belong to the tags level), are now hidden visually, where the tags showed before. Screen readers still read both. I tested one remedy, the phone spacing on short screens (finale top 72px instead of 92px), which keeps the tags at 844×390. It fits with exactly 0px to spare in both engines, too thin to rely on, so it isn't applied. That trade is Xini's call (§4 questions).
+
 ### 2.3 The intro copy fade conflicts with first paint [F2, §8.1, §8.7] — Accepted
 
 §8.1 requires the intro copy to be visible at first paint. That copy is also the Largest Contentful Paint element. §8.7 keeps the prototype's scripted fade-in, which starts 1.0s after the script runs.
@@ -215,6 +227,8 @@ Email Address Obfuscation (AUDIT §2) causes three problems:
 - The size report checks the 80 KB budget at 800px.
 - The alt text lives in `src/data/projects.ts`. It needs editing only if a new screenshot shows something different.
 
+**2 Oct 2026: VOETutor swapped.** Xini's new screenshot was flattened and cropped to 1920×1200 (16:10, no signed-in header), saved as `src/assets/projects/voetutor.webp` (quality 92), and the PNG deleted. The build now also generates the 1200px width for it, and its 800px files stay inside the 80 KB budget. The alt text was rewritten for the new page. The screenshot shows tutor cards with real names and photos, including Xini's own legal name. Xini should decide whether that's fine on a site where they go by Xini.
+
 ### 2.9 Copy claims I couldn't trace to the repo data [A4] — Open (default applies)
 
 The copy rule says every claim must trace to a real project or real experience.
@@ -259,6 +273,121 @@ The obfuscation script from §2.6 would break that CSP, which is one more reason
 - **Reduced motion:** progress is set directly, with no smoothing.
 
 GSAP's ticker then sleeps after 30 idle frames (`gsap.config({ autoSleep: 30 })`). In the F7 test, frames drop to zero within 2.5s of the stage leaving the screen. Removing ScrollTrigger also takes about 18 KB out of the stage chunk. The §8.3 timeline itself (times, eases, totals) and the jump maths are unchanged.
+
+### 2.12 Copy is written for visitors [A4] — Decided (2 Oct 2026 review)
+
+Xini added a rule to §6: every visible string is written for a visitor (a client, a recruiter or another engineer), never for the maintainer. That covers alt text, aria-labels, visually hidden text, titles, meta and Open Graph text, structured data, the 404 page, empty and error states, and noscript text. I reviewed every string in the built `/` and `/404` against it.
+
+| Where | Before | After | Why |
+|---|---|---|---|
+| Finale, under "Featured work." | Three projects in full. Everything else follows below, newest push first. | *(removed)* | Commentary on the page and its sorting. |
+| More on GitHub, intro | Everything else, newest push first, pulled from the GitHub API at build time. | *(removed)* | Describes how the site is built. |
+| More on GitHub, empty state | The project list is being refreshed. See everything on GitHub. | [See all my projects on GitHub.](https://github.com/XiniDev) (the whole line is the link) | "Being refreshed" is a maintainer's status. |
+| Footer | Client work runs through Saltancy. | I take on client projects through my consultancy, Saltancy. | Says what Saltancy is to a visitor. |
+| Gloam summary | …per-creature line of sight and all 339 SRD spells automated. | …per-creature line of sight and all 339 spells from D&D’s open rules, automated. | "SRD" is an insider term. |
+| Gloam tags | React Three Fiber, Colyseus, MCP server | TypeScript, React Three Fiber, Colyseus, SQLite, MCP | Tags are now each project's main technologies, from its repo. |
+| DBridger tags | AI agents, legacy databases, PII redaction | Python, PyQt6, Gemini, SQLite, MCP | As above (the repo's requirements and source). |
+| VOETutor tags | Marketplace, secure video | Next.js, Supabase | As above. There's no public repo, so these come from the old site's blurb. **Xini to confirm.** |
+| VOETutor credit | *(none)* | Built through Saltancy | Xini: "just credit saltancy" (closes §4 question 2's credit choice). |
+| VOETutor image alt | The VOETutor home page: the headline “Premium private tutoring, tailored for you”, a tutor search box, subject filters and a Vault of Excellence banner. | The VOETutor home page: the headline “Find your IB educator. Open the vault.”, a search box and cards for vetted IB tutors with their subjects and hourly rates. | Describes the new screenshot. |
+| Saltancy Website summary | …my consultancy for end-to-end technical consultancy and custom software development. | …my consultancy for end-to-end technical work and custom software development. | Repeated word. |
+| Notes API summary | Secure REST API for per-user notes with CRUD operations and advanced filtering, built on MongoDB and Mongoose following OWASP principles. | Secure REST API where each user creates, reads, updates and deletes their own notes, with filtering, built on Node.js, Express and MongoDB following OWASP guidance. | "CRUD" spelt out; stack from the repo. |
+| LeadingOnes DAC summary | Model-based Dyna-DDQN reinforcement learning agent that improves learning quality and sample efficiency on the LeadingOnes (1+1) RLS benchmark for Dynamic Algorithm Configuration. | MSc dissertation: a model-based deep reinforcement learning agent that learns to tune an optimisation algorithm while it runs, improving learning quality and sample efficiency on a standard benchmark. | Three insider terms explained. |
+| AI Search Algorithms summary | Uninformed, informed and bidirectional search algorithms for flight-route problems on an N×N polar grid. | Classic AI search algorithms, from breadth-first and depth-first to A* and SMA*, planning flight routes on a polar grid, each with an optional bidirectional mode. | Says which algorithms. |
+
+The intro, the beats and the headings were approved, and all of them pass the rule, so none of them changed. The card summaries and the VOETutor line "progress tracking" are unchanged and still unconfirmed (§2.9).
+
+**Still failing the rule: GitHub's own repo descriptions.** The More on GitHub list shows each repo's GitHub description unless `projects.ts` has a curated summary. Several are written for the author, not a visitor (proposed replacements in §2.15): "My personal website :D", "Mini project to make an LOB to understand the market", "source code for wincrazyyy.github.io", "One of those fake mobile ad games type thingy", "cs261 coursework", and the jokey En-Garde, JumpAndShoot and AngryBallGame lines. Five repos have none at all. Setting the approved ones on GitHub fixes them here at the next daily rebuild, and fixes the GitHub profile too.
+
+**Checks (A4, extended):**
+
+- `tests/e2e/copy.spec.ts` fetches the raw HTML of `/` and `/404` and fails on `TODO`, `lorem`, `[confirm]`, `[from audit]` or `§`.
+- `tests/unit/copy-rules.test.ts` fails if the site's own UI copy contains *API, build time, push, snapshot, placeholder, pulled from* or *prototype*. That means every string in `site.ts`, plus the text and the `alt`, `aria-label`, `title`, `content` and `placeholder` attributes of every template in `src/components`, `src/layouts` and `src/pages`. Project summaries and GitHub descriptions are outside this word check, as the review specified ("Notes API" is a project name), and are reviewed by hand against the rule.
+
+### 2.13 The forms ran into the copy and the rail [B3, H5] — Fixed (2 Oct 2026 review)
+
+At 844×390 the intro statement and credentials sat on top of the XINI wordmark. At 390×844 and 768×1024 the rail overlapped the forms. The §8 framing (`FIT` shares, `LIFT`, the right-hand shift) is a fraction of the screen, and nothing in it knows where the copy or the rail actually are.
+
+**Rule:** at every §11 size and at jump targets 0, 1.5, 3.0 and 4.5, the middle 96% of the form's projected points stays at least 8px clear of the visible copy block and of the rail. The middle 96% is the box from the 2nd to the 98th percentile on each axis.
+
+**As built:**
+
+- **Spec target first.** For each beat the stage keeps the §8 target (scale, shift and lift) whenever the form clears the copy and the rail there.
+- **Otherwise, fit.** It finds the free rectangles of the screen below the top bar, around the copy block and the rail, each grown by `FRAMING.clearancePx` (10px). It picks the largest scale at which the form fits in one of them, no larger than the target, and the position closest to the target. Recomputed on resize, on layout changes and after the fonts load.
+- **The copy block is the text people see.** It is measured from the text-line rectangles, not the element's box, and from layout offsets, so the GSAP slide-in and the intro's rise animation don't move it.
+- **The form's box is exact, not estimated.** For each beat, `npm run framing` precomputes from the same seeded forms the worker builds and writes `src/lattice/framing-tables.json` (8.4 KB gzipped, inside the stage budget). The table holds the 2nd and 98th percentiles of the point cloud along every screen-ray direction a box edge can take. Each value is the worst case over the sway, the pointer tilt and the camera orbit, padded by the idle noise's full reach. At runtime one small equation per edge gives the screen box for any scale and position.
+- **Why not a simpler bound.** A bounding box with perspective came out 10–24% too large, which would shrink the forms for nothing. Projecting each edge at its points' average depth was up to 45px too small on large, close forms. Measured against all 18,000 points:
+
+  | Bound | Error |
+  |---|---|
+  | Box corners | 10–24% too large |
+  | Average edge depth | Up to 45px too small |
+  | Table | Never too small; at most 2% larger than the sampled worst case |
+
+- **The rail keeps one box at rest.** It used to change width with the active beat, because the active 36px line pushes the widest button out by 18px. The stage measured it at boot, so the obstacle was 18px short at later beats. Inactive buttons now reserve the difference as left padding, which transitions together with the line, so the rail looks the same.
+- **Why 10px.** That's the 8px rule plus 2px for sub-pixel text metrics.
+- **Not covered:** the pointer *push*, which moves particles away from the cursor. It's local and lasts only while the pointer moves.
+
+**Measured:** the smallest clearance over the four jump targets, from one run each in Chromium and WebKit. Each run lands at a different point in the sway, so the figures vary a little between runs. The model guarantees at least 10px at every phase.
+
+| Viewport | To the copy | To the rail | Frames changed from the target (beats 00–03) |
+|---|---|---|---|
+| 320×568 | 10.9px | 11.1px | wordmark 90% scale, left 0.44; D20 98% scale; network left 0.30, up 0.20 |
+| 360×740 | 86.4px | 12.7px | wordmark down 0.83; D20 left 0.03; network left 0.19 |
+| 390×844 | 174.3px | 12.7px | wordmark down 0.51; network left 0.14 |
+| 430×932 | 228.7px | 12.9px | wordmark down 0.31; network left 0.09 |
+| 768×1024 | 33.2px | 14.3px | wordmark left 0.28; D20 left 0.02; network left 0.11 |
+| 1024×768 | 75.0px | 23.8px | wordmark left 0.21 |
+| 1280×720 | 15.6px | 35.9px | wordmark left 0.07 |
+| 1440×900 | 86.0px | 47.1px | none |
+| 1920×1080 | 105.3px | 119.3px | none |
+| 2560×1440 | 189.3px | 218.9px | none |
+| 844×390 | 10.5px | 17.7px | wordmark 47% scale, up 0.56, above the copy; D20 left 0.10; network left 0.32 |
+
+Movements are in world units, where the wordmark is about 5 units wide. The padlock (beat 03) keeps its target everywhere except a 0.02 nudge at 844×390. At 1440×900 every beat keeps its exact spec frame. At 390×844 the wordmark sits lower and the network slightly further left; both changes keep them clear of the rail. Both are part of the B3 sign-off.
+
+`tests/e2e/clearance.spec.ts` checks the rule at all 11 sizes and all four targets in Chromium and WebKit. It projects every point with the test hook's `projectPoints()` and also checks that the rail's box doesn't change between beats. `tests/unit/framing.test.ts` checks the projection against a Three.js camera, that the table matches a fresh generator run, and that the table bounds the real percentile box at random sway, tilt and orbit angles while staying within 2% of the sampled worst case.
+
+**Found, outside §11:** landscape phones narrower than 760px, such as 667×375 (iPhone SE and 8), get the phone layout: copy across the bottom and the rail top right. That leaves the forms a strip about 90px tall, so beats 01–03 fit at only 27–34% of their target scale. Before this fix they simply covered the copy. Giving short, wide screens the desktop arrangement (copy left, form right) would fix it. That's a layout change to the §11 phone rule, so it's Xini's call (§4).
+
+### 2.14 Uneven gaps between the nav labels [B3] — Fixed (2 Oct 2026 review)
+
+Each nav link had `min-width: 44px` with its label centred, so a label narrower than 44px ("Work") got extra space on both sides, and the visible gaps differed from link to link.
+
+**Fixed:** every link has the same 8px padding on each side, so the visible gap between labels is the same everywhere: `clamp(16px, 2.4vw, 32px)`. That's the prototype's `clamp(14px, 2.4vw, 32px)` with the floor raised by 2px, so that on narrow phones the 44px targets meet instead of overlapping. The links keep `min-height: 44px`. `min-width: 44px` stays as a guard: today every label is already at least 44px wide with its padding, so it changes nothing, and if a shorter label is ever added it keeps the target size and lets the gap test fail rather than silently shrinking the target. A −8px right margin keeps the last label's text on the gutter, aligned with the rail. `tests/e2e/clearance.spec.ts` checks that the visible gaps, measured from the text itself, are equal within 2px at every §11 size, and G6 still checks the 44×44 targets.
+
+### 2.15 GitHub repo descriptions [A4, §10.2] — Proposed (needs Xini)
+
+Drafted from each repo's README and source; nothing was changed on GitHub. A description that renders on this site is marked **site**: it's the row text in More on GitHub, because the repo has no curated summary in `projects.ts`. The rest show only on GitHub. "Edited" marks where I changed the research draft to meet the §6 visitor rule.
+
+| Repo | Now | Proposed | Where |
+|---|---|---|---|
+| xini.dev | My personal website :D | Personal site of Xini, systems engineer: featured projects, background and contact details. (Also set the repo's homepage to https://xini.dev.) | site |
+| Gloam | A tabletop DND simulator | Self-hosted 3D virtual tabletop for fifth-edition RPGs in the browser, with automated spells from the open rules, line of sight and physics dice. *Edited: "SRD 5.2.1" removed.* | GitHub (featured card) |
+| dbridger | DBridger is a secure, native desktop AI gateway that lets you query local databases in plain English using Gemini, featuring automated PII masking and local SQL execution. | PyQt6 desktop app that queries a local SQLite database in plain English through Gemini, masking emails and card numbers before the model sees them. | GitHub (featured card) |
+| saltancy-web | *(none)* | Website for Saltancy, a technical consultancy for web, backend and mobile systems, built with Next.js, Tailwind CSS and Motion. | GitHub (curated) |
+| getajobman | *(none)* | Job tracker in Next.js and Supabase that reads a posting from its URL and drafts a tailored CV and cover letter with a language model. *Edited: "LLM" spelt out.* | site |
+| limit-order-book | Mini project to make an LOB to understand the market | Limit order book matching engine in C++ and Python with price-time priority, limit and market orders, and O(1) cancellation. | site |
+| AI-Search-Algorithms | AI Search Algorithms Implementation | Coursework: breadth-first, depth-first, uniform-cost, best-first, A* and SMA* search in Java, with bidirectional modes, routing flights on a polar grid. *Edited: acronyms spelt out.* | GitHub (curated) |
+| LeadingOnesDAC | Masters Dissertation Project | MSc dissertation: dynamic algorithm configuration on the LeadingOnes benchmark with DDQN and model-based Dyna-DDQN agents. | GitHub (curated) |
+| wincrazyyy.github.io | source code for wincrazyyy.github.io | Earlier React version of the WS Math tutoring website, with IBDP, A-Level and IGCSE course pages, pricing, reviews and an enquiry form. | site |
+| Jungle-Board-Game-Java | Jungle Board Game in Java | The Jungle board game in Java with a Swing GUI for two local players, legal-move highlighting and hand-drawn piece art. | GitHub (curated) |
+| NullVector-Processing | Processing Platformer - NullVector | 2D platformer in Processing (Java) with its own physics and contact resolution, pathfinding enemies and a two-phase boss fight. | GitHub (curated) |
+| notes-api | This simple Notes API demonstrates RESTful service design with secure user authentication, Dockerized deployment, and MongoDB integration. Built to reinforce modern backend development practices for scalable systems. | REST API for per-user notes on Express and MongoDB, with JWT authentication, hashed passwords, an admin role and tag search, run with Docker Compose. | GitHub (curated) |
+| AdventOfCode24 | *(none)* | No description: the repo is empty. Hide it from the site (`hiddenRepos`), or push the solutions. | site |
+| aws-streaming-demo | Video Streaming Service Demo that uses AWS S3 and CloudFront CDN with other tools | React and Vite demo that streams video through Amazon CloudFront. *Edited: dropped the note that the video is switched off.* | site |
+| firebase-auth-demo | Demo for Firebase Authentication | React demo of Firebase Authentication: email and Google sign-in, a protected dashboard route, and deploys to Firebase Hosting from GitHub Actions. | site |
+| AutoScroller | One of those fake mobile ad games type thingy | Godot 4 prototype of a 3D auto-runner: the player moves forward on its own, steers left and right, and jumps to avoid falling off. | site |
+| ecs-platformer-demo | Understanding ECS System in Game Dev | 2D platformer demo in C++ and SDL2 built on an entity component system (after Austin Morlan's design), with physics, collision and weapons. | GitHub (curated) |
+| AdventOfCode23 | *(none)* | Advent of Code 2023 solutions in C++ for days 1 to 12, run from one command-line entry point by day and part. | site |
+| EnGarde | *(none)* | Turn-based fencing game in Python and pygame, played against scripted bots or reinforcement-learning agents (DQN and self-play DRQN) trained with PyTorch. *Edited: explains DQN.* | site |
+| graphics-shooter-game | *(none)* | Totem Hunter: a first-person shooter in three.js where you light totems to stop enemies spawning, with two guns, aim-down-sights and loot crates. | site |
+| bitventory (fork) | A simple, flexible inventory engine for pygame projects | Inventory system for pygame with item stacking, stack splitting, sorting and drag-and-drop between windows (fork of codethulu/bitventory). | GitHub (forks aren't listed) |
+| deutsche-bank-mentorship | cs261 coursework | University group project: a mentoring platform with mentor suggestions, milestones, sessions, ratings and chat, built in React and Django. *Edited: "CS261" removed.* | site |
+| En-Garde--old- | Fencing is supposed to be reaction speed based, but this game is a turn based fencing game? An interesting concept indeed... | Earlier terminal version of EnGarde in C: a turn-based fencing game where you plan up to six actions a turn against a bot or a friend. | site |
+| JumpAndShoot | Very Simple FPS Game. My second Unity game! | Simple first-person shooter made in Unity 2019.3, shared as a Windows build. | site |
+| AngryBallGame | Warning! This game will make you break your keyboard! | Early Unity 2018.4 game, shared as a Windows build. *Low confidence: the repo holds only a build.* | site |
+| overthrow-synthetica (BlueTentProductions) | *(none)* | Game jam demo: a stealth-action browser game in TypeScript and three.js where you collect data drives while evading officers and inquisitors. *Needs admin rights on the organisation.* | GitHub (curated) |
 
 ## 3. Implementation notes
 
@@ -319,7 +448,7 @@ None of these needs a decision. They're recorded so that nothing changes silentl
 | # | Question | What the audit found | Decision (2 Oct 2026) |
 |---|---|---|---|
 | 1 | GitHub username | The old site links `github.com/XiniDev`, which has 25 public repos (AUDIT §3). | **Decided:** `XiniDev` |
-| 2 | VOETutor: own product or client work, Saltancy credit, summary | No public repo. voetutor.com doesn't mention Saltancy. Its own description: "a curated marketplace of vetted IB educators… HD video lessons… on demand". That supports most of §6.4, but not "progress tracking" or "secure video". The old site filed it under Web, marked Live, as "built on Next.js and Supabase". | **Open.** Xini's reply left both choices unfilled: "[keep / cut]" for the two phrases, and "[no credit line / add \"Built through Saltancy\"]". Until Xini answers, the build uses the spec default: the §6.4 copy as written, with no credit line. |
+| 2 | VOETutor: own product or client work, Saltancy credit, summary | No public repo. voetutor.com doesn't mention Saltancy. Its own description: "a curated marketplace of vetted IB educators… HD video lessons… on demand". That supports most of §6.4, but not "progress tracking" or "secure video". The old site filed it under Web, marked Live, as "built on Next.js and Supabase". | **Credit decided** (copy review, 2 Oct 2026): Xini said "just credit saltancy", so the card carries "Built through Saltancy". **Still open:** keep or cut "progress tracking" ("secure video" left with the old tags), and confirm the stack (Next.js, Supabase). |
 | 3 | Links for Gloam and DBridger | Both repos are public: `XiniDev/Gloam` (last push 1 Oct 2026) and `XiniDev/dbridger` (8 Mar 2026). Neither has a demo URL. | **Decided:** link each card to its repo, with the link text "Source on GitHub". |
 | 4 | Footer contact | Email `xini@saltancy.com`, GitHub `XiniDev`, LinkedIn `in/xinidev`, plus X `@XiniDev`. Cloudflare currently obfuscates the email (§2.6). | **Decided:** the footer shows `xini@saltancy.com`, GitHub and LinkedIn. X stays in the data but isn't shown, and it's left out of `sameAs`. |
 | 5 | Keep the old icon? | A clean vector, but in one colour it reads as a figure-of-eight (§1.4). | **Decided:** retire the old icon and use the wordmark X at all sizes. |
@@ -327,3 +456,18 @@ None of these needs a decision. They're recorded so that nothing changes silentl
 | 7 | Scroll length | Nothing in the audit bears on it. | **Decided:** 560vh. Judge it on a real device in M8. |
 | 8 | Analytics | None on the page. Cloudflare's zone analytics are server-side and need no script. | **Decided:** no analytics. |
 | 9 | Debug readout | — | **Decided:** show the HUD only with `?hud`. |
+
+### Open questions from the 2 Oct 2026 review
+
+1. **VOETutor summary:** keep or cut "progress tracking"? Nothing public confirms it.
+2. **VOETutor stack:** confirm the tags "Next.js, Supabase". They come from the old site's blurb, since there's no public repo.
+3. **Nav label "Saltancy":** a visitor may not know what it is until the footer. Keep it, or change it (for example "Consultancy" or "Hire me")? It stays as it is until you answer.
+4. **Overthrow Synthetica:** its summary names "Codethulu", which a visitor won't know. What is it, so the line can say so, or should the name go?
+5. **Landscape finale (§2.2):** at 844×390 the tags and credit lines are now hidden. Use the phone spacing on short screens to keep them (it fits with 0px to spare), or accept the hidden lines?
+6. **Narrow landscape phones (§2.13):** give screens shorter than 560px the desktop arrangement, so forms aren't squeezed at 667×375? This changes the §11 phone rule.
+7. **GitHub descriptions (§2.15):** approve, edit or reject the proposed descriptions. Set the approved ones on GitHub, and the next daily rebuild picks them up.
+8. **Claims the repos don't back up**, found while drafting §2.15:
+   - Notes API says "following OWASP guidance", but nothing in the repo mentions OWASP. It is also the trace for beat 03's OWASP claim (§2.9).
+   - DBridger's card says "legacy databases", but the code only supports SQLite.
+   - LeadingOnes DAC says it improves "learning quality and sample efficiency", but the repo has no results.
+   Confirm each, or say what to change. The beat and the DBridger card are approved copy, so I haven't touched them.

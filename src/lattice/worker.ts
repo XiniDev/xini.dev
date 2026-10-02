@@ -1,10 +1,7 @@
 import { DUST_BOX, START_SHELL, seedFor } from './config.ts';
-import { d20 } from './forms/d20.ts';
-import { network } from './forms/network.ts';
-import { padlock } from './forms/padlock.ts';
-import { mulberry32, type Rng } from './forms/rng.ts';
-import { coherent, coherentOrder, reorder } from './forms/sample.ts';
-import { wordmark } from './forms/wordmark.ts';
+import { mulberry32 } from './forms/rng.ts';
+import { coherentOrder, reorder } from './forms/sample.ts';
+import { shapedForms } from './forms/shaped.ts';
 import { sampleLanding, type LandingInput } from './landing.ts';
 
 export type WorkerRequest =
@@ -28,18 +25,8 @@ type Scope = {
 };
 const scope = self as unknown as Scope;
 
-const build = (generate: (n: number, rng: Rng) => Float32Array, stream: Parameters<typeof seedFor>[0], n: number) => {
-  const rng = mulberry32(seedFor(stream));
-  return coherent(generate(n, rng), rng);
-};
-
 function forms(count: number, dustCount: number): FormsReply {
-  const shaped = [
-    build(wordmark, 'wordmark', count),
-    build(d20, 'd20', count),
-    build(network, 'network', count),
-    build(padlock, 'padlock', count),
-  ];
+  const shaped = shapedForms(count);
   const r = mulberry32(seedFor('start'));
   const start = new Float32Array(count * 3);
   const rand = new Float32Array(count * 4);

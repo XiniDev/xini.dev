@@ -2,7 +2,6 @@ import type { Page } from '@playwright/test';
 
 export type StageSnapshot = {
   morph: number;
-  shift: number;
   dist: number;
   rotX: number;
   intro: number;
@@ -22,6 +21,7 @@ export type StageSnapshot = {
   baseAlpha: number;
   pointerStrength: number;
   calm: number;
+  framing: { scale: number; x: number; y: number; target?: { scale: number; x: number; y: number } }[];
 };
 
 type Box = { left: number; top: number; right: number; bottom: number; width: number; height: number };
@@ -39,6 +39,7 @@ type Hook = {
   state(): StageSnapshot;
   jumpTo(t: number): Promise<StageSnapshot>;
   settle(timeout?: number): Promise<boolean>;
+  projectPoints(): number[];
   projectLanding(): Projection;
   rebuildLanding(): Promise<void>;
   loseContext(): void;

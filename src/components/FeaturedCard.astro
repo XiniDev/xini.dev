@@ -43,6 +43,7 @@ const sizes = '(max-width: 760px) 84px, (min-width: 1700px) 510px, calc((100vw -
     <h3>{project.name}</h3>
     <p class="summary">{project.summary}</p>
     <p class="tags">{project.tags.join(', ')}</p>
+    {project.credit && <p class="credit">{project.credit}</p>}
     {
       link && (
         <a class="flink" href={link.href} target="_blank" rel="noopener">

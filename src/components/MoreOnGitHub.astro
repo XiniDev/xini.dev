@@ -10,14 +10,12 @@ const { recent, older, empty, username } = await githubListing();
   <div class="more-inner">
     <div class="more-head">
       <h2 id="more-heading">{site.more.heading}</h2>
-      <p>{site.more.intro}</p>
     </div>
     {
       empty ? (
         <p class="empty">
-          {site.more.empty}{' '}
           <a href={`https://github.com/${username}`} target="_blank" rel="noopener">
-            {site.more.emptyLink}
+            {site.more.empty}
             <span class="sr-only">{site.newTab}</span>
           </a>
         </p>

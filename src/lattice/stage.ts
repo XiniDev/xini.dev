@@ -22,8 +22,10 @@ import {
   COLOURS,
   DUST,
   FIT,
+  FRAMING,
   GROUP,
   INTRO,
+  KEYS,
   LANDING,
   LIFT,
   LOW_POWER,
@@ -34,6 +36,8 @@ import {
   TIMELINE,
 } from './config.ts';
 import { drawnPosition, type DisplaceUniforms } from './displace.ts';
+import { expand, fitFrame, screenBox, type Frame, type FramingTables, type Rect } from './framing.ts';
+import framingTables from './framing-tables.json';
 import { readLanding, type LandingScreen } from './landing.ts';
 import { buildTimeline, createState, killTimeline, scrubTimeline } from './timeline.ts';
 import type { FormsReply, LandingReply, WorkerRequest } from './worker.ts';
@@ -261,12 +265,86 @@ export async function start(api: BootApi): Promise<void> {
     landingTimer = window.setTimeout(rebuildLanding, LANDING.debounceMs);
   };
 
+  const tan = Math.tan((CAMERA.fov * Math.PI) / 360);
+  const topBar = document.querySelector<HTMLElement>('.top');
+  const offsetInPin = (el: HTMLElement) => {
+    let x = 0;
+    let y = 0;
+    for (let node: HTMLElement | null = el; node && node !== pin; node = node.offsetParent as HTMLElement | null) {
+      x += node.offsetLeft;
+      y += node.offsetTop;
+    }
+    return { x, y };
+  };
+  const blockOf = (el: HTMLElement) => {
+    let block = el;
+    while (block !== pin && getComputedStyle(block).display === 'inline' && block.parentElement) block = block.parentElement;
+    return block;
+  };
+  const copyRect = (beat: HTMLElement): Rect => {
+    const box = { x0: Infinity, y0: Infinity, x1: -Infinity, y1: -Infinity };
+    const add = (rects: Iterable<DOMRect>, owner: HTMLElement) => {
+      const base = owner.getBoundingClientRect();
+      const at = offsetInPin(owner);
+      for (const r of rects) {
+        if (!r.width || !r.height) continue;
+        box.x0 = Math.min(box.x0, at.x + r.left - base.left);
+        box.y0 = Math.min(box.y0, at.y + r.top - base.top);
+        box.x1 = Math.max(box.x1, at.x + r.right - base.left);
+        box.y1 = Math.max(box.y1, at.y + r.bottom - base.top);
+      }
+    };
+    const range = document.createRange();
+    const walker = document.createTreeWalker(beat, NodeFilter.SHOW_TEXT | NodeFilter.SHOW_ELEMENT);
+    for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+      if (node instanceof Text) {
+        if (!node.data.trim() || !node.parentElement) continue;
+        range.selectNodeContents(node);
+        add(range.getClientRects(), blockOf(node.parentElement));
+      } else if (node instanceof HTMLElement && !node.firstChild) add([node.getBoundingClientRect()], node);
+    }
+    return box;
+  };
+  const tables = framingTables as FramingTables;
+  const formTables = tables.counts[count];
+  if (!formTables) throw new Error(`no framing table for ${count} points`);
+  let framing: Frame[] = [];
+  let targets: Frame[] = [];
+  const computeFrames = () => {
+    const w = pin.clientWidth;
+    const h = pin.clientHeight;
+    if (!w || !h) return;
+    const narrow = narrowQuery.matches;
+    const pinBox = pin.getBoundingClientRect();
+    const railBox = rail.getBoundingClientRect();
+    const railRect = { x0: railBox.left - pinBox.left, y0: railBox.top - pinBox.top, x1: railBox.right - pinBox.left, y1: railBox.bottom - pinBox.top };
+    const bounds = { x0: 0, y0: topBar?.offsetHeight ?? 0, x1: w, y1: h };
+    const fits = narrow ? FIT.phone : FIT.desktop;
+    const lifts = narrow ? LIFT.phone : LIFT.desktop;
+    framing = formTables.map((table, k) => {
+      const distance = KEYS.distance[k]!;
+      const visH = 2 * distance * tan;
+      const visW = visH * (w / h);
+      const view = { width: w, height: h, focal: h / 2 / tan, distance, lift: CAMERA.height };
+      const [share, span] = fits[k]!;
+      const target = {
+        scale: Math.min(GROUP.scaleCap, (visW * share) / span),
+        x: narrow || k === 0 ? 0 : Math.min((visW / 2) * GROUP.shiftShare, GROUP.shiftMax),
+        y: lifts[k]!,
+      };
+      targets[k] = target;
+      const obstacles = [expand(copyRect(beats[k]!), FRAMING.clearancePx), expand(railRect, FRAMING.clearancePx)];
+      return fitFrame(target, (frame) => screenBox(frame, table, tables.grid, view), view.focal / distance, bounds, obstacles);
+    });
+    framing.push({ scale: 1, x: 0, y: 0 });
+    kick();
+  };
+
   const pointer = { x: 0, y: 0, active: 0, last: -Infinity };
   const ndc = new Vector2();
   const ray = new Raycaster();
   const plane = new Plane(new Vector3(0, 0, 1), 0);
   const hit = new Vector3();
-  const tan = Math.tan((CAMERA.fov * Math.PI) / 360);
   const t0 = performance.now();
   let frames = 0;
   let introPlayed = false;
@@ -291,20 +369,18 @@ export async function start(api: BootApi): Promise<void> {
     const t = reduce ? 0 : (now - t0) / 1000;
     const m = S.morph;
     if (m > 0) while (later.length) uploadNext();
-    const narrow = narrowQuery.matches;
     uniforms.uTime.value = t;
     uniforms.uMorph.value = m;
     uniforms.uIntro.value = S.intro;
     uniforms.uLock.value = S.lock;
 
-    const visW = 2 * S.dist * tan * camera.aspect;
-    const fits = [...(narrow ? FIT.phone : FIT.desktop).map(([share, span]) => (visW * share) / span), 1];
-    const lifts = narrow ? LIFT.phone : LIFT.desktop;
     const k = Math.min(3, Math.floor(Math.max(0, m)));
     const f = smooth(m - k);
-    group.scale.setScalar(Math.min(GROUP.scaleCap, lerp(fits[k]!, fits[k + 1]!, f)));
-    group.position.x = narrow ? 0 : S.shift * Math.min((visW / 2) * GROUP.shiftShare, GROUP.shiftMax);
-    group.position.y = lerp(lifts[k]!, lifts[k + 1]!, f);
+    const from = framing[k]!;
+    const to = framing[k + 1]!;
+    group.scale.setScalar(lerp(from.scale, to.scale, f));
+    group.position.x = lerp(from.x, to.x, f);
+    group.position.y = lerp(from.y, to.y, f);
 
     const presence = clamp01(m) * clamp01(4 - m);
     const wanted = !reduce && now - pointer.last < POINTER.activeMs ? 1 : 0;
@@ -398,6 +474,7 @@ export async function start(api: BootApi): Promise<void> {
     kick();
   };
   resize();
+  computeFrames();
 
   const range = () => {
     const start = stage.getBoundingClientRect().top + scrollY;
@@ -429,11 +506,19 @@ export async function start(api: BootApi): Promise<void> {
 
   new ResizeObserver(() => {
     resize();
+    computeFrames();
     scheduleLanding();
   }).observe(canvas);
   addEventListener('orientationchange', scheduleLanding);
-  api.onLayout(scheduleLanding);
-  const afterFonts = () => document.fonts?.ready.then(() => rebuildLanding());
+  api.onLayout(() => {
+    computeFrames();
+    scheduleLanding();
+  });
+  const afterFonts = () =>
+    document.fonts?.ready.then(() => {
+      computeFrames();
+      return rebuildLanding();
+    });
   afterFonts();
   document.fonts?.addEventListener('loading', afterFonts);
   new MutationObserver(scheduleLanding).observe(featured, { subtree: true, childList: true, characterData: true });
@@ -522,11 +607,34 @@ export async function start(api: BootApi): Promise<void> {
       }
       return false;
     };
+    const projectPoints = () => {
+      render(performance.now());
+      const u: DisplaceUniforms = {
+        morph: uniforms.uMorph.value,
+        intro: uniforms.uIntro.value,
+        time: uniforms.uTime.value,
+        calm: uniforms.uCalm.value,
+        lock: uniforms.uLock.value,
+        pointerX: uniforms.uPointer.value.x,
+        pointerY: uniforms.uPointer.value.y,
+        pointerStrength: uniforms.uPointerStrength.value,
+      };
+      const a = attrs();
+      const r = canvas.getBoundingClientRect();
+      const v = new Vector3();
+      points.updateMatrixWorld(true);
+      camera.updateMatrixWorld();
+      const xy: number[] = [];
+      for (let i = 0; i < count; i++) {
+        v.set(...drawnPosition(i, a, u)).applyMatrix4(points.matrixWorld).project(camera);
+        xy.push(r.left + ((v.x + 1) / 2) * r.width, r.top + ((1 - v.y) / 2) * r.height);
+      }
+      return xy;
+    };
     const hook: Hook = {
       ready: true,
       state: () => ({
         morph: S.morph,
-        shift: S.shift,
         dist: S.dist,
         rotX: S.rotX,
         intro: S.intro,
@@ -546,6 +654,7 @@ export async function start(api: BootApi): Promise<void> {
         baseAlpha: profile.alpha,
         pointerStrength: uniforms.uPointerStrength.value,
         calm: uniforms.uCalm.value,
+        framing: framing.map((frame, k) => ({ ...frame, target: targets[k] })),
       }),
       settle,
       jumpTo: async (t: number) => {
@@ -555,28 +664,9 @@ export async function start(api: BootApi): Promise<void> {
         return (hook.state as () => unknown)();
       },
       rebuildLanding,
+      projectPoints,
       projectLanding: () => {
-        render(performance.now());
-        const u: DisplaceUniforms = {
-          morph: uniforms.uMorph.value,
-          intro: uniforms.uIntro.value,
-          time: uniforms.uTime.value,
-          calm: uniforms.uCalm.value,
-          lock: uniforms.uLock.value,
-          pointerX: uniforms.uPointer.value.x,
-          pointerY: uniforms.uPointer.value.y,
-          pointerStrength: uniforms.uPointerStrength.value,
-        };
-        const a = attrs();
-        const r = canvas.getBoundingClientRect();
-        const v = new Vector3();
-        points.updateMatrixWorld(true);
-        camera.updateMatrixWorld();
-        const xy: number[] = [];
-        for (let i = 0; i < count; i++) {
-          v.set(...drawnPosition(i, a, u)).applyMatrix4(points.matrixWorld).project(camera);
-          xy.push(r.left + ((v.x + 1) / 2) * r.width, r.top + ((1 - v.y) / 2) * r.height);
-        }
+        const xy = projectPoints();
         const now = readLanding(pin, featured).screen;
         return { xy, kind: [...landing.reply.kind], owner: [...landing.reply.owner], cards: now.cards, lines: now.lines, builtLines: landing.screen.lines.length };
       },

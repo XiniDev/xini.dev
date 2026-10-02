@@ -13,18 +13,20 @@ test('A2: beats 01–03 never name a project', async ({ page }) => {
   for (const text of texts) for (const name of PROJECT_NAMES) expect(text).not.toContain(name);
 });
 
-test('A3: the finale shows exactly Gloam, DBridger and VOETutor in order with the §6.4 copy', async ({ page }) => {
+test('A3: the finale shows exactly Gloam, DBridger and VOETutor in order with the §6.4 copy and credit', async ({ page }) => {
   await page.goto('/');
   const cards = await page.$$eval('.featured .fcard', (els) =>
     els.map((el) => ({
       title: el.querySelector('h3')?.textContent?.trim(),
       summary: el.querySelector('.summary')?.textContent?.trim(),
       tags: el.querySelector('.tags')?.textContent?.trim(),
+      credit: el.querySelector('.credit')?.textContent?.trim(),
     })),
   );
   expect(cards.map((c) => c.title)).toEqual(PROJECT_NAMES);
-  expect(cards).toEqual(featured.map((p) => ({ title: p.name, summary: p.summary, tags: p.tags.join(', ') })));
+  expect(cards).toEqual(featured.map((p) => ({ title: p.name, summary: p.summary, tags: p.tags.join(', '), credit: p.credit })));
   await expect(page.locator('.finale h2')).toHaveText(site.finale.heading);
+  await expect(page.locator('.finale .outro p')).toHaveCount(0);
 });
 
 test('A6: Saltancy is linked from the nav and the footer, in a new tab with rel="noopener"', async ({ page }) => {

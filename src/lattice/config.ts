@@ -205,12 +205,14 @@ export const TIMELINE = {
   ],
 } as const;
 
+export const FRAMING = { clearancePx: 10 } as const;
+
 export const CHROME = { vignetteLockFade: 0.8, railPointerOffAt: 0.5, railHiddenAt: 0.98 } as const;
 
 export const IDLE_LOAD = { timeoutMs: 1200 } as const;
 
 export const FINALE_FIT = {
-  steps: ['no-thumb', 'row', 'no-intro', 'no-tags', 'no-step'],
+  steps: ['no-thumb', 'row', 'no-tags', 'no-step'],
   rowMinWidth: 560,
 } as const;
 

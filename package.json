@@ -20,6 +20,7 @@
     "links": "node scripts/check-links.ts",
     "snapshot:github": "node scripts/snapshot-github.ts",
     "icons": "node scripts/icons.ts",
+    "framing": "node scripts/framing-tables.ts",
     "og": "node scripts/og.ts",
     "test:e2e:prod": "playwright test --config playwright.prod.config.ts",
     "qa": "node scripts/qa.ts"

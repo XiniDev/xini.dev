@@ -44,3 +44,5 @@ export const US_SPELLINGS = [
   /(organi|optimi|customi|personali|reali|recogni|prioriti|visuali|analy|utili|minimi|maximi|standardi|synchroni|seriali|initiali|authori|categori|summari|emphasi|speciali|moderni|tokeni|normali)z/i,
   /^(color|colors|colored|center|centers|centered|favorite|favorites|behavior|behaviors|modeling|modeled|catalog|gray|defense|traveled|canceled|labeled|fulfill|enrollment)$/i,
 ];
+
+export const NEVER_IN_BUILD = ['TODO', 'lorem', '[confirm]', '[from audit]', '§'];

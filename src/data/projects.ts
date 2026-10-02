@@ -7,6 +7,7 @@ export type Project = {
   url?: string;
   image?: { src: string; alt: string };
   featured?: 1 | 2 | 3;
+  credit?: string;
   hidden?: boolean;
   updated?: string;
 };
@@ -16,8 +17,8 @@ export const projects: Project[] = [
     slug: 'gloam',
     name: 'Gloam',
     summary:
-      'Self-hosted 3D virtual tabletop for D&D 5e, with shadow-casting light, per-creature line of sight and all 339 SRD spells automated.',
-    tags: ['React Three Fiber', 'Colyseus', 'MCP server'],
+      'Self-hosted 3D virtual tabletop for D&D 5e, with shadow-casting light, per-creature line of sight and all 339 spells from D&D’s open rules, automated.',
+    tags: ['TypeScript', 'React Three Fiber', 'Colyseus', 'SQLite', 'MCP'],
     repo: 'XiniDev/Gloam',
     image: {
       src: 'gloam',
@@ -29,7 +30,7 @@ export const projects: Project[] = [
     slug: 'dbridger',
     name: 'DBridger',
     summary: 'Autonomous agent that queries legacy databases in plain English, with PII redaction built in.',
-    tags: ['AI agents', 'legacy databases', 'PII redaction'],
+    tags: ['Python', 'PyQt6', 'Gemini', 'SQLite', 'MCP'],
     repo: 'XiniDev/dbridger',
     image: {
       src: 'dbridger',
@@ -41,18 +42,19 @@ export const projects: Project[] = [
     slug: 'voetutor',
     name: 'VOETutor',
     summary: 'Curated marketplace of vetted IB tutors, with on-demand video lessons and progress tracking.',
-    tags: ['Marketplace', 'secure video'],
+    tags: ['Next.js', 'Supabase'],
     url: 'https://voetutor.com',
+    credit: 'Built through Saltancy',
     image: {
       src: 'voetutor',
-      alt: 'The VOETutor home page: the headline “Premium private tutoring, tailored for you”, a tutor search box, subject filters and a Vault of Excellence banner.',
+      alt: 'The VOETutor home page: the headline “Find your IB educator. Open the vault.”, a search box and cards for vetted IB tutors with their subjects and hourly rates.',
     },
     featured: 3,
   },
   {
     slug: 'saltancy-website',
     name: 'Saltancy Website',
-    summary: 'Landing page for Saltancy, my consultancy for end-to-end technical consultancy and custom software development.',
+    summary: 'Landing page for Saltancy, my consultancy for end-to-end technical work and custom software development.',
     tags: [],
     repo: 'XiniDev/saltancy-web',
     url: 'https://www.saltancy.com',
@@ -77,7 +79,7 @@ export const projects: Project[] = [
     slug: 'notes-api',
     name: 'Notes API',
     summary:
-      'Secure REST API for per-user notes with CRUD operations and advanced filtering, built on MongoDB and Mongoose following OWASP principles.',
+      'Secure REST API where each user creates, reads, updates and deletes their own notes, with filtering, built on Node.js, Express and MongoDB following OWASP guidance.',
     tags: ['MongoDB', 'Mongoose', 'OWASP'],
     repo: 'XiniDev/notes-api',
     image: {
@@ -89,7 +91,7 @@ export const projects: Project[] = [
     slug: 'leadingones-dac',
     name: 'LeadingOnes DAC',
     summary:
-      'Model-based Dyna-DDQN reinforcement learning agent that improves learning quality and sample efficiency on the LeadingOnes (1+1) RLS benchmark for Dynamic Algorithm Configuration.',
+      'MSc dissertation: a model-based deep reinforcement learning agent that learns to tune an optimisation algorithm while it runs, improving learning quality and sample efficiency on a standard benchmark.',
     tags: ['Deep reinforcement learning', 'Dyna-DDQN'],
     repo: 'XiniDev/LeadingOnesDAC',
     image: {
@@ -100,7 +102,7 @@ export const projects: Project[] = [
   {
     slug: 'ai-search-algorithms',
     name: 'AI Search Algorithms',
-    summary: 'Uninformed, informed and bidirectional search algorithms for flight-route problems on an N×N polar grid.',
+    summary: 'Classic AI search algorithms, from breadth-first and depth-first to A* and SMA*, planning flight routes on a polar grid, each with an optional bidirectional mode.',
     tags: ['Search algorithms'],
     repo: 'XiniDev/AI-Search-Algorithms',
     image: {

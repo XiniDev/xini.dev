@@ -32,6 +32,7 @@ npm run dev        # http://localhost:4321
 | `npm run qa` | Regenerates the QA screenshots in `docs/qa/` |
 | `npm run og` | Regenerates `public/og.png` from the live stage (run `npm run build:test` first) |
 | `npm run icons` | Regenerates the favicon set and manifest from the wordmark X and the colour tokens |
+| `npm run framing` | Regenerates `src/lattice/framing-tables.json`, the percentile tables that keep each form clear of the copy and the rail. Run it after changing a form, `KEYS`, `GROUP`, `POINTER`, `CAMERA` or the point counts; a unit test fails while it's stale |
 | `npm run snapshot:github` | Refreshes `src/data/github-snapshot.json` from the GitHub API |
 
 Chromium tests use the machine's GPU on Windows (`--use-angle=d3d11`). Elsewhere they fall back to SwiftShader.
@@ -99,9 +100,9 @@ src/
   components/       TopBar, Stage, FeaturedCard, MoreOnGitHub, GitHubRow, Footer
   data/             site.ts (copy), projects.ts, listing.ts, github-snapshot.json
   lib/              github.ts (fetch, merge, ordering), listing.ts (build-time wrapper), images.ts
-  lattice/          index.ts (boot), config.ts, stage.ts, timeline.ts, landing.ts, displace.ts, worker.ts, three.ts, forms/, shaders/
+  lattice/          index.ts (boot), config.ts, stage.ts, timeline.ts, framing.ts, landing.ts, displace.ts, worker.ts, three.ts, forms/, shaders/
   styles/           tokens.ts, global.css, fallbacks.ts (metric-matched font fallbacks)
-scripts/            size report, link checker, GitHub snapshot, icons, og image, QA screenshots, font fallbacks
+scripts/            size report, link checker, GitHub snapshot, icons, og image, QA screenshots, font fallbacks, framing tables
 tests/unit/         Vitest
 tests/e2e/          Playwright
 workers/            daily-rebuild cron Worker

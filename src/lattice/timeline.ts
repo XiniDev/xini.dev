@@ -4,7 +4,6 @@ import type { StageRange } from './index.ts';
 
 export type StageState = {
   morph: number;
-  shift: number;
   dist: number;
   rotX: number;
   intro: number;
@@ -14,7 +13,6 @@ export type StageState = {
 
 export const createState = (reduce: boolean): StageState => ({
   morph: 0,
-  shift: 0,
   dist: KEYS.distance[0],
   rotX: KEYS.tilt[0],
   intro: reduce ? 1 : 0,
@@ -52,8 +50,6 @@ export function buildTimeline({
   });
 
   const [first, second, third, last] = TIMELINE.morphStarts;
-  tl.to(state, { shift: 1, duration: TIMELINE.morphDuration, ease: step }, first);
-  tl.to(state, { shift: 0, duration: TIMELINE.morphDuration, ease: step }, last);
   [first, second, third].forEach((t0, i) =>
     tl.to(state, { dist: KEYS.distance[i + 1], rotX: KEYS.tilt[i + 1], duration: TIMELINE.morphDuration, ease: step }, t0),
   );

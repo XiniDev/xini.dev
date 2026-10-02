@@ -156,6 +156,7 @@ Copy rules:
 - No hype. Banned phrases: "turning imagination into reality", "passionate", "cutting-edge", "innovative solutions", "pixel-perfect", "rockstar", "ninja".
 - Every claim must trace to a real project or real experience.
 - The three beats describe Xini. They never name a project. Projects appear only in the finale and the GitHub list.
+- Write every visible string for a visitor (a client, a recruiter or another engineer), never for me or for whoever maintains the site. No copy about how the site works (APIs, build steps, sorting, refreshes, snapshots, placeholders), no commentary about the page itself, and no insider terms a visitor wouldn't know unless they're explained. Skills I'm claiming, such as MCP, OWASP, Zero Trust and PII redaction, are fine. Visible text includes alt text, aria-labels, visually hidden text, page titles, meta and Open Graph text, structured data, the 404 page, empty and error states, and noscript text.
 
 ### 6.1 Metadata
 
@@ -182,31 +183,30 @@ The visually hidden `<h1>` reads: **Xini, systems engineer**
 | 01 | Systems | 01 | Whole systems, built solo. | I take ambitious ideas all the way to production on my own: real-time 3D, multiplayer backends, data, infrastructure and the interface people actually use. | Full stack, real-time 3D, multiplayer |
 | 02 | AI | 02 | AI that does real work. | I build AI into products where it earns its place: agents that act on real systems, MCP servers that give models real tools, and local models when the data should stay put. | Agents, MCP servers, local models |
 | 03 | Security | 03 | Secure by default. | I self-host what I build and design for Zero Trust, with OWASP practice and PII redaction there from the first commit. | Self-hosting, OWASP, Zero Trust |
-| 04 Finale | Work | 04 | Featured work. | Three projects in full. Everything else follows below, newest push first. | none |
+| 04 Finale | Work | 04 | Featured work. | none | none |
 
 ### 6.4 Featured projects (finale)
 
 Fixed order. Links only where a real URL exists **[from audit]**; never use placeholder `#` links.
 
-| Order | Title | Summary | Tags | Links |
+| Order | Title | Summary | Tags (main technologies, from the repo) | Links and credit |
 |---|---|---|---|---|
-| 1 | Gloam | Self-hosted 3D virtual tabletop for D&D 5e, with shadow-casting light, per-creature line of sight and all 339 SRD spells automated. | React Three Fiber, Colyseus, MCP server | [from audit] |
-| 2 | DBridger | Autonomous agent that queries legacy databases in plain English, with PII redaction built in. | AI agents, legacy databases, PII redaction | [from audit] |
-| 3 | VOETutor | Curated marketplace of vetted IB tutors, with on-demand video lessons and progress tracking. **[confirm]** | Marketplace, secure video **[confirm]** | `voetutor.com` → <https://voetutor.com> |
+| 1 | Gloam | Self-hosted 3D virtual tabletop for D&D 5e, with shadow-casting light, per-creature line of sight and all 339 spells from D&D's open rules, automated. | TypeScript, React Three Fiber, Colyseus, SQLite, MCP | `Source on GitHub` → <https://github.com/XiniDev/Gloam> |
+| 2 | DBridger | Autonomous agent that queries legacy databases in plain English, with PII redaction built in. | Python, PyQt6, Gemini, SQLite, MCP | `Source on GitHub` → <https://github.com/XiniDev/dbridger> |
+| 3 | VOETutor | Curated marketplace of vetted IB tutors, with on-demand video lessons and progress tracking. **[confirm]** | Next.js, Supabase **[confirm]** | `voetutor.com` → <https://voetutor.com>; credit line `Built through Saltancy` |
 
 ### 6.5 More on GitHub
 
 - Heading: `More on GitHub`
-- Intro: `Everything else, newest push first, pulled from the GitHub API at build time.`
 - Older group summary: `Older projects (N)`, where N is the count.
 - Row date format: `Updated Sep 2026` (absolute month and year, never relative, so it cannot go stale between builds).
-- Empty state (only if both the API and the snapshot fail): `The project list is being refreshed. See everything on GitHub.` with a link to the GitHub profile.
+- Empty state (only when no project data is available): `See all my projects on GitHub.`, linked to the GitHub profile.
 
 ### 6.6 Footer
 
 - Heading: `Get in touch`
 - Email: **[from audit]**, shown as selectable text with a `mailto:` link.
-- Line: `Client work runs through Saltancy.` with Saltancy linked.
+- Line: `I take on client projects through my consultancy, Saltancy.` with Saltancy linked.
 - Links: GitHub, LinkedIn **[from audit]**.
 - Copyright: `© 2026 Xini`
 

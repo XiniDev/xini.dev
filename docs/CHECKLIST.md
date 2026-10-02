@@ -11,9 +11,14 @@ The success criteria from spec §17, copied word for word and grouped as in the 
 - [x] **A2** Beats 01–03 never mention a project: their text contains none of "Gloam", "DBridger" or "VOETutor". *Verify by:* E2E text assertion
   - Evidence: `tests/e2e/content.spec.ts` (A2): the text of beats 01, 02 and 03 contains none of "Gloam", "DBridger" or "VOETutor". Passes in Chromium and WebKit at all three sizes, and has since M1.
 - [x] **A3** The finale shows exactly Gloam, DBridger and VOETutor, in that order, with the copy from §6.4. *Verify by:* E2E text assertion
-  - Evidence: `tests/e2e/content.spec.ts` (A3): the finale's cards are exactly Gloam, DBridger and VOETutor in that order. Each title, summary and tag line equals the §6.4 copy in `src/data/projects.ts`, and the heading is "Featured work." Passes in Chromium and WebKit at all three sizes.
+  - Evidence: `tests/e2e/content.spec.ts` (A3): the finale's cards are exactly Gloam, DBridger and VOETutor in that order. Each title, summary, tag line and credit line equals the §6.4 copy in `src/data/projects.ts`, the heading is "Featured work.", and the finale has no intro line (copy review, 2 Oct 2026) Passes in Chromium and WebKit at all three sizes.
 - [x] **A4** All copy matches §6 word for word; no copy from the old site remains, and no banned phrase appears anywhere. *Verify by:* Diff against `site.ts`; grep the build output
   - Evidence: `tests/e2e/copy.spec.ts`: every string in `src/data/site.ts` appears word for word on `/` or `/404` (only the empty-state line is skipped, because the list isn't empty). None of the 29 old-site phrases from the audit and none of the 7 banned phrases appear in the rendered text, the attributes or the title. `tests/unit/source.test.ts` greps the source for the banned phrases too.
+  - Extended (copy review, 2 Oct 2026):
+    - §6 gained the rule that every visible string is written for a visitor, and the copy was revised to match (before/after table in DECISIONS 2.12).
+    - `tests/e2e/copy.spec.ts` checks the raw HTML of `/` and `/404` for `TODO`, `lorem`, `[confirm]`, `[from audit]` and `§`.
+    - `tests/unit/copy-rules.test.ts` checks the site's own UI copy (`site.ts` and the templates' text and attributes) for API, build time, push, snapshot, placeholder, pulled from and prototype.
+    - GitHub's own repo descriptions are outside the word check and still fail the visitor rule in places. The proposed replacements are waiting for Xini's approval (DECISIONS 2.12).
 - [x] **A5** UK English spelling throughout. *Verify by:* Review
   - Evidence: `tests/e2e/copy.spec.ts` (UK English) finds no -ize/-yze or US forms (color, center, behavior, modeling, catalog and so on) in the rendered text of `/` and `/404`. I also reviewed the copy, summaries and alt text by hand. The one US spelling in the GitHub data ("Dockerized", notes-api) is replaced by its curated summary and never renders.
 - [x] **A6** Saltancy is linked from the nav and the footer, opening in a new tab with `rel="noopener"`. *Verify by:* E2E
@@ -31,8 +36,18 @@ The success criteria from spec §17, copied word for word and grouped as in the 
   - Steps:
     1. Open `docs/qa/1440x900-t*.png` and `docs/qa/390x844-t*.png` (times 0.00, 1.75, 3.25, 4.75, 6.05 and 6.65).
     2. Open `docs/reference/lattice-prototype.html` in Chrome at the same two window sizes and scroll to the same beats.
-    3. For each beat, compare the copy placement, the form's placement and scale, and the rail position. Two differences were decided, not drifted: Gloam and DBridger have "Source on GitHub" links, and on short screens the finale drops parts to fit (DECISIONS 2.2).
+    3. For each beat, compare the copy placement, the form's placement and scale, and the rail position. These differences were decided, not drifted:
+       - Gloam and DBridger have "Source on GitHub" links.
+       - On short screens the finale drops parts to fit (DECISIONS 2.2).
+       - Forms move or shrink only where they would otherwise run into the copy or the rail (DECISIONS 2.13).
+       - The nav labels have equal gaps (DECISIONS 2.14).
+       - The finale has no intro line, and the VOETutor card has a "Built through Saltancy" line (DECISIONS 2.12).
     4. Tick B3 if they match; otherwise note the beat and the difference here.
+  - Note (copy and layout review, 2 Oct 2026):
+    - At every §11 size and at jump targets 0, 1.5, 3.0 and 4.5, the middle 96% of each form (2nd–98th percentile box of its projected points) stays at least 8px clear of the visible copy block and the rail. `tests/e2e/clearance.spec.ts` checks this in Chromium and WebKit; the smallest measured clearance is 10.5px.
+    - At 1440×900 every beat keeps its exact spec frame. At 390×844 the wordmark sits 0.51 units lower and the network 0.14 units further left, which keeps both clear of the rail. Look at those two frames when signing off.
+    - The visible gaps between nav labels are equal within 2px at every §11 size (same test file).
+    - The rail's layout box no longer changes between beats; the active marker looks the same as before.
 - [x] **B4** No racing or circuit asset, component or style remains in the repository. *Verify by:* Grep against the audit inventory
   - Evidence: `tests/unit/repo.test.ts` (B4): none of the audit-inventory files exist (`src/components/facet`, `src/app`, `public/icon.svg`, the Next configs, the image script, the VOLUMETRIC doc). Every text file outside `docs/` (source, tests, scripts, configs, README) contains none of the theme vocabulary: lap, circuit, bay, specimen, facet and the old class names. The only exceptions are the two files that list it as a ban.
 - [x] **B5** The favicon set (SVG, 180px, 512px maskable) uses the decided icon in signal on void. *Verify by:* Inspect the build output
@@ -152,7 +167,11 @@ The success criteria from spec §17, copied word for word and grouped as in the 
 - [x] **H4** No horizontal scrolling at any width from 320 to 2560px. *Verify by:* E2E test 2
   - Evidence: Test 2 (`tests/e2e/layout.spec.ts` and the smoke copy) checks every §11 size (320×568 to 2560×1440, plus 844×390), each at the top, middle and bottom of the page. `scrollWidth ≤ innerWidth` everywhere, in Chromium and WebKit.
 - [x] **H5** At 844×390 (landscape phone) no copy is clipped. *Verify by:* Screenshot
-  - Evidence: `tests/e2e/layout.spec.ts` (H5 and DECISIONS 2.2): at 844×390 every beat and the finale sit inside the pinned screen. The finale uses compact levels 1–3, and nothing is clipped. Screenshots `docs/qa/844x390-t*.png` at all six times.
+  - Evidence: `tests/e2e/layout.spec.ts` (H5 and DECISIONS 2.2): at 844×390 every beat and the finale sit inside the pinned screen, and nothing is clipped. After the 2 Oct 2026 copy review, the finale drops the thumbnails and visually hides the tags and credit lines (re-measured in DECISIONS 2.2). Screenshots `docs/qa/844x390-t*.png` at all six times.
+  - Note (copy and layout review, 2 Oct 2026):
+    - The intro statement and credentials no longer sit on the XINI wordmark. At 844×390 the wordmark is framed at 47% of its target scale, above the copy, with 10.5px to spare.
+    - Every other beat's form also stays at least 8px clear of its copy and the rail at all §11 sizes and jump targets 0, 1.5, 3.0 and 4.5 (`tests/e2e/clearance.spec.ts`, DECISIONS 2.13).
+    - The visible nav gaps are equal within 2px at every size, 844×390 included (DECISIONS 2.14).
 
 ## I. SEO and sharing
 

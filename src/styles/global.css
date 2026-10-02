@@ -107,8 +107,10 @@ a {
 }
 
 .nav {
+  --nav-pad: 8px;
   display: flex;
-  gap: clamp(8px, 1.6vw, 22px);
+  gap: calc(clamp(16px, 2.4vw, 32px) - 2 * var(--nav-pad));
+  margin-right: calc(-1 * var(--nav-pad));
   font-family: var(--f88);
   font-size: 14px;
   font-stretch: 88%;
@@ -121,6 +123,7 @@ a {
   justify-content: center;
   min-width: 44px;
   min-height: 44px;
+  padding: 0 var(--nav-pad);
   text-decoration: none;
   color: var(--mute);
   transition: color 0.2s;
@@ -217,10 +220,6 @@ html.no-gl .rail {
   color: var(--body);
   font-size: clamp(15px, 1.15vw, 17.5px);
   line-height: 1.58;
-}
-
-.outro .text {
-  max-width: 40rem;
 }
 
 .beat .stack {
@@ -357,6 +356,14 @@ html.no-gl .rail {
   font-stretch: 92%;
 }
 
+.fbody .credit {
+  margin: 4px 0 0;
+  color: var(--mute);
+  font-family: var(--f92);
+  font-size: 13px;
+  font-stretch: 92%;
+}
+
 .fbody .flink {
   display: inline-block;
   margin-top: 8px;
@@ -367,6 +374,8 @@ html.no-gl .rail {
 
 /* rail */
 .rail {
+  --line: 18px;
+  --line-active: 36px;
   position: absolute;
   z-index: 5;
   right: var(--gutter);
@@ -388,12 +397,13 @@ html.no-gl .rail {
   justify-content: flex-end;
   gap: 12px;
   min-height: 44px;
-  padding: 0 4px;
+  padding: 0 4px 0 calc(4px + var(--line-active) - var(--line));
   cursor: pointer;
   color: var(--mute);
   font-family: var(--f100);
   font-size: 12px;
   font-variant-numeric: tabular-nums;
+  transition: padding-left 0.3s;
 }
 
 .rail .lbl {
@@ -414,7 +424,7 @@ html.no-gl .rail {
 
 .rail button::after {
   content: '';
-  width: 18px;
+  width: var(--line);
   height: 1px;
   background: var(--hair);
   transition:
@@ -430,11 +440,12 @@ html.no-gl .rail {
 }
 
 .rail button[aria-current='step'] {
+  padding-left: 4px;
   color: var(--ink);
 }
 
 .rail button[aria-current='step']::after {
-  width: 36px;
+  width: var(--line-active);
   background: var(--signal);
 }
 
@@ -611,14 +622,6 @@ html.js.pre:not(.no-gl) .rail.is-done {
   font-weight: 760;
   font-size: clamp(26px, 2.8vw, 40px);
   letter-spacing: -0.01em;
-}
-
-.more-head p {
-  margin: 0;
-  max-width: 34rem;
-  color: var(--mute);
-  font-size: 14.5px;
-  line-height: 1.55;
 }
 
 .rows {
@@ -839,8 +842,8 @@ html.js:not(.no-gl) .finale.fit-row .fcard {
   flex-direction: column;
 }
 
-html.js:not(.no-gl) .finale.fit-no-intro .outro .text,
 html.js:not(.no-gl) .finale.fit-no-tags .tags,
+html.js:not(.no-gl) .finale.fit-no-tags .credit,
 html.js:not(.no-gl) .finale.fit-no-step .outro .step {
   position: absolute;
   width: 1px;
@@ -878,6 +881,8 @@ html.js:not(.no-gl) .finale.fit-no-step .outro .step {
   }
 
   .rail {
+    --line: 12px;
+    --line-active: 22px;
     right: 12px;
     top: calc(76px + var(--safe-top));
     translate: none;
@@ -887,13 +892,6 @@ html.js:not(.no-gl) .finale.fit-no-step .outro .step {
     display: none;
   }
 
-  .rail button::after {
-    width: 12px;
-  }
-
-  .rail button[aria-current='step']::after {
-    width: 22px;
-  }
 
   html.js:not(.no-gl) .finale {
     left: 16px;
@@ -929,6 +927,11 @@ html.js:not(.no-gl) .finale.fit-no-step .outro .step {
 
   .fbody .tags {
     margin-top: 4px;
+    font-size: 12.5px;
+  }
+
+  .fbody .credit {
+    margin-top: 2px;
     font-size: 12.5px;
   }
 

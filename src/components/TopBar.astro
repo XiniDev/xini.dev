@@ -1,0 +1,13 @@
+---
+import { site } from '../data/site';
+---
+
+<header class="top">
+  <a class="mark" href="#top" aria-label={site.markLabel}>{site.mark}</a>
+  <nav class="nav" aria-label={site.nav.label}>
+    <a href="#work" data-go="4">{site.nav.work}</a>
+    <a class="opt" href="#about" data-go="1">{site.nav.about}</a>
+    <a href={site.saltancy} target="_blank" rel="noopener">{site.nav.saltancy}<span class="sr-only">{site.newTab}</span></a>
+    <a class="opt" href="#contact">{site.nav.contact}</a>
+  </nav>
+</header>

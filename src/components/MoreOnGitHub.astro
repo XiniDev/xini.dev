@@ -1,0 +1,43 @@
+---
+import { site } from '../data/site';
+import { githubListing } from '../lib/listing';
+import GitHubRow from './GitHubRow.astro';
+
+const { recent, older, empty, username } = await githubListing();
+---
+
+<section class="more" id="more" aria-labelledby="more-heading">
+  <div class="more-inner">
+    <div class="more-head">
+      <h2 id="more-heading">{site.more.heading}</h2>
+    </div>
+    {
+      empty ? (
+        <p class="empty">
+          <a href={`https://github.com/${username}`} target="_blank" rel="noopener">
+            {site.more.empty}
+            <span class="sr-only">{site.newTab}</span>
+          </a>
+        </p>
+      ) : (
+        <>
+          <ol class="rows">
+            {recent.map((item) => (
+              <GitHubRow item={item} />
+            ))}
+          </ol>
+          {older.length > 0 && (
+            <details class="older">
+              <summary>{site.more.older(older.length)}</summary>
+              <ol class="rows">
+                {older.map((item) => (
+                  <GitHubRow item={item} />
+                ))}
+              </ol>
+            </details>
+          )}
+        </>
+      )
+    }
+  </div>
+</section>

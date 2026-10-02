@@ -30,6 +30,7 @@ import {
   LIFT,
   LOW_POWER,
   PHONE_MAX_WIDTH,
+  SHORT_MAX_HEIGHT,
   POINTER,
   POINTS,
   SHADER,
@@ -127,6 +128,7 @@ export async function start(api: BootApi): Promise<void> {
   const vignette = pin.querySelector<HTMLElement>('.vignette')!;
   const reduce = api.reduce;
   const narrowQuery = matchMedia(`(max-width: ${PHONE_MAX_WIDTH}px)`);
+  const shortQuery = matchMedia(`(max-height: ${SHORT_MAX_HEIGHT}px)`);
   const lowPower = narrowQuery.matches || (navigator.hardwareConcurrency || 8) <= LOW_POWER.maxCores;
   const profile = lowPower ? POINTS.lowPower : POINTS.desktop;
   const count = profile.count;
@@ -314,13 +316,13 @@ export async function start(api: BootApi): Promise<void> {
     const w = pin.clientWidth;
     const h = pin.clientHeight;
     if (!w || !h) return;
-    const narrow = narrowQuery.matches;
+    const stacked = narrowQuery.matches && !shortQuery.matches;
     const pinBox = pin.getBoundingClientRect();
     const railBox = rail.getBoundingClientRect();
     const railRect = { x0: railBox.left - pinBox.left, y0: railBox.top - pinBox.top, x1: railBox.right - pinBox.left, y1: railBox.bottom - pinBox.top };
     const bounds = { x0: 0, y0: topBar?.offsetHeight ?? 0, x1: w, y1: h };
-    const fits = narrow ? FIT.phone : FIT.desktop;
-    const lifts = narrow ? LIFT.phone : LIFT.desktop;
+    const fits = stacked ? FIT.phone : FIT.desktop;
+    const lifts = stacked ? LIFT.phone : LIFT.desktop;
     framing = formTables.map((table, k) => {
       const distance = KEYS.distance[k]!;
       const visH = 2 * distance * tan;
@@ -329,7 +331,7 @@ export async function start(api: BootApi): Promise<void> {
       const [share, span] = fits[k]!;
       const target = {
         scale: Math.min(GROUP.scaleCap, (visW * share) / span),
-        x: narrow || k === 0 ? 0 : Math.min((visW / 2) * GROUP.shiftShare, GROUP.shiftMax),
+        x: stacked || k === 0 ? 0 : Math.min((visW / 2) * GROUP.shiftShare, GROUP.shiftMax),
         y: lifts[k]!,
       };
       targets[k] = target;
@@ -346,6 +348,7 @@ export async function start(api: BootApi): Promise<void> {
   const plane = new Plane(new Vector3(0, 0, 1), 0);
   const hit = new Vector3();
   const t0 = performance.now();
+  let lastFrame = t0;
   let frames = 0;
   let introPlayed = false;
   let lastChrome = { rail: -1, vignette: -1, cards: '' };
@@ -384,7 +387,8 @@ export async function start(api: BootApi): Promise<void> {
 
     const presence = clamp01(m) * clamp01(4 - m);
     const wanted = !reduce && now - pointer.last < POINTER.activeMs ? 1 : 0;
-    pointer.active += (wanted - pointer.active) * POINTER.ease;
+    pointer.active += (wanted - pointer.active) * (1 - 0.5 ** (Math.max(0, now - lastFrame) / POINTER.halfLifeMs));
+    lastFrame = now;
     const free = 1 - S.lock;
     group.rotation.y =
       m * GROUP.turnPerForm + Math.sin(t * GROUP.swaySpeed) * GROUP.swayAmplitude * presence + pointer.x * POINTER.tiltY * pointer.active * free;

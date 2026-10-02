@@ -136,7 +136,7 @@ export const projects: Project[] = [
   {
     slug: 'overthrow-synthetica',
     name: 'Overthrow Synthetica',
-    summary: 'Two-week game jam demo built with Codethulu for the Warwick Game Dev Society, using Three.js and WebGL.',
+    summary: 'Two-week, two-person game jam demo for the Warwick Game Dev Society, made with my teammate Codethulu using Three.js and WebGL.',
     tags: ['Three.js', 'WebGL'],
     repo: 'BlueTentProductions/overthrow-synthetica',
     image: {

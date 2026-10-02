@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 import sharp from 'sharp';
-import { TIMELINE } from '../../src/lattice/config.ts';
+import { POINTER, TIMELINE } from '../../src/lattice/config.ts';
 import { isDesktopProject, jumpTo, opacities, settle, stageState, waitForStage } from './hook.ts';
 
 const near = (value: number, target: number, tolerance = 0.02) => Math.abs(value - target) <= tolerance;
@@ -155,8 +155,8 @@ test.describe('stage', () => {
       expect((await stageState(page)).pointerStrength).toBe(0);
 
       await jumpTo(page, 1.75);
-      await page.waitForTimeout(2200);
-      expect((await stageState(page)).pointerActive).toBeLessThan(0.05);
+      const decayed = POINTER.activeMs + 5 * POINTER.halfLifeMs + 1000;
+      await page.waitForFunction(() => window.__lattice!.state().pointerActive < 0.05, null, { timeout: decayed });
       await page.evaluate(() => {
         for (let i = 0; i < 8; i++) window.dispatchEvent(new PointerEvent('pointermove', { pointerType: 'touch', clientX: 400 + i * 10, clientY: 400 }));
       });

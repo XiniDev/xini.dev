@@ -1,5 +1,6 @@
 export const STAGE_VH = 560;
 export const PHONE_MAX_WIDTH = 760;
+export const SHORT_MAX_HEIGHT = 560;
 
 export const SEED = 20261002;
 export const STREAMS = { wordmark: 1, d20: 2, network: 3, padlock: 4, landing: 5, start: 6, dust: 7 } as const;
@@ -176,7 +177,7 @@ export const DUST = {
   counterRotation: 0.05,
 } as const;
 
-export const POINTER = { activeMs: 1400, ease: 0.06, tiltY: 0.1, tiltX: 0.06 } as const;
+export const POINTER = { activeMs: 1400, halfLifeMs: 187, tiltY: 0.1, tiltX: 0.06 } as const;
 
 export const INTRO = { duration: 2.5, delay: 0.15, ease: 'power3.out', skipAfter: 0.5 } as const;
 
@@ -212,8 +213,8 @@ export const CHROME = { vignetteLockFade: 0.8, railPointerOffAt: 0.5, railHidden
 export const IDLE_LOAD = { timeoutMs: 1200 } as const;
 
 export const FINALE_FIT = {
-  steps: ['no-thumb', 'row', 'no-tags', 'no-step'],
-  rowMinWidth: 560,
+  steps: ['no-thumb', 'row', 'no-step', 'no-tags', 'tight'],
+  rowMinWidth: 500,
 } as const;
 
 export const seedFor = (stream: keyof typeof STREAMS) => (SEED + STREAMS[stream] * STREAM_STRIDE) | 0;

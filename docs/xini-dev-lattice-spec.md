@@ -170,7 +170,7 @@ Copy rules:
 ### 6.2 Top bar
 
 - Mark: `XINI`
-- Nav: `Work`, `About`, `Saltancy`, `Contact`
+- Nav: `Work`, `About`, `Consultancy` (links to Saltancy), `Contact`
 - Skip link: `Skip to work`
 
 ### 6.3 Stage
@@ -193,7 +193,7 @@ Fixed order. Links only where a real URL exists **[from audit]**; never use plac
 |---|---|---|---|---|
 | 1 | Gloam | Self-hosted 3D virtual tabletop for D&D 5e, with shadow-casting light, per-creature line of sight and all 339 spells from D&D's open rules, automated. | TypeScript, React Three Fiber, Colyseus, SQLite, MCP | `Source on GitHub` → <https://github.com/XiniDev/Gloam> |
 | 2 | DBridger | Autonomous agent that queries legacy databases in plain English, with PII redaction built in. | Python, PyQt6, Gemini, SQLite, MCP | `Source on GitHub` → <https://github.com/XiniDev/dbridger> |
-| 3 | VOETutor | Curated marketplace of vetted IB tutors, with on-demand video lessons and progress tracking. **[confirm]** | Next.js, Supabase **[confirm]** | `voetutor.com` → <https://voetutor.com>; credit line `Built through Saltancy` |
+| 3 | VOETutor | Curated marketplace of vetted IB tutors, with on-demand video lessons and progress tracking. | Next.js, Supabase | `voetutor.com` → <https://voetutor.com>; credit line `Built through Saltancy` |
 
 ### 6.5 More on GitHub
 

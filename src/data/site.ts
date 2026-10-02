@@ -8,7 +8,7 @@ export const site = {
   markLabel: 'Xini, back to top',
   skip: 'Skip to work',
   newTab: ' (opens in a new tab)',
-  nav: { label: 'Primary', work: 'Work', about: 'About', saltancy: 'Saltancy', contact: 'Contact' },
+  nav: { label: 'Primary', work: 'Work', about: 'About', saltancy: 'Consultancy', contact: 'Contact' },
   h1: 'Xini, systems engineer',
   stageLabel: 'Introduction',
   intro: {

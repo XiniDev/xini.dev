@@ -31,12 +31,15 @@ test('A3: the finale shows exactly Gloam, DBridger and VOETutor in order with th
 
 test('A6: Saltancy is linked from the nav and the footer, in a new tab with rel="noopener"', async ({ page }) => {
   await page.goto('/');
-  for (const scope of ['.top nav', '.foot']) {
+  for (const [scope, label] of [
+    ['.top nav', site.nav.saltancy],
+    ['.foot', site.footer.clientLink],
+  ]) {
     const link = page.locator(`${scope} a[href="${site.saltancy}"]`);
     await expect(link).toHaveCount(1);
     await expect(link).toHaveAttribute('target', '_blank');
     expect((await link.getAttribute('rel'))?.split(/\s+/)).toContain('noopener');
-    await expect(link).toContainText('Saltancy');
+    await expect(link).toContainText(label);
     await expect(link.locator('.sr-only')).toHaveText(site.newTab);
   }
 });

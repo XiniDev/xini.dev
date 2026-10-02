@@ -1,7 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 import { TIMELINE } from '../../src/lattice/config.ts';
 import { isDesktopProject, jumpTo, waitForStage } from './hook.ts';
-import { SPEC_SIZES } from './sizes.ts';
+import { LANDSCAPE_PHONES, LAYOUT_SIZES } from './sizes.ts';
 
 type Rect = { x0: number; y0: number; x1: number; y1: number };
 
@@ -54,7 +54,7 @@ test.describe('B3 and H5: forms stay clear of the copy and the rail', () => {
     test.skip(!isDesktopProject(test.info().project.name), 'iterates every size itself');
   });
 
-  for (const [width, height] of SPEC_SIZES) {
+  for (const [width, height] of LAYOUT_SIZES) {
     test(`at ${width}×${height}, every beat's form is at least ${CLEARANCE_PX}px from its copy and the rail`, async ({ page }) => {
       await page.setViewportSize({ width, height });
       await page.goto('/');
@@ -76,8 +76,19 @@ test.describe('B3 and H5: forms stay clear of the copy and the rail', () => {
     });
   }
 
-  test('the rail keeps one layout box whichever beat is active', async ({ page }) => {
-    for (const [width, height] of SPEC_SIZES) {
+  for (const [width, height] of LANDSCAPE_PHONES) {
+    test(`at ${width}×${height}, the copy sits beside the form, so beats 01–03 keep their full target scale`, async ({ page }) => {
+      await page.setViewportSize({ width, height });
+      await page.goto('/');
+      await waitForStage(page);
+      await page.evaluate(() => document.fonts.ready);
+      const { framing } = await jumpTo(page, 0);
+      for (const [beat, frame] of framing.slice(1, 4).entries()) expect(frame.scale, `beat 0${beat + 1}`).toBeCloseTo(frame.target!.scale, 6);
+    });
+  }
+
+  for (const [width, height] of LAYOUT_SIZES) {
+    test(`at ${width}×${height}, the rail keeps one layout box whichever beat is active`, async ({ page }) => {
       await page.setViewportSize({ width, height });
       await page.goto('/');
       await waitForStage(page);
@@ -87,12 +98,12 @@ test.describe('B3 and H5: forms stay clear of the copy and the rail', () => {
         await atRest(page);
         boxes.push(await page.$eval('.rail', (rail) => Object.values(rail.getBoundingClientRect().toJSON()).slice(0, 4) as number[]));
       }
-      for (const box of boxes.slice(1)) expect(box, `${width}×${height}`).toEqual(boxes[0]);
-    }
-  });
+      for (const box of boxes.slice(1)) expect(box).toEqual(boxes[0]);
+    });
+  }
 
   test('the visible gaps between nav labels are equal at every size', async ({ page }) => {
-    for (const [width, height] of SPEC_SIZES) {
+    for (const [width, height] of LAYOUT_SIZES) {
       await page.setViewportSize({ width, height });
       await page.goto('/');
       await page.evaluate(() => document.fonts.ready);

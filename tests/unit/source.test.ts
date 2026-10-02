@@ -1,6 +1,7 @@
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join, sep } from 'node:path';
 import { describe, expect, it } from 'vitest';
+import { PHONE_MAX_WIDTH, SHORT_MAX_HEIGHT } from '../../src/lattice/config.ts';
 
 function files(dir: string, exts: string[]): string[] {
   return readdirSync(dir).flatMap((name) => {
@@ -41,5 +42,24 @@ describe('A4: no banned phrase appears in the source', () => {
   it.each(SOURCE)('%s', (file) => {
     const text = readFileSync(file, 'utf8').toLowerCase();
     for (const phrase of BANNED) expect(text).not.toContain(phrase);
+  });
+});
+
+describe('the CSS breakpoints match the stage config, which picks its framing targets by them', () => {
+  const css = readFileSync('src/styles/global.css', 'utf8');
+  const card = readFileSync('src/components/FeaturedCard.astro', 'utf8');
+
+  it('uses only PHONE_MAX_WIDTH and SHORT_MAX_HEIGHT as layout breakpoints', () => {
+    const queries = [...css.matchAll(/@media ([^{]+)\{/g)].map((m) => m[1]!);
+    const sizes = queries.flatMap((q) => [...q.matchAll(/\((?:max|min)-(width|height):\s*(\d+)px\)/g)].map((m) => `${m[1]} ${m[2]}`));
+    expect(sizes.length).toBeGreaterThan(0);
+    expect(sizes.filter((s) => s !== `width ${PHONE_MAX_WIDTH}` && s !== `height ${SHORT_MAX_HEIGHT}`)).toEqual([]);
+    expect(card).toContain(`(max-width: ${PHONE_MAX_WIDTH}px) 84px`);
+  });
+
+  it('has the phone, short-screen and short narrow-screen blocks', () => {
+    expect(css).toContain(`@media (max-width: ${PHONE_MAX_WIDTH}px) {`);
+    expect(css).toContain(`@media (max-height: ${SHORT_MAX_HEIGHT}px) {`);
+    expect(css).toContain(`@media (max-width: ${PHONE_MAX_WIDTH}px) and (max-height: ${SHORT_MAX_HEIGHT}px) {`);
   });
 });

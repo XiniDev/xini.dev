@@ -23,8 +23,9 @@ The success criteria from spec §17, copied word for word and grouped as in the 
   - Evidence: `tests/e2e/copy.spec.ts` (UK English) finds no -ize/-yze or US forms (color, center, behavior, modeling, catalog and so on) in the rendered text of `/` and `/404`. I also reviewed the copy, summaries and alt text by hand. The one US spelling in the GitHub data ("Dockerized", notes-api) is replaced by its curated summary and never renders.
 - [x] **A6** Saltancy is linked from the nav and the footer, opening in a new tab with `rel="noopener"`. *Verify by:* E2E
   - Evidence: `tests/e2e/content.spec.ts` (A6) checks that the nav and footer links go to https://saltancy.com with `target="_blank"`, `rel="noopener"` and the hidden "(opens in a new tab)" text. Passes in Chromium and WebKit at 390×844, 768×1024 and 1440×900.
+  - Note (2 Oct 2026): the nav label is now "Consultancy", because a visitor can't tell what "Saltancy" is until the footer (DECISIONS 2.12). The link is unchanged: it still goes to https://saltancy.com in a new tab. The test checks each link's own label.
 - [x] **A7** No link in production points to `#`, a placeholder or a dead URL. *Verify by:* Link checker over the build output
-  - Evidence: `npm run links` (`scripts/check-links.ts`) over the build: 70 links on 2 pages and 30 external URLs, with no placeholder, missing internal file, missing fragment target or dead link. LinkedIn answers every automated request with 999, for real and made-up profiles alike, so it can't be checked by machine. The URL is the one from the old site that Xini confirmed (§19 question 4).
+  - Evidence: `npm run links` (`scripts/check-links.ts`) over the build: 71 links on 2 pages and 28 external URLs (re-run 2 Oct 2026, after the snapshot refresh), with no placeholder, missing internal file, missing fragment target or dead link. LinkedIn answers every automated request with 999, for real and made-up profiles alike, so it can't be checked by machine. The URL is the one from the old site that Xini confirmed (§19 question 4).
 
 ## B. Visual fidelity
 
@@ -167,11 +168,12 @@ The success criteria from spec §17, copied word for word and grouped as in the 
 - [x] **H4** No horizontal scrolling at any width from 320 to 2560px. *Verify by:* E2E test 2
   - Evidence: Test 2 (`tests/e2e/layout.spec.ts` and the smoke copy) checks every §11 size (320×568 to 2560×1440, plus 844×390), each at the top, middle and bottom of the page. `scrollWidth ≤ innerWidth` everywhere, in Chromium and WebKit.
 - [x] **H5** At 844×390 (landscape phone) no copy is clipped. *Verify by:* Screenshot
-  - Evidence: `tests/e2e/layout.spec.ts` (H5 and DECISIONS 2.2): at 844×390 every beat and the finale sit inside the pinned screen, and nothing is clipped. After the 2 Oct 2026 copy review, the finale drops the thumbnails and visually hides the tags and credit lines (re-measured in DECISIONS 2.2). Screenshots `docs/qa/844x390-t*.png` at all six times.
+  - Evidence: `tests/e2e/layout.spec.ts` (H5 and DECISIONS 2.2): at 844×390 every beat and the finale sit inside the pinned screen, and nothing is clipped. After the 2 Oct 2026 review, the finale drops the thumbnails and the step number and keeps its tags and credit, with 12px to spare (DECISIONS 2.2). The same test now also checks that every block sits below the top bar, and covers 740×360, 667×375 and 568×320. Screenshots `docs/qa/844x390-t*.png` at all six times.
   - Note (copy and layout review, 2 Oct 2026):
     - The intro statement and credentials no longer sit on the XINI wordmark. At 844×390 the wordmark is framed at 47% of its target scale, above the copy, with 10.5px to spare.
     - Every other beat's form also stays at least 8px clear of its copy and the rail at all §11 sizes and jump targets 0, 1.5, 3.0 and 4.5 (`tests/e2e/clearance.spec.ts`, DECISIONS 2.13).
     - The visible nav gaps are equal within 2px at every size, 844×390 included (DECISIONS 2.14).
+    - Landscape phones narrower than 760px now put the copy beside the form, so nothing is squeezed or clipped there (DECISIONS 2.13). 568×320, the smallest of them, previously clipped the finale by 176px and now fits (DECISIONS 2.2).
 
 ## I. SEO and sharing
 

@@ -854,6 +854,19 @@ html.js:not(.no-gl) .finale.fit-no-step .outro .step {
   white-space: nowrap;
 }
 
+html.js:not(.no-gl) .finale.fit-tight {
+  gap: 8px;
+}
+
+html.js:not(.no-gl) .finale.fit-tight .outro h2 {
+  margin-bottom: 0;
+  font-size: 26px;
+}
+
+html.js:not(.no-gl) .finale.fit-tight .fcard {
+  padding-block: 8px;
+}
+
 /* phones */
 @media (max-width: 760px) {
   .nav .opt {
@@ -998,5 +1011,29 @@ html.js:not(.no-gl) .finale.fit-no-step .outro .step {
 
   .fbody .flink {
     font-size: 13px;
+  }
+}
+
+/* short, narrow screens: copy on the left, form on the right */
+@media (max-width: 760px) and (max-height: 560px) {
+  html.js:not(.no-gl) .beat {
+    top: calc(72px + var(--safe-top));
+    right: auto;
+    bottom: calc(12px + var(--safe-bottom));
+    width: min(36rem, 50vw);
+    height: fit-content;
+    margin: auto 0;
+  }
+
+  html.js:not(.no-gl) .beat.intro {
+    top: auto;
+    right: auto;
+    bottom: calc(20px + var(--safe-bottom));
+    width: min(40rem, 52vw);
+    margin: 0;
+  }
+
+  .beat h2 {
+    font-size: clamp(28px, 9vh, 40px);
   }
 }

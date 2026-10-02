@@ -1,5 +1,5 @@
 {
-  "fetchedAt": "2026-10-02T15:19:15.049Z",
+  "fetchedAt": "2026-10-02T22:25:58.046Z",
   "username": "XiniDev",
   "repos": [
     {
@@ -147,18 +147,6 @@
       "fork": false
     },
     {
-      "name": "AdventOfCode24",
-      "full_name": "XiniDev/AdventOfCode24",
-      "description": null,
-      "html_url": "https://github.com/XiniDev/AdventOfCode24",
-      "homepage": null,
-      "language": null,
-      "topics": [],
-      "pushed_at": "2024-12-13T15:57:23Z",
-      "archived": false,
-      "fork": false
-    },
-    {
       "name": "aws-streaming-demo",
       "full_name": "XiniDev/aws-streaming-demo",
       "description": "Video Streaming Service Demo that uses AWS S3 and CloudFront CDN with other tools",
@@ -203,18 +191,6 @@
       "language": "C",
       "topics": [],
       "pushed_at": "2024-05-21T19:42:34Z",
-      "archived": false,
-      "fork": false
-    },
-    {
-      "name": "AdventOfCode23",
-      "full_name": "XiniDev/AdventOfCode23",
-      "description": null,
-      "html_url": "https://github.com/XiniDev/AdventOfCode23",
-      "homepage": null,
-      "language": "C++",
-      "topics": [],
-      "pushed_at": "2023-12-19T20:18:06Z",
       "archived": false,
       "fork": false
     },

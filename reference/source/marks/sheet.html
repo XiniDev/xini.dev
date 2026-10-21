@@ -1,0 +1,24 @@
+<!doctype html><meta charset="utf-8"><style>
+body{margin:0;background:#111;color:#bbb;font:12px/1.3 DejaVu Sans,sans-serif;padding:16px}
+.row{display:grid;grid-template-columns:120px repeat(4,auto) 1fr;align-items:center;gap:14px;margin-bottom:10px}
+.cell{display:flex;align-items:center;justify-content:center;width:172px;height:172px}
+.void{background:#05070a}.paper{background:#ece6d8}.red{background:#e8e1d2}
+img{display:block}
+</style><body><div id=root></div><script>
+const names=['xni-fold','old-mark','loop-hex','loop-tri','xni-boxed','xni-spiked','xni-solid','fold','seal','facet-x','brush-x'];
+const fills={void:'#3DFF8F',paper:'#111111',red:'#d6262b'};
+const root=document.getElementById('root');
+(async()=>{for(const n of names){
+  const svg=await (await fetch('out/'+n+'.svg')).text();
+  const row=document.createElement('div');row.className='row';
+  row.innerHTML='<div>'+n+'</div>';
+  for(const [bg,col] of Object.entries(fills)){
+    const cell=document.createElement('div');cell.className='cell '+bg;
+    const s=svg.replace('<path ','<path fill="'+col+'" ');
+    const url='data:image/svg+xml,'+encodeURIComponent(s);
+    cell.innerHTML=`<div style="display:flex;gap:8px;align-items:center"><img src="${url}" width=16><img src="${url}" width=32><img src="${url}" width=96></div>`;
+    row.appendChild(cell);
+  }
+  root.appendChild(row);
+}})();
+</script>

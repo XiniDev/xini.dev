@@ -1,0 +1,17 @@
+<!doctype html><html><head><meta charset="utf-8"><style>html,body{margin:0;height:100%;background:#000;overflow:hidden}canvas{display:block;width:100vw;height:100vh}</style></head>
+<body><script type="module">
+import * as THREE from 'three';
+import { InkPipeline } from '../shared/gfx/pipeline.js';
+import { inkMaterial, shared } from '../shared/gfx/ink-material.js';
+import { CastShadow, shadowMaterial } from '../shared/gfx/shadow.js';
+const r = new THREE.WebGLRenderer(); r.autoClear = false; document.body.appendChild(r.domElement);
+const pipe = new InkPipeline(r, { glow: false });
+const scene = new THREE.Scene(); const cam = new THREE.PerspectiveCamera(30, innerWidth / innerHeight, 0.1, 100); cam.position.set(0, 0, 10);
+const box = new THREE.Mesh(new THREE.BoxGeometry(1.5, 1.5, 1.5), inkMaterial({ base: '#eee6d3' })); box.rotation.set(0.4, 0.6, 0);
+const g = new THREE.Group(); g.add(box); scene.add(g);
+const sh = new CastShadow(g, scene); import('../shared/gfx/shadow.js').then(m => m.shadowU.uShadowCol.value.set('#ff0000'));
+const test = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), shadowMaterial()); test.position.set(-2.5, 1, 0); scene.add(test);
+r.setSize(innerWidth, innerHeight); pipe.setSize(innerWidth, innerHeight, 1);
+function f() { g.updateMatrixWorld(true); sh.update(); pipe.render(scene, cam); requestAnimationFrame(f); } f();
+window.__xini = { ready: true };
+</script></body></html>

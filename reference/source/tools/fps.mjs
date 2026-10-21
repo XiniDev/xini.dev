@@ -1,0 +1,13 @@
+import { launch } from './browser.mjs';
+const [, , url, w = '800', h = '500'] = process.argv;
+const b = await launch();
+const p = await b.newPage({ viewport: { width: +w, height: +h } });
+p.on('pageerror', (e) => console.log('pageerror:', e.message));
+p.on('console', (m) => { if (m.type() === 'error' || m.type() === 'warning') console.log(m.type(), m.text().slice(0, 300)); });
+const t0 = Date.now();
+await p.goto(url, { waitUntil: 'load' });
+await p.waitForFunction(() => window.__xini && window.__xini.ready, null, { timeout: 120000 });
+console.log('ready after', Date.now() - t0, 'ms');
+const r = await p.evaluate(() => new Promise((res) => { let n = 0; const s = performance.now(); const f = () => { n++; if (performance.now() - s > 4000) res(n / ((performance.now() - s) / 1000)); else requestAnimationFrame(f); }; requestAnimationFrame(f); }));
+console.log('fps', r.toFixed(2));
+await b.close();

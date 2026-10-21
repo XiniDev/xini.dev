@@ -1,0 +1,61 @@
+<!doctype html><html><head><meta charset="utf-8"><title>type</title>
+<style>
+body{margin:0;background:#0d0f1f;color:#eee6d3;padding:24px;display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.s{padding:22px 26px;border:1px solid #2a2f55;background:#11142a;min-height:250px;position:relative}
+.s.l{background:#eee6d3;color:#0a0913;border-color:#ccc}
+.n{position:absolute;top:6px;right:10px;font:11px monospace;opacity:.6}
+.k{font-size:13px;letter-spacing:.14em;text-transform:uppercase;opacity:.75;margin-bottom:10px}
+h1{margin:0 0 14px;font-weight:400;line-height:1.02;font-size:46px}
+h2{margin:0 0 10px;font-size:30px;line-height:1.05}
+p{margin:0;font-size:15px;line-height:1.5;max-width:34em;opacity:.85}
+.jp{font-size:13px;letter-spacing:.2em}
+</style>
+<script type="module">
+import '@fontsource-variable/big-shoulders-display';
+import '@fontsource/anton';
+import '@fontsource/instrument-serif';
+import '@fontsource/instrument-serif/400-italic.css';
+import '@fontsource-variable/instrument-sans';
+import '@fontsource-variable/bricolage-grotesque';
+import '@fontsource-variable/syne';
+import '@fontsource-variable/unbounded';
+import '@fontsource-variable/familjen-grotesk';
+import '@fontsource-variable/sofia-sans-extra-condensed';
+import '@fontsource/dela-gothic-one';
+import '@fontsource-variable/jetbrains-mono';
+import '@fontsource-variable/martian-mono';
+import '@fontsource/zen-kaku-gothic-new/700.css';
+import '@fontsource/zen-kaku-gothic-new/400.css';
+import '@fontsource/shippori-antique-b1';
+import '@fontsource-variable/hanken-grotesk';
+import '@fontsource-variable/schibsted-grotesk';
+import '@fontsource-variable/fraunces';
+import '@fontsource/gloock';
+import '@fontsource-variable/big-shoulders-stencil-display';
+import '@fontsource/zen-dots';
+import '@fontsource-variable/onest';
+const S = [
+ ['Big Shoulders 800 + Hanken', "'Big Shoulders Display Variable'", 800, "'Hanken Grotesk Variable'", 0],
+ ['Instrument Serif + Instrument Sans', "'Instrument Serif'", 400, "'Instrument Sans Variable'", 1],
+ ['Bricolage 96/75 800 + Bricolage', "'Bricolage Grotesque Variable'", 800, "'Bricolage Grotesque Variable'", 0, "'opsz' 96, 'wdth' 75"],
+ ['Syne 800 + Onest', "'Syne Variable'", 800, "'Onest Variable'", 0],
+ ['Unbounded 700 + Hanken', "'Unbounded Variable'", 700, "'Hanken Grotesk Variable'", 0],
+ ['Familjen 700 + Familjen', "'Familjen Grotesk Variable'", 700, "'Familjen Grotesk Variable'", 0],
+ ['Sofia Sans XCond 800 + Schibsted', "'Sofia Sans Extra Condensed Variable'", 850, "'Schibsted Grotesk Variable'", 0],
+ ['Dela Gothic One + Zen Kaku', "'Dela Gothic One'", 400, "'Zen Kaku Gothic New'", 0],
+ ['Fraunces 9pt Soft + Hanken', "'Fraunces Variable'", 650, "'Hanken Grotesk Variable'", 1, "'SOFT' 100, 'WONK' 1, 'opsz' 144"],
+ ['Gloock + Schibsted', "'Gloock'", 400, "'Schibsted Grotesk Variable'", 1],
+ ['Anton + Martian Mono', "'Anton'", 400, "'Martian Mono Variable'", 0],
+ ['Big Shoulders Stencil 900 + JetBrains', "'Big Shoulders Stencil Display Variable'", 900, "'JetBrains Mono Variable'", 0],
+];
+for (const [name, disp, w, body, light, fvs] of S) {
+  for (const l of [0, 1]) {
+  const d = document.createElement('div'); d.className = 's' + (l ? ' l' : '');
+  d.innerHTML = `<div class=n>${name}</div><div class=k style="font-family:${body}">Xini · Systems engineer <span class=jp style="font-family:'Zen Kaku Gothic New'">システム</span></div>
+  <h1 style="font-family:${disp};font-weight:${w};${fvs?`font-variation-settings:${fvs};`:''}">I build complete, self-hosted products with modern AI woven in.</h1>
+  <h2 style="font-family:${disp};font-weight:${w};${fvs?`font-variation-settings:${fvs};`:''}">Whole systems, built solo.</h2>
+  <p style="font-family:${body}">I take ambitious ideas all the way to production on my own: real-time 3D, multiplayer backends, data, infrastructure and the interface people actually use.</p>`;
+  document.body.appendChild(d);
+  }
+}
+</script></head><body></body></html>

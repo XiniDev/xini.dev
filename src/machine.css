@@ -34,7 +34,7 @@ canvas.gl { position: fixed; inset: 0; width: 100vw; height: 100vh; height: 100d
 .bar__nav a:hover::after, .bar__nav a:focus-visible::after { transform: scaleX(1); }
 .bar__nav a[aria-current]::after { transform: scaleX(1); background: var(--gold); }
 .arr { margin-left: 4px; }
-.bar__sound { all: unset; cursor: pointer; display: grid; place-items: center; width: 44px; height: 40px; border: 1px solid var(--line); background: color-mix(in srgb, var(--bg) 92%, transparent); }
+.bar__sound { all: unset; pointer-events: auto; cursor: pointer; display: grid; place-items: center; width: 44px; height: 40px; border: 1px solid var(--line); background: color-mix(in srgb, var(--bg) 92%, transparent); }
 .bar__sound svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
 .bar__sound .spk { fill: currentColor; }
 .bar__sound .w1, .bar__sound .w2 { opacity: 0; }

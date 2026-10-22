@@ -78,6 +78,9 @@ uniform vec2 uGrid; uniform float uGridW; uniform vec3 uPulseCol; uniform float 
 #ifdef USE_MAP
 uniform sampler2D uMap; uniform float uMapAmt;
 #endif
+#ifdef USE_PIXELGRID
+uniform vec2 uPixGrid;
+#endif
 #ifdef USE_BAKE
 uniform sampler2D uBake; // r: ambient occlusion, g: convexity/edge wear, b: cavity
 #endif
@@ -136,6 +139,13 @@ void main(){
   base = mix(base, mp.rgb, mp.a * uMapAmt);
 #endif
   if (uEmissive > 0.5) {
+#ifdef USE_PIXELGRID
+    // a lit monitor's pixel grid, anti-aliased, and gone before its cells are small enough to beat against the frame's
+    // own pixels (moire): full from 4.5 px a cell, out by 2.4
+    vec2 cell = vUv * uPixGrid, fw = max(fwidth(cell), vec2(1e-4));
+    vec2 gut = smoothstep(0.36 - fw, 0.36 + fw, abs(fract(cell) - 0.5));
+    base *= 1.0 - 0.12 * max(gut.x, gut.y) * (1.0 - smoothstep(0.22, 0.42, max(fw.x, fw.y)));
+#endif
     gColor = vec4(base * uGain, uAlpha);
 #ifdef USE_VID
     gNormal = vec4(N * 0.5 + 0.5, mod(floor(vId + uId + 0.5), 250.0) / 255.0);
@@ -229,6 +239,8 @@ void main(){
 
 let nextId = 1, nextGlow = 0;
 export function newInkId() { nextId = (nextId % 198) + 1; return nextId; }
+/** Id 240 marks a display: the post pass leaves its colours out of the grade. */
+export const DISPLAY_ID = 240;
 /** Ids 250–254 mark emissive surfaces: the bloom pass picks them up. */
 export function glowId() { nextGlow = (nextGlow + 1) % 5; return 250 + nextGlow; }
 
@@ -266,6 +278,7 @@ export function inkMaterial(opts = {}) {
   };
   if (opts.flat) defines.FLAT = '';
   if (opts.map) { defines.USE_MAP = ''; u.uMap = { value: opts.map }; u.uMapAmt = { value: opts.mapAmt ?? 1 }; }
+  if (opts.pixelGrid) { defines.USE_PIXELGRID = ''; u.uPixGrid = { value: new THREE.Vector2(...opts.pixelGrid) }; }
   if (opts.bake) { defines.USE_BAKE = ''; u.uBake = { value: opts.bake }; }
   if (opts.paint) {
     defines.USE_PAINT = ''; u.uPaint = { value: opts.paint };

@@ -539,7 +539,7 @@ class MachineDirector {
     // project screens wait on standby until you are in the gallery; the chosen one is the only one fully lit
     this.mem.screens.forEach((scr, i) => {
       const u = scr.material.uniforms.uGain;
-      const target = lerp(0.12, i === world.ui.project ? 0.92 : 0.3, W[4]);
+      const target = lerp(0.12, i === world.ui.project ? 1 : 0.3, W[4]);
       u.value += (target - u.value) * (1 - Math.exp(-dt * 5));
       if (scr.userData.flash > 0) u.value = Math.max(u.value, 1 + scr.userData.flash);
     });

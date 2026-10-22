@@ -153,10 +153,11 @@ void main(){
   float pageId = floor(texture(tNormal, uv).a * 255.0 + 0.5);
   col += glow * uGlowAmt * (pageId > 199.5 ? 0.0 : 1.0);
 
-  // grade: tint the shadows, warm or cool the highlights
+  // grade: tint the shadows, warm or cool the highlights (a display (id 240) keeps the colours of what it shows)
+  float shown = abs(hid - 240.0) < 0.5 ? 0.0 : 1.0;
   float l = luma(col);
-  col = mix(col, uGradeShadow, (1.0 - smoothstep(0.0, 0.55, l)) * uGradeAmt);
-  col = mix(col, col * uGradeHigh, smoothstep(0.45, 1.0, l) * uGradeAmt);
+  col = mix(col, uGradeShadow, (1.0 - smoothstep(0.0, 0.55, l)) * uGradeAmt * shown);
+  col = mix(col, col * uGradeHigh, smoothstep(0.45, 1.0, l) * uGradeAmt * shown);
 
   // ink lines (away from the subject the ink takes the colour of the air: a colour hold)
   col = mix(col, mix(uInk, fogC * 0.55, deL * uFocusInk * (1.0 - nearK)), clamp(line, 0.0, 1.0));
@@ -183,7 +184,7 @@ void main(){
   // the grade: a generated 3D lookup table
   // (with CapHue on, an overbright colour enters the table scaled back by its brightest channel, so its hue survives;
   // clipped channel by channel, a green with bloom on it turned cyan)
-  if (uLutAmt > 0.0) { float ls = uLutSize; vec3 cin = uCapHue > 0.5 ? col / max(1.0, max(col.r, max(col.g, col.b))) : clamp(col, 0.0, 1.0); vec3 lc = texture(tLut, clamp(cin, 0.0, 1.0) * ((ls - 1.0) / ls) + 0.5 / ls).rgb; col = mix(col, lc, uLutAmt); }
+  if (uLutAmt > 0.0) { float ls = uLutSize; vec3 cin = uCapHue > 0.5 ? col / max(1.0, max(col.r, max(col.g, col.b))) : clamp(col, 0.0, 1.0); vec3 lc = texture(tLut, clamp(cin, 0.0, 1.0) * ((ls - 1.0) / ls) + 0.5 / ls).rgb; col = mix(col, lc, uLutAmt * shown); }
 
   if (uCapAmt > 0.0) col = mix(col, uCapHue > 0.5 ? capHue(col, uCap) : capTo(col, uCap), uCapAmt);
   // paper: static grain + fibre mottling

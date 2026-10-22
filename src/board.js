@@ -407,9 +407,9 @@ export function canvasTex(w, h, draw) {
 }
 
 /** a plane carrying a canvas (screens, nameplates); faces +z */
-export function labelPlane(w, h, draw, { emissive = false, res = 512, bloom = true, id } = {}) {
+export function labelPlane(w, h, draw, { emissive = false, res = 512, bloom = true, id, pixelGrid } = {}) {
   const tex = canvasTex(res, Math.max(8, Math.round(res * (h / w))), draw);
-  const mat = inkMaterial({ base: '#ffffff', map: tex, mapAmt: 1, emissive, bloom, spec: 0, rim: 0, brush: 0.05, id });
+  const mat = inkMaterial({ base: '#ffffff', map: tex, mapAmt: 1, emissive, bloom, spec: 0, rim: 0, brush: 0.05, id, pixelGrid });
   const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), mat);
   m.userData.redraw = tex.userData.redraw;
   return m;

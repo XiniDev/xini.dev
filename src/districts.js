@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { inkMaterial as baseInk, glowId, shared } from './shared/gfx/ink-material.js';
+import { inkMaterial as baseInk, glowId, shared, DISPLAY_ID } from './shared/gfx/ink-material.js';
 const inkMaterial = (o) => baseInk({ brushScale: 0.07, dotCell: 4.5, ...o });
 import { NOISE, COLOR } from './shared/gfx/glsl.js';
 import { FOLD_FRONT, FOLD_BACK } from './shared/ui/marks.js';
@@ -127,8 +127,9 @@ export function buildMemory(pal, parts, silk, featured, fonts) {
   // the west face of the first module carries the work: one screen per segment
   const screens = [];
   featured.forEach((p, i) => {
-    // emissive but out of the bloom: a halo of dots over a printed picture would beat against it
-    const scr = labelPlane(212, 119, (c, W, H) => drawScreen(c, W, H, p, fonts.imgs?.[i], pal), { emissive: true, res: 1536, bloom: false });
+    // emissive but out of the bloom: a halo of dots over a lit picture would beat against it; a display, so the grade
+    // leaves its colours alone, with a fine pixel grid
+    const scr = labelPlane(212, 119, (c, W, H) => drawScreen(c, W, H, p, fonts.imgs?.[i], pal), { emissive: true, res: 1536, bloom: false, id: DISPLAY_ID, pixelGrid: [192, 108] });
     scr.rotation.y = -Math.PI / 2; scr.position.set(x0 - 1.8, 108, SCREEN_Z[i]); scr.userData.exhibit = i;
     segs[i].add(scr); screens.push(scr);
     box(segs[i], 1.6, 127, 220, x0 - 0.8, 44.5, SCREEN_Z[i], inkMaterial({ base: pal.bezel, brush: 0.1, spec: 0.6, rim: 1 }));
@@ -177,9 +178,9 @@ export function buildMemory(pal, parts, silk, featured, fonts) {
 // how each capture sits on the glass: [centre x, centre y, zoom] (default: cover, top anchored). Gloam's board is
 // framed in from the table round it
 const SCREEN_CROP = { gloam: [0.5, 0.48, 1.18] };
-// the outline of what the capture is about, in the capture's own 0..1 coordinates; everything outside it is printed
-// as the screen's ground (Gloam's board sits on a wood table whose grain read as motion streaks)
-const SCREEN_KEEP = { gloam: [[0.1725, 0.206], [0.696, 0.206], [0.696, 0.184], [0.816, 0.184], [0.9325, 0.774], [0.066, 0.774]] };
+// the work on a lit monitor, in its own colours: the darkest values lifted a touch toward the petrol air (10 % at
+// most), and a band of glass sheen drawn with hard edges (light is drawn, never airbrushed); the pixel grid is the
+// material's, which fades it out before it could moire
 function drawScreen(c, W, H, p, img, pal) {
   c.fillStyle = '#0b1817'; c.fillRect(0, 0, W, H);
   if (!img) return;
@@ -187,46 +188,16 @@ function drawScreen(c, W, H, p, img, pal) {
   const sc = Math.max(W / img.width, H / img.height) * zoom, dw = img.width * sc, dh = img.height * sc;
   const dx = Math.min(0, Math.max(W - dw, W / 2 - cx * dw)), dy = cy === 0 ? 0 : Math.min(0, Math.max(H - dh, H / 2 - cy * dh));
   c.imageSmoothingEnabled = true; c.imageSmoothingQuality = 'high';
-  // a touch of blur first: a screenshot's own fine texture (hatching, wood grain, tiny type) beat against the
-  // world's dot screens and read as a photograph pasted into a drawing
-  c.filter = `blur(${(W / 1024) * 1.3}px)`;
   c.drawImage(img, dx, dy, dw, dh);
-  c.filter = 'none';
-  const keep = SCREEN_KEEP[p.slug];
-  if (keep) {
-    c.beginPath(); c.rect(0, 0, W, H);
-    keep.forEach(([u, v], k) => (k ? c.lineTo : c.moveTo).call(c, dx + u * dw, dy + v * dh));
-    c.closePath(); c.fillStyle = '#0b1817'; c.fill('evenodd');
-  }
-  // the work printed in two of the world's inks, ink to cream (no tinted mid-tones), on a gentle S-curve; the page's
-  // own strong colours (its live UI: health bars, buttons, accents) overprint in the green, so the hero carries the
-  // stop's live colour. The picture's own range is stretched first, and a light page is printed in negative, so
-  // every screen in the row is a dark one
   let d; try { d = c.getImageData(0, 0, W, H); } catch { return; }
-  const px = d.data, n = W * H;
-  const hex = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
-  const lum = new Float32Array(n), live = new Float32Array(n), hist = new Uint32Array(256), ground = new Uint8Array(n);
-  const sm = (a, b, x) => { const u = Math.min(1, Math.max(0, (x - a) / (b - a))); return u * u * (3 - 2 * u); };
-  let m = 0; // (the masked-out ground stays ink and takes no part in the stretch)
-  for (let i = 0; i < n; i++) {
-    if (keep && px[i * 4] === 11 && px[i * 4 + 1] === 24 && px[i * 4 + 2] === 23) { ground[i] = 1; continue; }
-    const r = px[i * 4] / 255, g = px[i * 4 + 1] / 255, b = px[i * 4 + 2] / 255, mx = Math.max(r, g, b), mn = Math.min(r, g, b);
-    const L = r * 0.299 + g * 0.587 + b * 0.114; lum[i] = L; hist[Math.min(255, Math.floor(L * 256))]++; m++;
-    live[i] = sm(0.66, 0.8, mx > 0 ? (mx - mn) / mx : 0) * sm(0.35, 0.5, mx);
-  }
-  m = Math.max(1, m);
-  const pct = (q) => { let acc = 0; for (let k = 0; k < 256; k++) { acc += hist[k]; if (acc >= q * m) return k / 255; } return 1; };
-  const neg = pct(0.5) > 0.55;
-  if (neg) { hist.fill(0); for (let i = 0; i < n; i++) if (!ground[i]) { lum[i] = 1 - lum[i]; hist[Math.min(255, Math.floor(lum[i] * 256))]++; } }
-  const lo = pct(0.03), hi = Math.max(lo + 0.1, pct(0.99));
-  const ink = hex('#0b1817'), cream = hex('#ece6d4'), green = hex(pal.signal);
-  for (let i = 0; i < n; i++) {
-    let L = Math.pow(Math.min(1, Math.max(0, (lum[i] - lo) / (hi - lo))), 1.35); // (darks down: a table or a page ground recedes)
-    L = L * 0.45 + L * L * (3 - 2 * L) * 0.55;
-    const k = live[i] * 0.9, gL = 0.45 + 0.55 * L;
-    for (let ch = 0; ch < 3; ch++) { const v = ink[ch] + (cream[ch] - ink[ch]) * L; px[i * 4 + ch] = v + (green[ch] * gL - v) * k; }
+  const px = d.data, petrol = [1, 3, 5].map((i) => parseInt(pal.fog.slice(i, i + 2), 16));
+  for (let i = 0; i < px.length; i += 4) {
+    const L = (px[i] * 0.299 + px[i + 1] * 0.587 + px[i + 2] * 0.114) / 255, k = 0.1 * (1 - L) * (1 - L);
+    for (let ch = 0; ch < 3; ch++) px[i + ch] += (petrol[ch] - px[i + ch]) * k;
   }
   c.putImageData(d, 0, 0);
+  const band = (u0, u1) => { c.beginPath(); c.moveTo(u0 * W, 0); c.lineTo(u1 * W, 0); c.lineTo(u1 * W - H * 0.55, H); c.lineTo(u0 * W - H * 0.55, H); c.closePath(); c.fill(); };
+  c.fillStyle = 'rgba(236, 230, 212, 0.06)'; band(0.12, 0.26); band(0.3, 0.32);
 }
 
 // ---------------------------------------------------------------- neural core

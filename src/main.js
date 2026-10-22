@@ -6,6 +6,7 @@ import '@fontsource/chakra-petch/600.css';
 import '@fontsource/chakra-petch/700.css';
 import './shared/fonts/zen-kaku-700.css';
 import './machine.css';
+import './hero.css';
 import { World, reduced, q, openLink } from './shared/world/world.js';
 import { renderWorld } from './shared/world/ui.js';
 import { shared } from './shared/gfx/ink-material.js';
@@ -15,7 +16,7 @@ import { batchStatic } from './shared/gfx/batch.js';
 import { gradeVerdigris } from './grade.js';
 import { makeSky, skyU } from './shared/gfx/sky.js';
 import { foldMarkSVG } from './shared/ui/marks.js';
-import { featured } from './shared/data/content.js';
+import { featured, site } from './shared/data/content.js';
 import { V, Silk, boardSurface, boardU, Traces, traceU, Parts, reseed } from './board.js';
 import { buildTower, TOWER } from './tower.js';
 import { buildVRM, buildMemory, buildNeural, buildIO, buildRest, buildBuses, buildDust, SITES, SCREEN_Z } from './districts.js';
@@ -23,6 +24,7 @@ import { buildEnclave } from './enclave.js';
 import { buildGantry, GANTRY } from './core.js';
 import { planeTexture, PLANE } from './plane.js';
 import { initCards } from './cards.js';
+import { createHero, heroMarkup } from './hero.js';
 import { monotone } from './shared/world/rig.js';
 import { PALETTES } from './palettes.js';
 import { buildCity } from './city.js';
@@ -55,6 +57,8 @@ document.getElementById('app').innerHTML = renderWorld({
   mark: foldMarkSVG('logo', 'var(--text)', 'var(--neonRest)'), // (the at-rest green: full strength stays on the hero)
   route: { viewBox: '-100 -22 200 44', path: routePath, nodes },
   deco: Object.fromEntries(['top', 'systems', 'ai', 'security', 'work', 'contact'].map((id, i) => [id, `<span class="card__ref" aria-hidden="true">${REFS[i]}</span>`])),
+  // Power on has the panel (design 6a, reference/hero-6a/) in place of a card
+  hero: heroMarkup({ name: site.name, place: PLACES[0], role: site.role, statement: site.statement, spec: site.spec, code: REFS[0] }),
 });
 {
   const svg = document.querySelector('.route__map'), ns = 'http://www.w3.org/2000/svg';
@@ -71,7 +75,7 @@ document.getElementById('app').innerHTML = renderWorld({
   const lab = document.createElement('p'); lab.className = 'route__label'; lab.setAttribute('aria-hidden', 'true');
   document.querySelector('.route').appendChild(lab);
   // on a phone the card carries the count in its header instead
-  document.querySelectorAll('.stop .card').forEach((c, i) => c.insertAdjacentHTML('afterbegin', `<span class="card__count" aria-hidden="true">0${i + 1}/06</span>`));
+  document.querySelectorAll('.stop').forEach((s, i) => s.querySelector('.card')?.insertAdjacentHTML('afterbegin', `<span class="card__count" aria-hidden="true">0${i + 1}/06</span>`));
 }
 const routeLabel = (i, from) => { const el = document.querySelector('.route__label'); if (el) el.innerHTML = `<b>${from === 5 && i === 0 ? '↺ ' : ''}0${i + 1}/06</b>${PLACES[i]}${SECTIONS[i] ? `<span> · ${SECTIONS[i]}</span>` : ''}`; };
 routeLabel(0);
@@ -95,7 +99,6 @@ setNav(0);
   // the route's vias name their stop when pointed at, with its number
   document.querySelectorAll('.route__list a span').forEach((sp, i) => { sp.textContent = `0${i + 1} · ${PLACES[i]}${SECTIONS[i] ? ` · ${SECTIONS[i]}` : ''}`; });
   document.body.insertAdjacentHTML('beforeend', '<p class="cue" aria-hidden="true">Scroll<i></i></p>');
-  document.querySelector('.stop--top .card')?.insertAdjacentHTML('beforeend', '<p class="card__cue" aria-hidden="true">Scroll<i></i></p>');
 }
 const setCount = (i) => {
   const b = document.querySelector('.pager__count b'); if (b) b.textContent = String(i + 1).padStart(2, '0');
@@ -218,8 +221,9 @@ class MachineDirector {
       // square on to the shield, so the mark's verticals stand vertical; the mark left of centre, clear of the card
       { id: 'contact', p: V(-600, 215, -410), t: V(-1000, 228, -470), fov: 54 },
     ];
-    // (the side of the screen each card takes; across, cards snap to the page's columns, see placeCard)
-    this.cardAt = [[-0.58, 0.36], [0.56, 0.02], [0.5, -0.18], [-0.52, 0.06], [-0.62, 0.04], [0.62, 0.06]];
+    // (the side of the screen each card takes; across, cards snap to the page's columns, see placeCard; Power on has
+    // its panel instead, placed by the hero)
+    this.cardAt = [null, [0.56, 0.02], [0.5, -0.18], [-0.52, 0.06], [-0.62, 0.04], [0.62, 0.06]];
     this.at = at; this.stopSpecs = specs; this.tall = innerHeight > innerWidth * 1.05;
     const stops = (this.stops = specs.map((s) => ({ id: s.id })));
     this.frame();
@@ -283,7 +287,7 @@ class MachineDirector {
       ] },
     ];
     // phones step back from every stop except the gallery, where the aisle is too narrow and the pose is already set back
-    return { stops, legs, closed: true, cardGrid: true, speed: 420, minT: 1.9, maxT: 3.4, speedRef: 320, arriveImpact: 'hit', phonePull: () => lerp(0.32, 0.04, this.wake?.[4] ?? 0) - 0.14 * (this.wake?.[3] ?? 0), phoneFov: 12, phoneLift: 0.14,
+    return { stops, legs, closed: true, cardGrid: true, speed: 420, minT: 1.9, maxT: 3.4, speedRef: 320, arriveImpact: 'hit', phonePull: (W = this.wake) => lerp(0.32, 0.04, W?.[4] ?? 0) - 0.14 * (W?.[3] ?? 0), phoneFov: 12, phoneLift: 0.14,
       wrap: true, rig: { profile: 'minjerk', lookAhead: 0.22, damp: 9, settle: 3, maxBank: 0.09,
         // a jump past the next stop flies straight there at cruise height, above everything but the tower, which it
         // goes round (its footprint with the fan and the pipes, from the part bounds)
@@ -302,7 +306,7 @@ class MachineDirector {
       const st = this.stops[i], pose = S.exhibit !== undefined ? this.exhibitPose(S.exhibit) : S;
       st.p = framed(pose.p, this.tall).clone(); st.t = framed(pose.t, this.tall).clone(); st.fov = framed(pose.fov, this.tall);
       if (pose.roll !== undefined) st.roll = pose.roll;
-      st.anchor = this.at(st, ...this.cardAt[i]);
+      st.anchor = this.cardAt[i] && this.at(st, ...this.cardAt[i]);
     });
   }
   /** the screen turned: a camera at rest takes its stop's new framing at once (a flight lands on it) */
@@ -321,8 +325,10 @@ class MachineDirector {
       world.rig.arriveNudged(pose.p.clone().sub(base.p), pose.t.clone().sub(base.t));
     }
     if (from === 3) this.enc.lock(); if (from === 1) this.gantry.stop();
+    if (from === 0) this.hero?.hide();
   }
   arrive(i, world) { if (!this.labelled) { this.labelled = true; routeLabel(i, this.lastFrom); setNav(i); }
+    if (i === 0) this.enterHero();
     if (i === 4) this.focusExhibit(world.ui.project); if (i === 3) this.enc.unlock(world.time); if (i === 1) this.gantry.start(world.time); }
   project(i) { setCount(i); this.focusExhibit(i); } // the module seating lands the impact
   focusExhibit(i) { this.mem.seat(i, this.world.time); this.aimExhibit(i); }
@@ -341,7 +347,6 @@ class MachineDirector {
   /** the part each stop's card describes: its leader trace ends just outside the hero's silhouette, never on its face */
   partAt(i) {
     switch (i) {
-      case 0: return [-74, -69, -62].map((dx) => this.tower.crownPos.clone().add(V(dx, 0, 0))); // just inside the crown plate's left edge
       case 1: return [V(-132, 10, 262), V(-160, 10, 262), V(-200, 10, 262)]; // the board's right edge, or further in
       case 2: { // the lattice's right-hand edge, as the arrival camera sees it
         const st = this.stops[2], f = st.t.clone().sub(st.p).normalize(), right = V(-f.z, 0, f.x).normalize();
@@ -360,9 +365,15 @@ class MachineDirector {
   ready(world) {
     document.documentElement.classList.add('ready');
     this.cards = initCards({ parts: (i) => this.partAt(i) });
+    this.hero = createHero({ root: document.querySelector('.h6') });
+    this.placeHero();
+    // (again once every font is in, and when the pixel ratio changes: the name's halftone is drawn at it)
+    document.fonts.ready.then(() => this.placeHero());
+    const dpr = () => matchMedia(`(resolution: ${devicePixelRatio}dppx)`).addEventListener('change', () => { this.placeHero(); dpr(); }, { once: true });
+    dpr();
     // the boot plays once per visit (a reload in the same tab lands on the first stop; ?boot plays it again)
     let seen = false; try { seen = sessionStorage.getItem('xini-boot') === '1' && !q.has('boot'); } catch (e) { /* no storage: always play */ }
-    if (reduced || q.has('skipintro') || seen) { boardU.uLitR.value = 1e5; this.setOn(1e5); this.crown(1); return; }
+    if (reduced || q.has('skipintro') || seen) { boardU.uLitR.value = 1e5; this.setOn(1e5); this.crown(1); if (world.rig.index === 0) this.enterHero(); return; }
     try { sessionStorage.setItem('xini-boot', '1'); } catch (e) { /* fine */ }
     // the boot: black, one power LED, the power floods the mark-shaped plane seen from above, then the
     // camera dives into the machine as the districts light, and the mark on the crown flashes
@@ -389,6 +400,30 @@ class MachineDirector {
     document.querySelector('.stop--top').classList.remove('is-current');
     const r = world.rig; r.pose.p.copy(this.intro.pc.getPoint(0)); r.pose.t.copy(this.intro.tc.getPoint(0)); r.pose.fov = 50; r.snap?.();
   }
+  /** the point the panel's trace runs to: where the old leader's via sat, just inside the crown plate's left edge */
+  crownPt() { return this.tower.crownPos.clone().add(V(-74, 0, 0)); }
+  /** the crown point as the Power on stop's own camera sees it, whichever stop is showing: no sway, no shake, and
+   *  on a portrait screen the same step back and lift as the world's (so the panel keeps its size) */
+  restCrown() {
+    const v = this.world.view, s = this.stops[0], R = this.world.route, c = this.restCam || (this.restCam = new THREE.PerspectiveCamera(45, 1, 1, 7000));
+    c.position.copy(s.p); c.fov = s.fov; c.aspect = v.w / v.h;
+    if (v.portrait) { c.position.lerp(s.t, -R.phonePull([1, 0, 0, 0, 0, 0])); c.fov = Math.min(84, c.fov + R.phoneFov); c.setViewOffset(v.w, v.h, 0, v.h * R.phoneLift, v.w, v.h); }
+    else c.clearViewOffset();
+    c.updateProjectionMatrix(); c.lookAt(s.t); c.rotateZ(s.roll ?? 0); c.updateMatrixWorld();
+    const p = this.crownPt().project(c);
+    return { x: (p.x * 0.5 + 0.5) * v.w, y: (1 - (p.y * 0.5 + 0.5)) * v.h };
+  }
+  /** the panel's band: under the bar, over the route strip (its label tab included); on phones, where the strip is
+   *  hidden, over the scroll cue, which the old card carried */
+  placeHero() {
+    if (!this.hero || !this.world?.route) return;
+    const v = this.world.view, r = (sel) => { const b = document.querySelector(sel)?.getBoundingClientRect(); return b?.height ? b : null; };
+    const cue = r('.cue'), lows = [r('.route')?.top, r('.route__label')?.top, cue && cue.top - 12].filter((y) => y != null);
+    this.heroIn = { vw: v.w, vh: v.h, crown: this.restCrown(), gutter: r('.bar__mark')?.left ?? 16, bandTop: r('.bar')?.bottom ?? 0, bandBottom: Math.min(v.h, ...lows) };
+    this.heroOut = this.hero.layout(this.heroIn);
+    this.crownLive = null;
+  }
+  enterHero() { if (!this.hero) return; this.placeHero(); this.hero.show(); }
   crown(k) {
     const g = this.pal;
     this.crownK = k;
@@ -582,9 +617,15 @@ class MachineDirector {
     const gut = Math.min(64, Math.max(18, view.w * 0.04));
     post.uSpeedMask.value.set(96 * view.dpr, (gut + 236) * view.dpr, (26 + 48 + 40) * view.dpr);
     if (this.stopSpecs && view.portrait !== this.tall) { this.tall = view.portrait; this.frame(); this.reframe(); }
+    this.placeHero();
   }
   preRender(world) {
     this.cards?.update(world);
+    // the panel's ring stays on the crown as the camera moves under it (the pointer's sway, an impact's shake)
+    if (this.hero && !this.hero.root.hidden) {
+      const s = world.toScreen(this.crownPt()), L = this.crownLive;
+      if (!L || Math.abs(L.x - s.x) > 0.05 || Math.abs(L.y - s.y) > 0.05 || L.behind !== s.behind) { this.crownLive = s; this.hero.setCrown(s.behind ? null : { x: s.x, y: s.y }); }
+    }
     if (!this.mirror || boardU.uReflAmt.value <= 0) return;
     world.camera.updateMatrixWorld();
     // the reflection only re-renders when the camera has moved or the twos clock has ticked
@@ -658,5 +699,5 @@ post.uFocusSoft.value = 0; post.uFocusMisreg.value = 2.2;
 if (!q.has('nolut')) setLut(makeLut(gradeVerdigris), q.has('lut') ? +q.get('lut') : 1);
 await world.start();
 // (for the capture and QA tools)
-Object.assign(window.__xini, { post, boardU, skyU, shared, THREE });
+Object.assign(window.__xini, { post, boardU, skyU, shared, THREE, hero: director.hero, heroIn: () => director.heroIn });
 window.__xini.ready = true;

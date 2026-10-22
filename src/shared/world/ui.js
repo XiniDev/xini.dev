@@ -3,11 +3,11 @@ import { site, beats, featured, moreProjects, monthYear } from '../data/content.
 // Page structure for the worlds: no numbers, no slides. Each stop is a place with a name; the copy
 // sits on a card that lives in the scene. The DOM keeps the full content in reading order.
 
-const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+export const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 const ext = (href, label, cls = '') => `<a class="${cls}" href="${href}" target="_blank" rel="noopener">${label}<span class="sr"> (opens in a new tab)</span></a>`;
 export const STOP_IDS = ['top', 'systems', 'ai', 'security', 'work', 'contact'];
 /** a label in parts ("A · B") that may only wrap after a dot */
-const nowrapParts = (s) => String(s).split(' · ').map((p) => esc(p).replace(/ /g, '&nbsp;')).join('&nbsp;· ');
+export const nowrapParts = (s) => String(s).split(' · ').map((p) => esc(p).replace(/ /g, '&nbsp;')).join('&nbsp;· ');
 
 // the contact buttons' marks, one size and one ink: Saltancy's crystal redrawn as a line icon (shell and spokes in
 // line, the core solid), GitHub's and LinkedIn's own single-colour marks
@@ -26,8 +26,9 @@ const soundIcon = `<svg viewBox="0 0 32 32" aria-hidden="true"><path class="spk"
  * @param {string} o.mark       svg markup for the logo
  * @param {{viewBox:string, path:string, nodes:number[][]}} o.route  the route drawn as a small map
  * @param {object} [o.deco]     optional per-stop decoration html { [id]: string }
+ * @param {string} [o.hero]     the first stop's panel, in place of a card
  */
-export function renderWorld({ places, mark, route, deco = {} }) {
+export function renderWorld({ places, mark, route, deco = {}, hero = '' }) {
   const more = moreProjects();
   const ix = (r) => ext(r.url, `<span class="ix__name">${esc(r.name)}</span><span class="ix__desc">${esc(r.description)}</span><span class="ix__meta">${esc(r.language || '')}${r.language ? ' · ' : ''}Updated ${monthYear(r.date)}</span>`, 'ix');
   const [vbx, vby, vbw, vbh] = route.viewBox.split(' ').map(Number);
@@ -41,14 +42,7 @@ export function renderWorld({ places, mark, route, deco = {} }) {
   <button class="bar__sound" type="button" aria-pressed="false" aria-label="Sound">${soundIcon}</button>
 </header>
 <main class="stops">
-  <section class="stop stop--top" id="top" data-stop="top" aria-labelledby="h-top">
-    <div class="card card--hero">${deco.top || ''}
-      <p class="card__place" aria-hidden="true">${esc(places[0])}</p>
-      <p class="card__kicker"><span>${esc(site.name)}</span><span>${nowrapParts(site.role)}</span></p>
-      <h1 id="h-top" class="card__statement">${esc(site.statement)}</h1>
-      <p class="card__cred"><span>${esc(site.spec)}</span></p>
-    </div>
-  </section>
+  <section class="stop stop--top" id="top" data-stop="top" aria-labelledby="h-top">${hero}</section>
   ${beats.map((b, i) => `
   <section class="stop stop--${b.id}" id="${b.id}" data-stop="${b.id}" aria-labelledby="h-${b.id}">
     <div class="card">${deco[b.id] || ''}

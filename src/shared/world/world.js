@@ -121,7 +121,7 @@ export class World {
     this.rig.update(dt);
     this.director.update?.(dt, t, this);
     // pointer parallax (smaller while flying) + phone framing handled by the director's stops
-    const par = this.rig.flying ? 0.25 : 1;
+    const par = this.still ? 0 : this.rig.flying ? 0.25 : 1;
     const pr = this.director.parallax ?? 1.2;
     // portrait screens: step back, widen, and lift the subject above the docked card
     if (this.view.portrait) {
@@ -220,6 +220,7 @@ export class World {
       project: (i) => this.ui.setProject(i, 1),
       palette: (n) => this.setPalette(n),
       freeze: () => { this.frozen = 0; }, unfreeze: () => { this.frozen = null; },
+      sway: (on) => { this.still = !on; }, // the pointer's sway, off for captures
       stats: () => { this.statsOn = true; return this.lastStats || null; },
       sfx,
     };

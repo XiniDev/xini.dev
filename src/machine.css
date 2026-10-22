@@ -58,9 +58,6 @@ canvas.gl { position: fixed; inset: 0; width: 100vw; height: 100vh; height: 100d
 .card__silk path, .card__silk circle { vector-effect: non-scaling-stroke; }
 .card__ref { position: absolute; z-index: 2; top: 12px; right: 44px; padding: 2px 0; font-family: var(--f-mono); font-size: 10.5px; font-weight: 700; letter-spacing: 0.16em; }
 .card__count { display: none; position: absolute; z-index: 2; top: 14px; right: 84px; font-family: var(--f-mono); font-size: 10.5px; font-weight: 700; letter-spacing: 0.14em; color: var(--steel); }
-.card__cue { display: none; position: absolute; z-index: 2; right: 18px; bottom: 22px; margin: 0; align-items: center; gap: 7px; font-family: var(--f-mono); font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: color-mix(in srgb, var(--text) 70%, transparent); }
-.card__cue i { width: 7px; height: 7px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(45deg) translateY(-2px); }
-.moved .card__cue { opacity: 0; }
 
 /* the PCB card: solder mask with a copper pour under it, silkscreen legend, fiducials, gold fingers */
 html[data-card='pcb'] .card {
@@ -118,15 +115,10 @@ html[data-card='pcb'] .tags li { border-color: transparent; background: #13302a;
 
 .card__place { margin: 0 0 12px; display: flex; align-items: center; gap: 10px; font-family: var(--f-mono); font-size: 11.5px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--steel); }
 .card__place::after { content: ''; flex: 1; height: 1px; background: var(--rule); }
-.card__kicker { margin: 0 0 12px; display: flex; gap: 12px; font-family: var(--f-mono); font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
-.card__kicker span:first-child { color: var(--text); font-weight: 700; }
-.card__statement { margin: 0; color: var(--head); font-family: var(--f-display); font-weight: 700; font-size: clamp(28px, 2.7vw, 36px); line-height: 0.98; letter-spacing: 0.005em; text-transform: uppercase; text-wrap: balance; }
-.card__cred { margin: 16px 0 0; display: flex; flex-direction: column; gap: 3px; font-family: var(--f-mono); font-size: 11.5px; color: var(--muted); letter-spacing: 0.03em; }
 .card__h { margin: 0 0 12px; color: var(--head); font-family: var(--f-display); font-weight: 700; font-size: clamp(30px, 2.8vw, 44px); line-height: 0.98; text-transform: uppercase; text-wrap: balance; }
 .card__body { margin: 0 0 16px; font-size: 15.5px; line-height: 1.55; color: var(--muted); }
 .tags { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
 .tags li { font-family: var(--f-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; padding: 5px 10px; border: 1px solid var(--line); }
-.card--hero { width: min(470px, 36vw); }
 
 /* work */
 .work__list { list-style: none; margin: 0; padding: 0; display: grid; }
@@ -231,7 +223,7 @@ html[data-card='pcb'] .tags li { border-color: transparent; background: #13302a;
   /* a firmer scrim under the bar: the hero can sit high on a tall screen */
   .bar::before { inset: 0 0 -40px; background: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 92%, transparent), color-mix(in srgb, var(--bg) 70%, transparent) 55%, transparent); }
   .bar__nav a:not([href^='#']) { display: none; }
-  .card, .card--hero { left: var(--gutter); right: var(--gutter); top: auto; bottom: calc(max(16px, env(safe-area-inset-bottom)) + 16px); width: auto; transform: none; padding: 20px 18px 36px; }
+  .card { left: var(--gutter); right: var(--gutter); top: auto; bottom: calc(max(16px, env(safe-area-inset-bottom)) + 16px); width: auto; transform: none; padding: 20px 18px 36px; }
   /* the header row: the rule ends before the count and the designator */
   .card__place { padding-right: 128px; }
   /* the gallery card stays under half the screen: its project tags and kicker fold away, and the pager row fits */
@@ -241,13 +233,12 @@ html[data-card='pcb'] .tags li { border-color: transparent; background: #13302a;
   .work__all { padding: 11px 10px; font-size: 11px; letter-spacing: 0.06em; }
   .route { display: none; }
   .card__count { display: block; }
-  .card__cue { display: flex; }
   .btn { min-height: 44px; }
   .pager__btn { width: 44px; height: 44px; }
   .route__label { left: 50%; transform: translateX(-50%); font-size: 9.5px; padding: 2px 6px; }
-  .cue { display: none; }
+  /* the scroll cue the Power on card carried, under the panel (the safe area kept clear, as the cards keep it) */
+  .cue { bottom: calc(max(16px, env(safe-area-inset-bottom)) + 14px); }
   @keyframes out { to { opacity: 0; transform: translateY(12px); } }
-  .card__statement { font-size: clamp(28px, 8.6vw, 38px); }
   .card__h { font-size: clamp(27px, 8.2vw, 36px); }
   .card__body, .proj__summary { font-size: 14.5px; margin-bottom: 12px; }
   .proj__name { font-size: clamp(34px, 10.5vw, 46px); }

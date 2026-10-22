@@ -6,9 +6,11 @@ const NS = 'http://www.w3.org/2000/svg';
 export function initCards({ parts }) {
   const root = document.documentElement;
   root.dataset.card = 'pcb';
-  const cards = [...document.querySelectorAll('.stop .card')];
+  // (by stop: the first has its panel instead of a card)
+  const cards = [...document.querySelectorAll('.stop')].map((s) => s.querySelector('.card'));
   // ---- silk layer inside every card: outline with chamfers, an inner legend line, fiducials
   cards.forEach((c, i) => {
+    if (!c) return;
     const svg = document.createElementNS(NS, 'svg');
     svg.setAttribute('class', 'card__silk'); svg.setAttribute('aria-hidden', 'true');
     svg.innerHTML = `<defs><pattern id="hatch${i}" width="4.5" height="4.5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><circle class="silk__hatchline" cx="2.25" cy="2.25" r="0.85"/></pattern>`
@@ -37,7 +39,7 @@ export function initCards({ parts }) {
     f1.setAttribute('r', 4); f2.setAttribute('r', 4);
   };
   const ro = new ResizeObserver((es) => es.forEach((e) => draw(e.target)));
-  cards.forEach((c) => { ro.observe(c); draw(c); });
+  cards.forEach((c) => { if (c) { ro.observe(c); draw(c); } });
   // ---- the leader: one overlay for the page
   const lead = document.createElementNS(NS, 'svg');
   lead.setAttribute('class', 'lead'); lead.setAttribute('aria-hidden', 'true');

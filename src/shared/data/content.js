@@ -27,13 +27,13 @@ export const beats = [
   },
   {
     id: 'ai', label: 'AI', jp: '人工知能',
-    heading: 'AI that does real work.',
-    body: 'I build AI into products where it earns its place: agents that act on real systems, MCP servers that give models real tools, and local models when the data should stay put.',
+    heading: 'Intelligence built in.',
+    body: 'I build AI into products: agents that act on real systems, MCP servers that give models tools, and local models for private data.',
     support: ['Agents', 'MCP servers', 'Local models'],
   },
   {
     id: 'security', label: 'Security', jp: '防御',
-    heading: 'Secure by default.',
+    heading: 'Safe & secure.',
     body: 'I self-host what I build and design for Zero Trust, with OWASP practice and PII redaction there from the first commit.',
     support: ['Self-hosting', 'OWASP', 'Zero Trust'],
   },

@@ -17,7 +17,10 @@
     "snapshot:github": "node tools/snapshot-github.mjs",
     "jp-subset": "node tools/jp-subset.mjs",
     "check": "tsc --noEmit -p workers/daily-rebuild",
-    "test": "vitest run workers"
+    "test": "vitest run workers",
+    "audio:test": "node tools/audio/music.test.mjs",
+    "audio:measure": "node tools/audio/measure.mjs",
+    "audio:preview": "node tools/audio/preview.mjs reference/audio/music-preview.wav"
   },
   "dependencies": {
     "@fontsource-variable/hanken-grotesk": "5.3.0",
@@ -28,6 +31,7 @@
   },
   "devDependencies": {
     "@cloudflare/workers-types": "5.20261002.1",
+    "node-web-audio-api": "2.2.0",
     "playwright": "1.64.1",
     "typescript": "6.0.3",
     "vite": "8.3.4",

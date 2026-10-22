@@ -16,7 +16,8 @@ are in `DIRECTION.md`.
 | `src/enclave.js` | The enclave and its lock, the cipher cube |
 | `src/city.js` | The city beyond the board: towers with dim windows, a few signs; it holds still |
 | `src/plane.js` | The mark-shaped power plane shown by the boot and the finale |
-| `src/cards.js` | The PCB card's silkscreen and the leader trace |
+| `src/cards.js` | The PCB card's silkscreen and the leader trace (stops 02–06) |
+| `src/hero.js`, `src/hero.css` | The Power on panel (design 6a) and its hologram entrance, ported from `reference/hero-6a/` |
 | `src/grade.js`, `src/palettes.js`, `src/colour.js` | The grade (3D LUT), the palette (display colours), and the switch that keeps three from converting them |
 | `src/machine.css` | Page, cards, leader, route strip, phone layout |
 | `src/shared/world/` | The engine: world and render loop, camera rig and flights, page UI (bar, route, cards), reflections |
@@ -76,12 +77,48 @@ are in `DIRECTION.md`.
   (`tools/v5/audit-17-text.mjs`), and Chinese must work as Chinese on its own. The silkscreen keeps a list of what it
   printed (`silk.texts`) for that audit.
 
+## The Power on panel (v5.1)
+
+- Power on has no card box: the panel is the name as the picture with the card's details as trim round it, the one
+  stop that looks different (DIRECTION.md says why; don't put the box back). It enters as a hologram from the crown;
+  the entrance's sea-green (the projection light) and vermilion (a fringe on the name) exist only while it runs, and
+  the settled panel is the static design. Its trace replaces the card leader at Power on (one ring, at the crown): on
+  a wide screen from the PWR pad straight right, then 45° into the ring; on phones out of the pad, up a column just
+  right of the frame, then 45° into the ring.
+- The source of truth is `reference/hero-6a/` (`hero6a.js`, `hero6a.css`; serve the folder and open `index.html`,
+  R replays the entrance, `?t=610` freezes it, `?static=1`, `?compact=1`, `?reduced=1`). `src/hero.js` and
+  `src/hero.css` keep its geometry table `G`, the px floors in `metrics()`, `LOCKUP`, `TIMELINE`, the trace router,
+  the halftone generator and its CSS values as they are; only how the panel is created, mounted and wired is the
+  site's. Change the reference first, then port.
+- Created: `heroMarkup()` renders the panel with the page, in the Power on stop's section in place of a card
+  (`renderWorld`'s `hero`), with the copy from `content.js`; the name is the page's only `h1` (`#h-top`), the
+  lockup is decorative and the sentence is there for screen readers; the panel takes no pointer events.
+  `createHero()` adopts it in the director's `ready()` and puts the leader (trace and ring) in the same layer.
+- Laid out (`placeHero()`): at start, when the fonts are in, on every world resize (which covers rotation and the
+  visual viewport), on a device-pixel-ratio change (the name's halftone is drawn at k × devicePixelRatio), and right
+  before every entrance. Its inputs: the viewport (`innerWidth` / `innerHeight`); the crown point (`crownPt()`, where
+  the old leader's via sat, just inside the crown plate's left edge) projected with the Power on rest camera
+  (`restCrown()`: the stop's pose with the world's portrait step-back and lift, no sway or shake, whichever stop is
+  showing, so the panel's size holds); the gutter (the logo's left); the band from the bar's bottom to the top of
+  the route strip and its label tab. On phones, where the strip is hidden, the band ends 12 px over the scroll cue,
+  which the old card carried and which now shows under the panel. `compact` is left to the module (portrait-ish,
+  or narrower than 600 px).
+- Every frame while the panel is up, `preRender` hands the live crown to `setCrown()` (the pointer's sway, an
+  impact's shake): only the trace and ring follow; the panel stays put.
+- `enter({ reduced })` runs where the old card printed in (after the boot's impact frame, after an arrival's),
+  `leave({ reduced })` where it hid (any departure from Power on); the site's reduced-motion signal makes both plain
+  fades. A new call cancels a running one, and nothing it made is left behind.
+- The site's reduced-motion rule gives every element a 0.01 ms transition; `hero.css` takes the panel out of it, so
+  a layout never starts transitions inside it.
+
 ## URL options
 
 `?boot` (play the boot again: it plays once per visit), `?skipintro`, `?nolut`, `?norefl`, `?nobatch`,
 `?nofocus` (no printed depth), `?debug` (build timings in the console), `?dpr=1`. The page exposes `post`,
-`boardU`, `skyU`, `shared`, `goto`, `advance`, `stats`, `sfx` (with the music engine on `sfx.music`) and `THREE` on
-`window.__xini` for the capture and QA tools.
+`boardU`, `skyU`, `shared`, `goto`, `advance`, `stats`, `sfx` (with the music engine on `sfx.music`), `THREE`,
+`hero` (the Power on panel: `layout`, `enter`, `leave`, `show`, `seek(ms)` to freeze an entrance for captures),
+`heroIn()` (the panel's last layout inputs) and `sway(on)` (the pointer's sway, off for captures) on
+`window.__xini` for the capture and QA tools (in production builds too: `npm run shots` captures one).
 
 ## Tools
 
@@ -99,5 +136,10 @@ Run once: `npx playwright install chromium`.
   visit to `reference/audio/music-preview.wav`), `node tools/audio/sfx-levels.mjs` (every cue use against its tier).
 - `tools/v5/`: the checks v5 was built against (`node tools/v5/check-NN-*.mjs`, against the dev server or
   `XINI_URL`), the board-text audit, and `capture-sites.mjs`, which re-captures the client sites for the screens.
+  (`check-07-power-on.mjs` checked the old Power on card and no longer applies.)
+- `tools/v5.1/`: the checks for the Power on panel (`check-01-panel.mjs`: against the playground and the approved
+  captures, sizes, phones, resizes) and its entrance (`check-02-entrance.mjs`: frames, arrivals, interruptions,
+  reduced motion, the boot, frame pacing); they serve the playground from the dev server.
 
-Reference captures of the approved v4 design are in `reference/captures/`; v5's are in `reference/captures-v5/`.
+Reference captures of the approved v4 design are in `reference/captures/`; v5's are in `reference/captures-v5/`;
+v5.1's in `reference/captures-v5.1/`.

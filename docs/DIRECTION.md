@@ -1,4 +1,4 @@
-# Inside the machine — direction (v5)
+# Inside the machine — direction (v5.1)
 
 ## The idea
 
@@ -69,8 +69,8 @@ off for this page, so a hex in the palette renders as that hex, the same as the 
 | Ink and petrol neutrals | #040b0b ink, #0c2220 board, #1a3238 haze | The ground and the air; the air a petrol a step bluer than the board, so heroes separate by hue as well as light. Shadows go flat near-black. The haze shifts a step per stop: colder round the enclave, warm at the end as daylight comes in |
 | Steel | #232f2e / #55625f | Anything structural that is not brass. Never brighter than mid grey; no white slabs |
 | Brass | #6a502e shade, #a37b3e lit, #c29e58 chrome, #d7ae60 rims | Heat pipes, thin lit edges on moving parts, pads, connectors; in the chrome, keylines, pins and the way travelled |
-| Sea-green | #1e8f6c deep, #52e3b2 brand, #d6fff0 core | Only where data is live, and full strength only on the current hero. The chrome is steel (#8fa19b labels and counts) and brass; green there only on a hover |
-| Vermilion | #ff5a36 | Full strength in tiny areas only: the CPU's ember at the socket and the locked cipher's glyphs |
+| Sea-green | #1e8f6c deep, #52e3b2 brand, #d6fff0 core | Only where data is live, and full strength only on the current hero. The chrome is steel (#8fa19b labels and counts) and brass; green there only on a hover, and in the Power on panel's entrance, as the crown sign's projection light (v5.1) |
+| Vermilion | #ff5a36 | Full strength in tiny areas only: the CPU's ember at the socket and the locked cipher's glyphs; in the chrome only as the colour fringe on the name during the Power on panel's entrance (v5.1) |
 | Cream | #ece6d4; #f1d9a6 printed warm light | Type, the mark's front fold, emitted light. Nothing renders whiter: a soft cap in the post pass that keeps a saturated light's own hue, so the green stays the brand's green and warm light stays warm |
 
 The key light changes along the scroll, cold to warm: the spire cold, a warm work light on the gantry's
@@ -181,9 +181,38 @@ card; a packet runs along it. The route is a strip of board read left to right: 
 one trace, the way travelled in brass, the current via cream in a brass ring, a return run under it for
 the finale, and the current stop named on a tab of the same box (04/06 ENCLAVE); three small ticks under
 05 count the gallery's projects, the one on show filled. Arrivals land their impact frame with no stop name
-over it: the route strip already says where you are. On a phone the card carries the count instead. Tags are printed labels with no keyline and designators are bare
+over it: the route strip already says where you are. On a phone the card carries the count instead (at Power on
+the panel's strip names the stop). Tags are printed labels with no keyline and designators are bare
 silkscreen, so the only boxed things on a card are the ones you can press. The nav follows the order
 you travel (About, Work, Contact), and About stays lit for the three stops it covers.
+
+### Power on: the panel, no card (v5.1)
+
+Power on has no card box. Its panel (design 6a, "3b + card trim", picked by Xini on the design canvas) makes
+the name the picture: XINI as a halftone monument (a cream outline over a dot screen that closes up toward the
+baseline, a brass plate line offset behind it), the lockup AMBITIOUS | IDEAS / SOFTWARE in one printed finish
+(cream face, brass line, a teal dot plate), the strip ● POWER ON ——— SOFTWARE ENGINEER · AI INTEGRATION over it
+and the spec line under it. The card's details stay as trim round the block with the box taken away: chamfered
+corner marks, the PWR code and its pad, a mirrored pad at the bottom left, and gold fingers along the bottom
+edge with a key notch under the lockup's bar. The frame's outer corner line sits on the page gutter, so the
+logo, the panel's corners and the route strip share one edge. Without a box it is the one stop that looks
+different from the others, which stay boxed. Do not put the box back.
+
+- **The trace** is the panel's own (the card leader is retired at Power on: exactly one ring, at the crown). On
+  a wide screen it runs from the PWR pad straight right, then 45° into the ring's left side, and the panel
+  shrinks rather than let it turn before it has run clear of the frame; on phones it runs right out of the pad,
+  up a column just right of the frame, then 45° into the side of the ring facing it.
+- **The hologram entrance** (about 1 s) is light projected from the crown that settles into print: a ring pings
+  at the crown and the trace runs to the PWR pad; the pad pops, PWR and the corner marks flicker on; a
+  sea-green beam sweeps down the panel and the content arrives behind it under scanlines; sea-green and
+  vermilion fringes sit off the name and close in; three bands of the name slip sideways for a frame or two
+  and the lockup jolts once; the scanlines flicker out, the fingers light left to right, the far pad pops.
+  Leaving is a 160 ms stepped flicker-out while the trace pulls back into the crown. Everything is drawn
+  light: hard-edged lines and halftone dots, no blur or glow; sea-green and vermilion appear only during it,
+  and the settled panel is exactly the static design, with no idle glitching. Reduced motion: plain fades.
+- **The source** is reference/hero-6a/ (hero6a.js, hero6a.css and a playground: R replays the entrance), with
+  the approved captures and timed frames. The geometry, the px floors, the lockup, the timeline, the trace
+  router, the halftone and the CSS values are the reference's; change them there first.
 
 Type: Chakra Petch for headlines (squared, technical), JetBrains Mono for silkscreen labels,
 Hanken Grotesk for running text. No explanatory text anywhere in the product.
@@ -224,9 +253,9 @@ no files:
 3. The ember lights at the socket, the fan spins up.
 4. The camera climbs the cooler; floor lights come on floor by floor.
 5. The mark on the crown flashes: the signature impact.
-6. The hero card prints onto the scene (outline traces draw, then the panel fills, then the type),
+6. The Power on panel comes in as a hologram from the crown (v5.1; its entrance is under UI above),
    and the page chrome (bar, route) prints in with it on the frame after the impact; until then the
-   boot owns the whole screen. The dive's view follows its curve exactly, so the crown is in frame
+   boot owns the whole screen and nothing of the panel or its trace shows. The dive's view follows its curve exactly, so the crown is in frame
    when it flashes.
 
 ## Decisions
@@ -247,6 +276,8 @@ no files:
 - **AI stop: the lattice alone.** The orbiting code rings were removed: over the lattice they
   matched its value and hue, over the sky they were dim strips of tiny type.
 - **Cards: PCB** over datasheet.
+- **Power on: the panel (6a)** over the boxed card (v5.1): the name as the picture, one printed finish, the
+  card's details as trim; it enters as a hologram, sound left to the arrival slam.
 - **Route: a numbered strip** over a map of the board: on the map the order of the stops did not
   read (01 sat in the middle, 06 on the pad that looked like the start).
 

@@ -137,7 +137,7 @@ export class World {
         this.pending = null;
         this.setCard(P.to, true);
         this.impact.hit({ seq: this.director.arriveSeq?.(P.to, P.from) ?? this.route.arriveImpact ?? 'soft', center: this.director.impactCenter?.(P.to, this) ?? [0.5, 0.5], shake: 0.5 });
-        sfx.play('slam', { gain: 0.5 }); sfx.arrive();
+        sfx.play('arrive'); sfx.arrive();
       }
     }
     this.placeCard();
@@ -182,7 +182,7 @@ export class World {
     this.cards[from].classList.add('is-leaving'); setTimeout(() => this.cards[from].classList.remove('is-leaving'), 320);
     this.director.depart?.(from, to, this);
     const dur = reduced ? this.rig.go(to, { duration: 0.35 }) : this.rig.go(to);
-    sfx.play('whoosh'); sfx.depart(to);
+    sfx.play('flight'); sfx.depart(to);
     this.pending = { to, titled: reduced, from };
     return dur * 1000;
   }

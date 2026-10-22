@@ -15,14 +15,15 @@ const box = await page.locator('.bar__sound').boundingBox();
 await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
 await page.evaluate(() => { const b = window.__xini.sfx.musicBus; if (b) b.gain.value = 0; });
 await page.mouse.move(box.x - 300, box.y + 300);
-await page.waitForTimeout(800);
+await page.waitForTimeout(3200); // the sting (slam at 2.2 s) has finished
 const trial = async (mute) => {
   await page.evaluate((m) => {
     const s = window.__xini.sfx;
     s.sfxBus.gain.value = m === 'sfxBus' ? 0 : 1;
     s.chain.input.gain.value = m === 'master.input' ? 0 : 1;
-    s.lastPlay = {}; s.play('slam');
   }, mute);
+  await page.waitForTimeout(120); // the analyser's window holds only post-mute audio
+  await page.evaluate(() => { const s = window.__xini.sfx; s.lastPlay = {}; s.play('slam'); });
   return outputPeak(page, 0.6);
 };
 const normal = await trial(null), viaBus = await trial('sfxBus'), viaMaster = await trial('master.input');

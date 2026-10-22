@@ -128,7 +128,7 @@ export function wireWorld({ nav, sfx, onProject, places }) {
     cur = i;
     projs[cur].classList.add('is-current'); projs[cur].dataset.dir = dir > 0 ? 'r' : 'l'; dots[cur]?.classList.add('on');
     onProject?.(cur, dir);
-    sfx.play('whoosh', { gain: 0.6 }); sfx.activity();
+    sfx.play('pager'); sfx.activity();
     return true;
   };
   document.querySelector('.pager__prev').addEventListener('click', () => setProject(cur - 1, -1));
@@ -136,7 +136,7 @@ export function wireWorld({ nav, sfx, onProject, places }) {
   // drawer
   const index = document.getElementById('index'), allBtn = document.querySelector('.work__all');
   const open = (on) => {
-    if (on) { index.hidden = false; requestAnimationFrame(() => index.classList.add('is-open')); sfx.play('whoosh'); index.querySelector('.index__close').focus(); }
+    if (on) { index.hidden = false; requestAnimationFrame(() => index.classList.add('is-open')); sfx.play('index'); index.querySelector('.index__close').focus(); }
     else { index.classList.remove('is-open'); setTimeout(() => { index.hidden = true; }, 380); allBtn.focus(); }
     allBtn.setAttribute('aria-expanded', String(on)); nav.enabled = !on;
   };
@@ -147,9 +147,9 @@ export function wireWorld({ nav, sfx, onProject, places }) {
   // sound
   const sb = document.querySelector('.bar__sound');
   const sync = (on) => { sb.setAttribute('aria-pressed', String(on)); document.documentElement.classList.toggle('sound-on', on); };
-  sb.addEventListener('click', () => { sfx.toggle(); if (sfx.on) sfx.play('snap'); });
+  sb.addEventListener('click', () => { sfx.toggle(); if (sfx.on) sfx.play('toggle'); });
   sfx.onChange(sync); sync(false);
-  document.addEventListener('pointerover', (e) => { if (e.target.closest && e.target.closest('a, button')) sfx.play('tick'); });
+  document.addEventListener('pointerover', (e) => { if (e.target.closest && e.target.closest('a, button')) sfx.play('hover'); });
   document.addEventListener('pointerdown', () => sfx.activity(), { passive: true });
   // the place title that sweeps in mid-flight
   const title = document.querySelector('.title'), titleText = document.querySelector('.title__text');

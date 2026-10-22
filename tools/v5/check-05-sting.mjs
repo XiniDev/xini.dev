@@ -12,6 +12,7 @@ const watchStarts = (page) => page.evaluate(() => {
   const s = window.__xini.sfx, attach = s.attach.bind(s);
   window.__mstart = [];
   s.attach = (ctx) => {
+    window.__clickT = ctx.currentTime; // the context is created at the very start of the first switch-on
     const r = attach(ctx), start = s.music.start;
     s.music.start = (when, o) => { window.__mstart.push({ when, o: { ...o }, t0: ctx.currentTime, n: window.__audio.starts.length }); return start(when, o); };
     return r;
@@ -21,9 +22,9 @@ const clickSound = async (page) => { const b = await page.locator('.bar__sound')
 // the sources one switch-on scheduled synchronously, relative to its click
 const scheduled = (page, k) => page.evaluate((k) => {
   // (the boot cues are scheduled before music.start in the same tick; the music's own first notes come after it)
-  const m = window.__mstart[k];
+  const m = window.__mstart[k], t0 = k === 0 ? window.__clickT : m.t0;
   const S = window.__audio.starts.slice(Math.max(0, m.n - 40), m.n).filter((x) => Math.abs(x.at - m.t0) < 0.03);
-  return { t0: m.t0, when: m.when - m.t0, o: m.o, relays: S.filter((x) => x.type === 'square').map((x) => x.when - m.t0), whine: S.filter((x) => x.type === 'sawtooth').map((x) => x.when - m.t0), sines: S.filter((x) => x.type === 'sine').map((x) => x.when - m.t0) };
+  return { t0, when: m.when - t0, o: m.o, relays: S.filter((x) => x.type === 'square').map((x) => x.when - t0), whine: S.filter((x) => x.type === 'sawtooth').map((x) => x.when - t0), sines: S.filter((x) => x.type === 'sine').map((x) => x.when - t0) };
 }, k);
 
 let fail = 0;

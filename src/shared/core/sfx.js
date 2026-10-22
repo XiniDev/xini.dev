@@ -4,6 +4,33 @@ import { createMusic } from './music.js';
 
 const KEY = 'xini-sound';
 
+// Every use of a cue, with its level. Tiers are peaks measured through the master chain, each use alone
+// (tools/audio/sfx-levels.mjs): A signature −4…−2 dBFS, B movement −10…−6, C detail −18…−12.
+export const LEVELS = {
+  stingSlam: { cue: 'slam', tier: 'A', gain: 0.57 },
+  unlock: { cue: 'unlock', tier: 'A', gain: 0.72 },
+  flight: { cue: 'whoosh', tier: 'B', gain: 2.07 },
+  arrive: { cue: 'slam', tier: 'B', gain: 0.32 },
+  moduleSeat: { cue: 'seat', tier: 'B', gain: 0.71 },
+  chipSeat: { cue: 'seat', tier: 'B', gain: 0.71 },
+  boardDone: { cue: 'snap', tier: 'B', gain: 1.0 },
+  finale: { cue: 'power', tier: 'B', gain: 0.87 },
+  fan: { cue: 'whoosh', tier: 'B', gain: 2.03 },
+  lattice: { cue: 'snap', tier: 'B', gain: 1.0 },
+  board: { cue: 'snap', tier: 'B', gain: 1.0 },
+  relay: { cue: 'relay', tier: 'C', gain: 0.43 },
+  hover: { cue: 'tick', tier: 'C', gain: 3.13 },
+  toggle: { cue: 'snap', tier: 'C', gain: 0.45 },
+  pick: { cue: 'tick', tier: 'C', gain: 3.11 },
+  dial: { cue: 'dial', tier: 'C', gain: 0.6 },
+  dialIdle: { cue: 'dial', tier: 'C', gain: 0.44 },
+  pager: { cue: 'whoosh', tier: 'C', gain: 0.91 },
+  index: { cue: 'whoosh', tier: 'C', gain: 0.92 },
+  stingWhine: { cue: 'power', tier: null, gain: 0.74 }, // rises from about −24 dBFS to tier B by the slam
+};
+export const TIERS = { A: [-4, -2], B: [-10, -6], C: [-18, -12] };
+const WHINE_FROM = 0.48;
+
 export class Sfx {
   constructor() {
     this.on = false;
@@ -39,7 +66,10 @@ export class Sfx {
     const len = ctx.sampleRate * 1.5;
     this.noise = ctx.createBuffer(1, len, ctx.sampleRate);
     const d = this.noise.getChannelData(0);
-    for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+    // seeded, and read from one place: each cue sounds the same every time, so its level is the level in LEVELS
+    let seed = 0x5eed;
+    const rnd = () => { seed = (seed + 0x6d2b79f5) | 0; let x = Math.imul(seed ^ (seed >>> 15), 1 | seed); x = (x + Math.imul(x ^ (x >>> 7), 61 | x)) ^ x; return ((x ^ (x >>> 14)) >>> 0) / 4294967296; };
+    for (let i = 0; i < len; i++) d[i] = rnd() * 2 - 1;
     return ctx;
   }
   set(on) {
@@ -90,9 +120,9 @@ export class Sfx {
   /** relays from t0 + 0.05 s, the whine from t0 + 0.38 s, the slam at t0 + land */
   sting(t0, land) {
     const bus = (this.stingBus = this.ctx.createGain()); bus.connect(this.sfxBus);
-    [0.05, 0.12, 0.2, 0.27, 0.33].forEach((dt) => this.play('relay', { at: t0 + dt, bus, gain: 0.8 }));
-    this.play('power', { at: t0 + 0.38, dur: land - 0.38, bus });
-    this.play('slam', { at: t0 + land, bus });
+    [0.05, 0.12, 0.2, 0.27, 0.33].forEach((dt) => this.play('relay', { at: t0 + dt, bus }));
+    this.play('stingWhine', { at: t0 + 0.38, dur: land - 0.38, bus });
+    this.play('stingSlam', { at: t0 + land, bus });
   }
   soundOff() {
     if (!this.ctx) return;
@@ -122,10 +152,12 @@ export class Sfx {
   remembered() { try { return localStorage.getItem(KEY) === '1'; } catch { return false; } }
   src(dur, t) {
     const s = this.ctx.createBufferSource(); s.buffer = this.noise;
-    s.start(t, Math.random() * 0.5, dur + 0.05); return s;
+    s.start(t, 0.25, dur + 0.05); return s;
   }
   env(node, t, a, peak, d) {
-    const g = this.ctx.createGain(); g.gain.setValueAtTime(0.0001, t);
+    // (silent until it opens: a gain sits at 1 before its first event, which let a source that starts before its
+    // envelope through at full scale)
+    const g = this.ctx.createGain(); g.gain.value = 0.0001; g.gain.setValueAtTime(0.0001, t);
     g.gain.exponentialRampToValueAtTime(peak, t + a); g.gain.exponentialRampToValueAtTime(0.0001, t + a + d);
     node.connect(g); g.connect(this.dest); return g;
   }
@@ -142,9 +174,10 @@ export class Sfx {
       if (now - (this.lastPlay[name] || 0) < 45) return;
       this.lastPlay[name] = now;
     }
-    const c = this.ctx, t = opt.at ?? c.currentTime + 0.005, v = opt.gain ?? 1;
+    const L = LEVELS[name];
+    const c = this.ctx, t = opt.at ?? c.currentTime + 0.005, v = (L ? L.gain : 1) * (opt.gain ?? 1);
     this.dest = opt.bus ?? this.sfxBus;
-    switch (name) {
+    switch (L ? L.cue : name) {
       case 'tick': this.tone('sine', 2400, 1800, t, 0.002, 0.05 * v, 0.03); break;
       case 'snap': {
         const n = this.src(0.06, t); const hp = this.filt('highpass', 2500); const bp = this.filt('bandpass', 4200, 1.4);
@@ -215,9 +248,9 @@ export class Sfx {
         const o = c.createOscillator(); o.type = 'sawtooth';
         o.frequency.setValueAtTime(90, t); o.frequency.exponentialRampToValueAtTime(1400, t + rise);
         const lp = this.filt('lowpass', 2400, 2); o.connect(lp);
-        if (opt.dur) { // the sting's whine climbs from about 16 dB under its peak to the peak at the slam, which cuts it
+        if (opt.dur) { // the sting's whine climbs from WHINE_FROM of its peak to the peak at the slam, which cuts it
           const g = c.createGain(); g.gain.setValueAtTime(0.0001, t);
-          g.gain.exponentialRampToValueAtTime(0.16 * 0.09 * v, t + 0.04); g.gain.exponentialRampToValueAtTime(0.09 * v, t + rise);
+          g.gain.exponentialRampToValueAtTime(WHINE_FROM * 0.09 * v, t + 0.04); g.gain.exponentialRampToValueAtTime(0.09 * v, t + rise);
           g.gain.exponentialRampToValueAtTime(0.0001, t + rise + 0.06);
           lp.connect(g); g.connect(this.dest); o.start(t); o.stop(t + rise + 0.1);
           this.tone('sine', 45, 60, t, rise, 0.4 * v, 0.06); break;

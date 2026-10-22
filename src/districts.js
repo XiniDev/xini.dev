@@ -162,7 +162,7 @@ export function buildMemory(pal, parts, silk, featured, fonts) {
       scr.scale.y = i === seatI && e >= 0 && e < 0.36 ? 0.03 : Math.max(0.03, on * on);
       scr.userData.flash = i === seatI && e >= 0.36 ? Math.max(0, 1 - (e - 0.36) / 0.3) * 2 : 0;
     });
-    if (!clacked && e >= 0.36) { clacked = true; sfx?.play('seat'); onClack?.(seatI); }
+    if (!clacked && e >= 0.36) { clacked = true; sfx?.play('moduleSeat'); onClack?.(seatI); }
   };
   if (silk) {
     // floor label reads from the aisle, facing east

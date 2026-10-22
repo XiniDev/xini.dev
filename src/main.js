@@ -154,7 +154,7 @@ class MachineDirector {
     this.gantry = buildGantry(pal, parts, silk); scene.add(this.gantry.group);
     this.gantry.onComplete = () => {
       const w = this.world, s = w.toScreen(V(-200, 10, 262));
-      w.impact.hit({ seq: 'accent', center: [s.x / w.view.w, 1 - s.y / w.view.h], shake: 0.25 }); w.api().sfx.play('snap', { gain: 0.7 });
+      w.impact.hit({ seq: 'accent', center: [s.x / w.view.w, 1 - s.y / w.view.h], shake: 0.25 }); w.api().sfx.play('boardDone');
     };
     this.io = buildIO(pal, parts, silk); scene.add(this.io.group);
     this.rest = buildRest(pal, parts, silk); scene.add(this.rest.group); mark('districts');
@@ -461,7 +461,7 @@ class MachineDirector {
         post.uPlaneAmt.value = bump; post.uPlaneR.value = 1900 * sstep(0.22, 0.46, x); post.uFade.value = 0.32 * bump;
         // one mark at a time: the crown is out before the plate shows it, and back once it has gone
         this.crownDim = sstep(0.12, 0.22, x) * (1 - sstep(0.68, 0.8, x));
-        if (x > 0.3 && !this.revealed) { this.revealed = true; world.api().sfx.play('power'); }
+        if (x > 0.3 && !this.revealed) { this.revealed = true; world.api().sfx.play('finale'); }
       } else if (post.uPlaneAmt.value > 0 || post.uFade.value > 0) {
         post.uPlaneAmt.value = Math.max(0, post.uPlaneAmt.value - dt * 3); post.uFade.value = Math.max(0, post.uFade.value - dt * 3);
         this.revealed = false; this.crownDim = post.uPlaneAmt.value;
@@ -570,16 +570,16 @@ class MachineDirector {
     }
     const sfx = world.api().sfx;
     const C = this.npu.center;
-    if (ray.ray.distanceToPoint(C) < 95) { this.flash = 1.2; world.impact.hit({ seq: 'accent', center: [e.clientX / innerWidth, 1 - e.clientY / innerHeight], shake: 0.35 }); sfx.play('snap'); return; }
+    if (ray.ray.distanceToPoint(C) < 95) { this.flash = 1.2; world.impact.hit({ seq: 'accent', center: [e.clientX / innerWidth, 1 - e.clientY / innerHeight], shake: 0.35 }); sfx.play('lattice'); return; }
     const fanC = V(TOWER.cx + TOWER.depth / 2 + 14, (TOWER.finY0 + TOWER.finY1) / 2, TOWER.cz);
-    if (ray.ray.distanceToPoint(fanC) < TOWER.fanR) { this.spin = 1.5; world.impact.hit({ seq: 'soft', center: [e.clientX / innerWidth, 1 - e.clientY / innerHeight], shake: 0.3 }); sfx.play('whoosh', { gain: 0.6 }); return; }
+    if (ray.ray.distanceToPoint(fanC) < TOWER.fanR) { this.spin = 1.5; world.impact.hit({ seq: 'soft', center: [e.clientX / innerWidth, 1 - e.clientY / innerHeight], shake: 0.3 }); sfx.play('fan'); return; }
     const hit = new THREE.Vector3();
     if (ray.ray.intersectPlane(new THREE.Plane(V(0, 1, 0), 0), hit)) {
       const P = boardU.uPing.value[this.pingN++ % 4];
       P.set(hit.x, hit.z, shared.uStep.value, 1);
     }
     world.impact.hit({ seq: 'soft', center: [e.clientX / innerWidth, 1 - e.clientY / innerHeight], shake: 0.25 });
-    sfx.play('snap', { gain: 0.6 });
+    sfx.play('board');
   }
 }
 

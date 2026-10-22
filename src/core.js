@@ -385,10 +385,10 @@ export function buildGantry(pal, parts, silk) {
         else if (u < 0.74) { const m = minJerk(seg(u, 0.44, 0.74)); pos.x = fx + (tx - fx) * m; pos.z = fz + (tz - fz) * m; pos.y = 74; }
         else { pos.x = tx; pos.z = tz; pos.y = 74 - (74 - placeY) * Math.sin(Math.PI * Math.min(1, seg(u, 0.74, 0.96))); }
         const picked = u >= 0.35, put = u >= 0.85;
-        if (picked && lastPick !== k) { lastPick = k; sfx?.play('tick', { gain: 0.6 }); }
+        if (picked && lastPick !== k) { lastPick = k; sfx?.play('pick'); }
         if (picked && !put) held = k;
         const n = put ? k + 1 : k;
-        if (n > done) { done = n; sfx?.play('seat', { gain: 0.55 }); api.flashAt = t; }
+        if (n > done) { done = n; sfx?.play('chipSeat'); api.flashAt = t; }
         if (done >= 6) { t0 = -1; complete = t; from = { ...pos }; api.onComplete?.(t); }
       } else if (api.wake < 0.5) {
         // standing by while the visitor is elsewhere: the head holds still

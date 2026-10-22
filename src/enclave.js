@@ -246,7 +246,7 @@ export function buildEnclave(pal, parts, silk, { face = V(-80, 0, 660) } = {}) {
           ang = (cur.dir * Math.PI) / 2 * ease(k);
           if (k >= 1) {
             apply(cur); if (cur.push) hist.push({ ax: cur.ax, l: cur.l, dir: cur.dir });
-            if (near) sfx?.play('dial', { gain: solving ? 0.7 : 0.3 });
+            if (near) sfx?.play(solving ? 'dial' : 'dialIdle');
             cur = null; ang = 0; idleAt = s + 0.38;
           }
         }

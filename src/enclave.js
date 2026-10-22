@@ -27,9 +27,13 @@ export function buildEnclave(pal, parts, silk, { face = V(-80, 0, 660) } = {}) {
   const brassDark = inkMaterial({ base: pal.brassDark, brush: 0.12, spec: 0.8, rim: 1 });
   const armour = inkMaterial({ base: pal.shieldDark, brush: 0.14, spec: 0.8, rim: 1 });
   // ---- the plinth every lock stands on, and the laser fence round it
-  // the plinth sits low and dark, close to the board's own value, with a thin brass edge
-  const plinth = new THREE.Mesh(new RoundedBoxGeometry(250, 22, 210, 2, 4), inkMaterial({ base: '#1d2726', brush: 0.12, spec: 0.4, rim: 0.5 })); plinth.position.y = 11; root.add(plinth);
-  const trim = new THREE.Mesh(new RoundedBoxGeometry(258, 3, 218, 1, 1.2), brassDark); trim.position.y = 1.5; root.add(trim);
+  // a pedestal that reads as a block: hard edges the ink catches (the vertical corners too), walls darker than the
+  // board, a top lighter than it, a stepped lip at its foot, and a thin brass keyline round the top
+  const wall = inkMaterial({ base: pal.ink2, brush: 0.12, spec: 0.3, rim: 0.3 }), top = inkMaterial({ base: pal.shieldDark, brush: 0.12, spec: 0.5, rim: 0.6 });
+  const slab = (w, h, d, y, m) => { const s = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m); s.position.y = y; root.add(s); return s; };
+  slab(266, 6, 226, 3, wall); slab(266, 0.4, 226, 6, top);            // the lip, its step lit like the top
+  slab(250, 14.6, 210, 6 + 7.3, wall);                                 // the block
+  slab(250, 1.4, 210, 20.6 + 0.7, brassDark); slab(244, 1.5, 204, 20.6 + 0.75, top); // the keyline, and the top inside it
   const laser = inkMaterial({ base: pal.laser, emissive: true });
   const fence = new THREE.Group(); fence.userData.dynamic = true; root.add(fence);
   const W = 330, D = 290;

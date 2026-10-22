@@ -13,7 +13,7 @@ const box = await page.locator('.bar__sound').boundingBox();
 await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
 await page.evaluate(() => { const b = window.__xini.sfx.musicBus; if (b) b.gain.value = 0; });
 await page.mouse.move(box.x - 300, box.y + 300);
-await page.waitForTimeout(1500); // the toggle's own snap has decayed
+await page.waitForTimeout(3200); // the toggle's snap and the sting (slam at 2.2 s) have decayed
 const peak = await outputPeak(page, 5);
 const state = await page.evaluate(() => window.__audio.contexts[0]?.state);
 await context.close(); await browser.close();

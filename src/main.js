@@ -298,6 +298,8 @@ class MachineDirector {
   }
   arriveSeq(to, from) { return to === 0 && from === 5 ? 'sig' : null; }
   solved() { return this.enc?.solved ?? false; }
+  /** seconds until the boot's impact frame (T = 1.92 on the picture clock), while it is still to come */
+  bootImpact() { const I = this.intro; return I && !I.hit ? 1.92 + BOOT_LEAD - I.t : null; }
   impactCenter(i, world) {
     const a = i === 0 ? this.tower.crownPos : world.route.stops[i].t, s = world.toScreen(a.clone ? a.clone() : V(...a));
     return [s.x / world.view.w, 1 - s.y / world.view.h];
@@ -342,7 +344,7 @@ class MachineDirector {
     document.documentElement.classList.add('booting');
     const skip = () => {
       const I = this.intro; if (!I) return;
-      I.hit = true; I.k = 6; I.t = 2.5 + BOOT_LEAD; this.tower.crown.visible = true;
+      I.hit = true; I.t = 2.5 + BOOT_LEAD; this.tower.crown.visible = true;
       if (!I.card) { I.card = true; world.setCard(0, true); }
       world.nav.lockUntil = performance.now() + 350;
       ['wheel', 'keydown', 'pointerdown', 'touchstart'].forEach((e) => removeEventListener(e, skip));
@@ -423,9 +425,8 @@ class MachineDirector {
       const I = this.intro; I.t += dt; const T0 = I.t, T = Math.max(0, T0 - BOOT_LEAD), r = world.rig;
       // 1. black, one power LED at the CPU power connector; relays pull in
       post.uPlaneLed.value = sstep(0.04, 0.1, T0) * (1 - sstep(0.9, 1.3, T)) * 1.5;
-      const sfx = world.api().sfx;
-      I.k = I.k ?? 0;
-      while (I.k < 6 && T0 > [0.05, 0.12, 0.2, 0.27, 0.33, 0.38][I.k]) { sfx.play(I.k === 5 ? 'power' : 'relay', { gain: 0.8 }); I.k++; }
+      // (the boot itself is silent: sound is off on every page load, and switching it on plays the sting, which lands
+      // on this impact frame if it is still far enough away)
       // 2. the power floods the plane; the city fades up beneath it
       // (the plate stays over a board held at a third of its light until the hand-off, so the frame has one drawing)
       post.uPlaneAmt.value = sstep(0.1, 0.16, T) * (1 - sstep(1.3, 1.68, T));
@@ -447,7 +448,7 @@ class MachineDirector {
       if (T > 1.92 && !I.hit) {
         I.hit = true;
         const s = world.toScreen(this.tower.crownPos.clone());
-        world.impact.hit({ seq: 'sig', center: [s.x / world.view.w, 1 - s.y / world.view.h], shake: 1 }); world.api().sfx.play('slam');
+        world.impact.hit({ seq: 'sig', center: [s.x / world.view.w, 1 - s.y / world.view.h], shake: 1 });
       }
       // the chrome prints in on the frame after the impact, never inside it
       if (T > 2.14 && !I.card) { I.card = true; world.setCard(0, true); document.documentElement.classList.remove('booting'); }

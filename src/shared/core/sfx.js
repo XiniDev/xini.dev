@@ -48,19 +48,59 @@ export class Sfx {
     if (on) this.soundOn(); else this.soundOff();
     for (const fn of this.listeners) fn(on);
   }
+  /** the first switch-on in a page load plays the sting (the boot sound) and the music's first chord lands on its
+   *  slam; later ones fade the music in. Times run on the context clock from the click, which a new or suspended
+   *  context holds still until it runs. */
   soundOn() {
     const ctx = this.ensure(); if (!ctx) return;
     clearTimeout(this.suspendT);
+    ctx.resume();
     this.fade(1, 0.05);
-    ctx.resume().then(() => {
-      if (!this.on) return;
-      this.music.start(ctx.currentTime + 0.07, { stop: this.where.stop(), solved: this.where.solved(), fadeIn: 0.8 });
-    });
+    const t0 = ctx.currentTime, at = { stop: this.where.stop(), solved: this.where.solved() };
+    if (this.stung) { this.music.start(t0 + 0.05, { ...at, fadeIn: 0.8 }); return; }
+    this.stung = true;
+    // switched on during the visual boot with its impact frame far enough away, the slam lands on that frame: its
+    // time on the page clock is mapped onto the context clock once that clock runs (a new context starts late)
+    const impact = this.where.bootImpact?.() ?? null;
+    if (impact !== null && impact >= 0.6) {
+      const hit = performance.now() + impact * 1000, c0 = ctx.currentTime;
+      // (the output's timestamps only mean something once the device plays: until then the mapping is stale)
+      const land = () => {
+        if (!this.on) return;
+        const ts = ctx.getOutputTimestamp?.(), live = ctx.currentTime > c0 && (!ts || ts.contextTime > 0);
+        if (!live && performance.now() < hit - 450) { setTimeout(land, 15); return; }
+        const now = ctx.currentTime, at2 = this.ctxTimeAt(hit);
+        this.sting(now, at2 - now);
+        this.music.start(at2, { ...at, impact: true });
+      };
+      land();
+      return;
+    }
+    this.sting(t0, 2.2);
+    this.music.start(t0 + 2.2, { ...at, impact: true });
+  }
+  /** a moment on the page clock (performance.now() ms) on the context clock, through the output's timestamp when it
+   *  has one (measured within 12 ms of the frame on the context clock; currentTime alone, read just after the clock
+   *  starts, was 33 ms out) */
+  ctxTimeAt(ms) {
+    const ts = this.ctx.getOutputTimestamp?.();
+    if (ts && ts.performanceTime > 0) return ts.contextTime + (ms - ts.performanceTime) / 1000;
+    return this.ctx.currentTime + (ms - performance.now()) / 1000;
+  }
+  /** relays from t0 + 0.05 s, the whine from t0 + 0.38 s, the slam at t0 + land */
+  sting(t0, land) {
+    const bus = (this.stingBus = this.ctx.createGain()); bus.connect(this.sfxBus);
+    [0.05, 0.12, 0.2, 0.27, 0.33].forEach((dt) => this.play('relay', { at: t0 + dt, bus, gain: 0.8 }));
+    this.play('power', { at: t0 + 0.38, dur: land - 0.38, bus });
+    this.play('slam', { at: t0 + land, bus });
   }
   soundOff() {
     if (!this.ctx) return;
     this.music.stop(0.6);
     this.fade(0, 0.3);
+    // a sting cut short is gone for good: nothing of it waits on the clock for the next switch-on
+    const bus = this.stingBus; this.stingBus = null;
+    if (bus) setTimeout(() => bus.disconnect(), 320);
     clearTimeout(this.suspendT);
     this.suspendT = setTimeout(() => this.ctx.suspend(), 700);
   }
@@ -80,14 +120,14 @@ export class Sfx {
   toggle() { this.set(!this.on); }
   onChange(fn) { this.listeners.add(fn); }
   remembered() { try { return localStorage.getItem(KEY) === '1'; } catch { return false; } }
-  src(dur) {
+  src(dur, t) {
     const s = this.ctx.createBufferSource(); s.buffer = this.noise;
-    s.start(this.ctx.currentTime, Math.random() * 0.5, dur + 0.05); return s;
+    s.start(t, Math.random() * 0.5, dur + 0.05); return s;
   }
   env(node, t, a, peak, d) {
     const g = this.ctx.createGain(); g.gain.setValueAtTime(0.0001, t);
     g.gain.exponentialRampToValueAtTime(peak, t + a); g.gain.exponentialRampToValueAtTime(0.0001, t + a + d);
-    node.connect(g); g.connect(this.sfxBus); return g;
+    node.connect(g); g.connect(this.dest); return g;
   }
   filt(type, f, q = 1) { const b = this.ctx.createBiquadFilter(); b.type = type; b.frequency.value = f; b.Q.value = q; return b; }
   tone(type, f0, f1, t, a, peak, d) {
@@ -97,80 +137,92 @@ export class Sfx {
   }
   play(name, opt = {}) {
     if (!this.on || !this.ctx) return;
-    const now = performance.now();
-    if (now - (this.lastPlay[name] || 0) < 45) return;
-    this.lastPlay[name] = now;
-    const c = this.ctx, t = c.currentTime + 0.005, v = opt.gain ?? 1;
+    if (opt.at == null) { // live cues are rate-limited; scheduled ones (the sting) are timed by the caller
+      const now = performance.now();
+      if (now - (this.lastPlay[name] || 0) < 45) return;
+      this.lastPlay[name] = now;
+    }
+    const c = this.ctx, t = opt.at ?? c.currentTime + 0.005, v = opt.gain ?? 1;
+    this.dest = opt.bus ?? this.sfxBus;
     switch (name) {
       case 'tick': this.tone('sine', 2400, 1800, t, 0.002, 0.05 * v, 0.03); break;
       case 'snap': {
-        const n = this.src(0.06); const hp = this.filt('highpass', 2500); const bp = this.filt('bandpass', 4200, 1.4);
+        const n = this.src(0.06, t); const hp = this.filt('highpass', 2500); const bp = this.filt('bandpass', 4200, 1.4);
         n.connect(hp); hp.connect(bp); this.env(bp, t, 0.001, 0.5 * v, 0.05);
         this.tone('triangle', 1700, 500, t, 0.001, 0.12 * v, 0.03); break;
       }
       case 'fold': {
-        const n = this.src(0.3); const bp = this.filt('bandpass', 900, 0.9);
+        const n = this.src(0.3, t); const bp = this.filt('bandpass', 900, 0.9);
         bp.frequency.setValueAtTime(700, t); bp.frequency.exponentialRampToValueAtTime(2800, t + 0.22);
         n.connect(bp); this.env(bp, t, 0.03, 0.22 * v, 0.2); break;
       }
       case 'slam': {
         this.tone('sine', 140, 42, t, 0.002, 0.9 * v, 0.24);
-        const n = this.src(0.2); const lp = this.filt('lowpass', 600); n.connect(lp); this.env(lp, t, 0.001, 0.5 * v, 0.12);
-        const n2 = this.src(0.08); const hp = this.filt('highpass', 3000); n2.connect(hp); this.env(hp, t, 0.001, 0.25 * v, 0.05); break;
+        const n = this.src(0.2, t); const lp = this.filt('lowpass', 600); n.connect(lp); this.env(lp, t, 0.001, 0.5 * v, 0.12);
+        const n2 = this.src(0.08, t); const hp = this.filt('highpass', 3000); n2.connect(hp); this.env(hp, t, 0.001, 0.25 * v, 0.05); break;
       }
       case 'stamp': {
         this.tone('sine', 95, 50, t, 0.002, 0.7 * v, 0.16);
-        const n = this.src(0.12); const bp = this.filt('bandpass', 1400, 0.7); n.connect(bp); this.env(bp, t, 0.001, 0.35 * v, 0.08); break;
+        const n = this.src(0.12, t); const bp = this.filt('bandpass', 1400, 0.7); n.connect(bp); this.env(bp, t, 0.001, 0.35 * v, 0.08); break;
       }
       case 'whoosh': {
-        const n = this.src(0.5); const bp = this.filt('bandpass', 3000, 0.8);
+        const n = this.src(0.5, t); const bp = this.filt('bandpass', 3000, 0.8);
         bp.frequency.setValueAtTime(3200, t); bp.frequency.exponentialRampToValueAtTime(400, t + 0.38);
         n.connect(bp); this.env(bp, t, 0.08, 0.28 * v, 0.3); break;
       }
       case 'hiss': {
         const dur = opt.dur ?? 0.35;
-        const n = this.src(dur + 0.2); const bp = this.filt('bandpass', 7000, 0.7); const hp = this.filt('highpass', 3500);
+        const n = this.src(dur + 0.2, t); const bp = this.filt('bandpass', 7000, 0.7); const hp = this.filt('highpass', 3500);
         n.connect(hp); hp.connect(bp);
         const g = c.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.32 * v, t + 0.03);
         g.gain.setValueAtTime(0.32 * v, t + dur); g.gain.exponentialRampToValueAtTime(0.0001, t + dur + 0.1);
-        bp.connect(g); g.connect(this.sfxBus); break;
+        bp.connect(g); g.connect(this.dest); break;
       }
       case 'rattle': {
         for (let i = 0; i < 5; i++) {
           const tt = t + i * 0.075 + Math.random() * 0.01;
-          const n = this.src(0.03); const bp = this.filt('bandpass', 3000 + Math.random() * 1500, 4); n.connect(bp); this.env(bp, tt, 0.001, 0.3 * v, 0.025);
+          const n = this.src(0.03, tt); const bp = this.filt('bandpass', 3000 + Math.random() * 1500, 4); n.connect(bp); this.env(bp, tt, 0.001, 0.3 * v, 0.025);
         }
         break;
       }
       case 'splat': {
-        const n = this.src(0.25); const lp = this.filt('lowpass', 1800); n.connect(lp); this.env(lp, t, 0.002, 0.5 * v, 0.16);
+        const n = this.src(0.25, t); const lp = this.filt('lowpass', 1800); n.connect(lp); this.env(lp, t, 0.002, 0.5 * v, 0.16);
         this.tone('sine', 220, 70, t, 0.002, 0.35 * v, 0.12); break;
       }
       case 'dial': { // a ratchet click: a bright tick over a small knock
-        const n = this.src(0.03); const bp = this.filt('bandpass', 5200, 6); n.connect(bp); this.env(bp, t, 0.0005, 0.45 * v, 0.02);
+        const n = this.src(0.03, t); const bp = this.filt('bandpass', 5200, 6); n.connect(bp); this.env(bp, t, 0.0005, 0.45 * v, 0.02);
         this.tone('square', 1300, 900, t, 0.0005, 0.05 * v, 0.018);
         this.tone('sine', 180, 120, t, 0.001, 0.2 * v, 0.05); break;
       }
       case 'unlock': { // a heavy clunk: low thump, a ringing bolt, a breath of released pressure
         this.tone('sine', 90, 48, t, 0.002, 0.8 * v, 0.22);
-        const n = this.src(0.12); const bp = this.filt('bandpass', 900, 1.2); n.connect(bp); this.env(bp, t, 0.001, 0.4 * v, 0.08);
+        const n = this.src(0.12, t); const bp = this.filt('bandpass', 900, 1.2); n.connect(bp); this.env(bp, t, 0.001, 0.4 * v, 0.08);
         this.tone('triangle', 2200, 2150, t + 0.01, 0.002, 0.06 * v, 0.5);
         this.tone('triangle', 3310, 3290, t + 0.01, 0.002, 0.035 * v, 0.4);
-        const h = this.src(0.4); const hp = this.filt('highpass', 4000); h.connect(hp); this.env(hp, t + 0.05, 0.02, 0.12 * v, 0.3); break;
+        const h = this.src(0.4, t); const hp = this.filt('highpass', 4000); h.connect(hp); this.env(hp, t + 0.05, 0.02, 0.12 * v, 0.3); break;
       }
       case 'seat': { // a module seating: a sharp clack, a second latch, a thump under both
-        const n = this.src(0.04); const bp = this.filt('bandpass', 2600, 3); n.connect(bp); this.env(bp, t, 0.0005, 0.6 * v, 0.03);
-        const n2 = this.src(0.04); const bp2 = this.filt('bandpass', 1500, 4); n2.connect(bp2); this.env(bp2, t + 0.018, 0.0005, 0.4 * v, 0.03);
+        const n = this.src(0.04, t); const bp = this.filt('bandpass', 2600, 3); n.connect(bp); this.env(bp, t, 0.0005, 0.6 * v, 0.03);
+        const n2 = this.src(0.04, t); const bp2 = this.filt('bandpass', 1500, 4); n2.connect(bp2); this.env(bp2, t + 0.018, 0.0005, 0.4 * v, 0.03);
         this.tone('sine', 140, 70, t, 0.002, 0.45 * v, 0.09); break;
       }
       case 'relay': { // a relay pulling in
-        const n = this.src(0.02); const hp = this.filt('highpass', 2000); n.connect(hp); this.env(hp, t, 0.0003, 0.35 * v, 0.012);
+        const n = this.src(0.02, t); const hp = this.filt('highpass', 2000); n.connect(hp); this.env(hp, t, 0.0003, 0.35 * v, 0.012);
         this.tone('square', 260, 200, t, 0.0005, 0.04 * v, 0.015); break;
       }
       case 'power': { // power coming up: a rising whine over a low swell
+        const rise = opt.dur ?? 0.9;
         const o = c.createOscillator(); o.type = 'sawtooth';
-        o.frequency.setValueAtTime(90, t); o.frequency.exponentialRampToValueAtTime(1400, t + 0.9);
-        const lp = this.filt('lowpass', 2400, 2); o.connect(lp); this.env(lp, t, 0.25, 0.09 * v, 0.7); o.start(t); o.stop(t + 1.1);
+        o.frequency.setValueAtTime(90, t); o.frequency.exponentialRampToValueAtTime(1400, t + rise);
+        const lp = this.filt('lowpass', 2400, 2); o.connect(lp);
+        if (opt.dur) { // the sting's whine climbs from about 16 dB under its peak to the peak at the slam, which cuts it
+          const g = c.createGain(); g.gain.setValueAtTime(0.0001, t);
+          g.gain.exponentialRampToValueAtTime(0.16 * 0.09 * v, t + 0.04); g.gain.exponentialRampToValueAtTime(0.09 * v, t + rise);
+          g.gain.exponentialRampToValueAtTime(0.0001, t + rise + 0.06);
+          lp.connect(g); g.connect(this.dest); o.start(t); o.stop(t + rise + 0.1);
+          this.tone('sine', 45, 60, t, rise, 0.4 * v, 0.06); break;
+        }
+        this.env(lp, t, 0.25, 0.09 * v, 0.7); o.start(t); o.stop(t + 1.1);
         this.tone('sine', 45, 60, t, 0.4, 0.4 * v, 0.6); break;
       }
       default: break;

@@ -73,7 +73,7 @@ export class World {
     this.rig = new Rig(this.camera, route.stops, route.legs, { closed: route.closed, speed: route.speed ?? 34, minT: route.minT ?? 1.6, maxT: route.maxT ?? 3.0, ...(route.rig || {}) });
     this.nav = new Nav({ ids: STOP_IDS, wrap: !!route.wrap, onChange: (to, from, how) => this.go(to, from, how), onSide: (d) => this.side(d) });
     this.ui = wireWorld({ nav: this.nav, sfx, places: this.places, onProject: (i, d) => this.director.project?.(i, d, this) });
-    sfx.where = { stop: () => this.rig.flight?.to ?? this.rig.index, solved: () => !!this.director.solved?.() };
+    sfx.where = { stop: () => this.rig.flight?.to ?? this.rig.index, solved: () => !!this.director.solved?.(), bootImpact: () => this.director.bootImpact?.() ?? null };
     this.setCard(0, true);
     this.director.ready?.(this);
     this.last = performance.now();

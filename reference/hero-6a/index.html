@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Power on 6a · reference</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&amp;family=JetBrains+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="hero6a.css">
+<style>
+  html, body { margin: 0; height: 100%; background: #030b0b; overflow: hidden; }
+  #stage { position: fixed; inset: 0; overflow: hidden; }
+  #bg { position: absolute; left: 0; top: 0; width: 2551px; height: 1265px; transform-origin: 0 0; }
+  .ui { position: fixed; right: 12px; bottom: 12px; display: flex; gap: 6px; align-items: center;
+        font: 12px/1 'JetBrains Mono', monospace; color: #ece6d4; z-index: 10; }
+  .ui button, .ui label { background: #0b1d19; color: inherit; border: 1px solid #554a2c; padding: 8px 10px;
+        font: inherit; cursor: pointer; }
+  .ui label { display: flex; gap: 6px; align-items: center; }
+  .shot .ui { display: none; }
+</style>
+</head>
+<body>
+<div id="stage"><img id="bg" src="bg.jpg" alt=""></div>
+<div class="ui">
+  <button id="replay" type="button">Replay entrance (R)</button>
+  <button id="leave" type="button">Leave (L)</button>
+  <label><input id="reduced" type="checkbox"> Reduced motion</label>
+</div>
+<script type="module">
+  import { createHero6a } from './hero6a.js';
+
+  // The background is the approved screenshot (2551 × 1265) with the old card removed. Its geometry,
+  // in screenshot px: crown ring centre, page gutter, bottom of the top bar, top of the route strip.
+  const SHOT = { w: 2551, h: 1265, crown: { x: 1577.5, y: 297.5 }, gutter: 64, bandTop: 72, bandBottom: 1172 };
+
+  const q = new URLSearchParams(location.search);
+  if (q.has('shot')) document.body.classList.add('shot');
+  const compact = q.get('compact') === '1';
+  const fit = q.get('fit') || 'contain';
+  const stage = document.getElementById('stage');
+  const bg = document.getElementById('bg');
+
+  const hero = createHero6a({ parent: stage });
+  window.hero = hero;
+
+  function layout() {
+    const vw = innerWidth, vh = innerHeight;
+    if (compact) {
+      // Phone stand-in: the screenshot cropped so the crown sits upper right of centre, the panel
+      // anchored above where the route strip would be.
+      const s = Math.max(vw / SHOT.w, vh / SHOT.h);
+      const crown = { x: vw * 0.62, y: SHOT.crown.y * s };
+      bg.style.transform = `translate(${crown.x - SHOT.crown.x * s}px, 0px) scale(${s})`;
+      return hero.layout({ vw, vh, crown, gutter: 16, bandTop: 64, bandBottom: vh - 96, compact: true });
+    }
+    const s = fit === 'cover' ? Math.max(vw / SHOT.w, vh / SHOT.h) : Math.min(vw / SHOT.w, vh / SHOT.h);
+    const ox = (vw - SHOT.w * s) / 2, oy = (vh - SHOT.h * s) / 2;
+    bg.style.transform = `translate(${ox}px, ${oy}px) scale(${s})`;
+    const crown = { x: SHOT.crown.x * s + ox, y: SHOT.crown.y * s + oy };
+    if (fit === 'cover') {
+      // Stand-in for the live site: screen-space gutter and bars, crown wherever the image puts it.
+      return hero.layout({ vw, vh, crown, gutter: Math.max(16, 0.025 * vw), bandTop: 0.057 * vh, bandBottom: 0.926 * vh });
+    }
+    const g = q.has('gutter') ? Number(q.get('gutter')) : SHOT.gutter;
+    return hero.layout({
+      vw, vh, crown,
+      gutter: g * s + ox,
+      bandTop: SHOT.bandTop * s + oy,
+      bandBottom: SHOT.bandBottom * s + oy,
+    });
+  }
+
+  await Promise.all([
+    document.fonts.load('700 100px "Chakra Petch"'),
+    document.fonts.load('500 15px "JetBrains Mono"'),
+    document.fonts.load('400 20px "JetBrains Mono"'),
+  ]);
+  await document.fonts.ready;
+  window.layoutInfo = layout();
+  addEventListener('resize', () => { window.layoutInfo = layout(); });
+
+  const reduced = document.getElementById('reduced');
+  reduced.checked = q.get('reduced') === '1' || matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const enter = () => hero.enter({ reduced: reduced.checked });
+  document.getElementById('replay').onclick = enter;
+  document.getElementById('leave').onclick = () => hero.leave({ reduced: reduced.checked });
+  addEventListener('keydown', (e) => {
+    if (e.key === 'r') enter();
+    if (e.key === 'l') hero.leave({ reduced: reduced.checked });
+  });
+
+  if (q.has('static')) hero.show();
+  else {
+    enter();
+    if (q.has('t')) hero.seek(Number(q.get('t')));
+  }
+  document.documentElement.dataset.ready = '1';
+</script>
+</body>
+</html>

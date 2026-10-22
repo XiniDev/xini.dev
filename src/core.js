@@ -171,7 +171,7 @@ export function buildGantry(pal, parts, silk) {
     for (let k = 0; k < 30; k++) c.fillRect((14 + k * 4.3) * dk, Hh - 6 * dk, 2.6 * dk, 5.2 * dk);
     for (const [sx, sy] of [[8, 8], [DW - 8, 8], [8, DD - 8], [DW - 8, DD - 8]]) { c.beginPath(); c.arc(sx * dk, sy * dk, 3.4 * dk, 0, Math.PI * 2); c.arc(sx * dk, sy * dk, 2 * dk, 0, Math.PI * 2, true); c.fill(); }
     c.fillStyle = 'rgba(236,230,212,0.9)'; c.font = `700 ${4 * dk}px ${DISP}`; c.textAlign = 'left'; c.fillText('XN-SYS-01', 14 * dk, 7.6 * dk);
-    c.font = `600 ${2.2 * dk}px ${MONO}`; c.fillText('ONE BOARD · SIX PARTS · REV A', 14 * dk, 11.2 * dk);
+    c.font = `600 ${2.2 * dk}px ${MONO}`; c.fillText('REV 5 · XINI 2026', 14 * dk, 11.2 * dk);
     drawMark(c, DW * dk - 20 * dk, 2.6 * dk, 9 * dk);
   }, { res: 1024, bloom: false });
   deck.rotation.x = -Math.PI / 2; deck.position.set(MOD.x, DECK_Y + 0.06, MOD.z); g.add(deck);
@@ -333,7 +333,7 @@ export function buildGantry(pal, parts, silk) {
     // frame's foot it was cropped and ran into the route strip)
     silk.text('組裝', xW + 4, zS + 64, 24, { weight: '700', family: JP, base: 'alphabetic' });
     silk.text('ASSEMBLY', xW + 60, zS + 62, 10.5, { weight: '700', family: DISP, base: 'alphabetic', track: 2 });
-    silk.text('PICK + PLACE  ·  6 PARTS  ·  ONE OPERATOR', xW + 60, zS + 70, 4.6);
+    silk.text('ASSY-01  ·  REV 5  ·  XINI 2026', xW + 60, zS + 70, 4.6);
   }
   parts.keep(xW - 8, zS + 34, xW + 230, zS + 116); // nothing is placed over the legend, or between it and the camera
   parts.sprinkle(xc, zc, xE - xW + 70, zS - zN + 70, 26, 6, 18);

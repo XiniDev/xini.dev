@@ -54,12 +54,10 @@ export function buildEnclave(pal, parts, silk, { face = V(-80, 0, 660) } = {}) {
     silk.ao(x, z, 270, 230, 8, 0.95);
     silk.hazard(x, z, W + 34, D + 34, 11, 9);
     silk.text('U9', x - W / 2 - 16, z - D / 2 - 26, 10, { weight: '700' });
-    // the legend lies between the arrival camera and the plinth, turned to read from it
+    // the marking lies between the arrival camera and the plinth, turned to read from it
     const fw = V(x - face.x, 0, z - face.z).normalize(), rt = V(-fw.z, 0, fw.x), rot = Math.atan2(rt.z, rt.x);
     const at = (a, b) => [x + rt.x * a - fw.x * b, z + rt.z * a - fw.z * b];
-    silk.text('加密', ...at(-100, 300), 46, { weight: '700', family: '"Zen Kaku Gothic New", sans-serif', rot, stretch: 2.4 });
-    silk.text('SECURE ENCLAVE', ...at(-40, 330), 18, { weight: '700', family: '"Chakra Petch", sans-serif', rot, track: 2, stretch: 2.2 });
-    silk.text('NO UNSIGNED CODE PAST THIS LINE', ...at(-20, 368), 6.5, { rot, stretch: 2 });
+    silk.text('SEC-04  ·  REV 5', ...at(-20, 368), 6.5, { rot, stretch: 2 });
   }
   parts.chip(x - 90, z + 262, 36, 36, 4.5, { label: 'TPM', pitch: 3.4 });
   parts.row(x - 120, z + 300, x - 80, z + 300, 3, 'cap');

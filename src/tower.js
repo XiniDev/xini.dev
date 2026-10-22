@@ -234,9 +234,8 @@ export function buildTower(pal, silk) {
     for (const [x, z] of [[-170, -170], [170, -170], [170, 170], [-170, 170]]) { silk.ring(cx + x, cz + z, 7, 12); silk.text('○', cx + x, cz + z, 4); }
     silk.rect(cx, cz, 316, 316, 1.4);
     silk.text('CPU1', cx - 158, cz - 168, 12, { weight: '700' });
-    silk.text('SOCKET XN-01  ·  4 HEAT PIPES', cx - 150, cz + 186, 6.5);
-    silk.text('注意 高溫  CAUTION HOT SURFACE', cx + 30, cz - 160, 6);
-    silk.line([[cx - 160, cz + 250], [cx + 160, cz + 250]], 1.4);
+    silk.text('SOCKET XN-01', cx - 150, cz + 186, 6.5);
+      silk.line([[cx - 160, cz + 250], [cx + 160, cz + 250]], 1.4);
   }
 
   batchStatic(rotor);

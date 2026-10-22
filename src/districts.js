@@ -57,8 +57,6 @@ export function buildVRM(pal, parts, silk) {
     silk.ao(-80, -344, 510, 64, 8, 0.9); silk.ao(-306, -88, 64, 460, 8, 0.9); silk.ao(-360, -420, 70, 40, 5, 0.9);
     silk.text('VRM  ·  22 PHASE', -320, -384, 7, { weight: '700' });
     silk.text('EPS_12V', -392, -444, 6, { weight: '700' });
-    silk.text('電源', -330, -470, 26, { weight: '700', family: jpFont, base: 'alphabetic' });
-    silk.text('POWER', -270, -472, 14, { weight: '700', family: dispFont, base: 'alphabetic', track: 2 });
   }
   g.userData.seam = seam;
   return g;
@@ -167,8 +165,6 @@ export function buildMemory(pal, parts, silk, featured, fonts) {
   };
   if (silk) {
     // floor label reads from the aisle, facing east
-    silk.text('記憶體', 150, -470, 54, { weight: '700', family: jpFont, rot: Math.PI / 2, stretch: 1.8 });
-    silk.text('MEMORY', 88, -480, 26, { weight: '700', family: dispFont, rot: Math.PI / 2, track: 3, stretch: 1.8 });
     silk.line([[200, -500], [200, 240]], 1.4);
     for (let z = -470; z < 240; z += 60) silk.line([[186, z], [200, z + 14], [186, z + 28]], 1.2);
   }
@@ -298,9 +294,7 @@ export function buildNeural(pal, parts, silk) {
     silk.footprint(x, z, 206, 206, 4);
     silk.text('U7', x - 104, z - 118, 10, { weight: '700' });
     // read from the south-west, where the camera arrives
-    silk.text('神經', x - 150, z + 190, 56, { weight: '700', family: jpFont, rot: Math.PI / 4, stretch: 2.2 });
-    silk.text('NEURAL CORE', x - 80, z + 240, 24, { weight: '700', family: dispFont, rot: Math.PI / 4, track: 2, stretch: 2 });
-    silk.text('NPU-01  ·  LOCAL INFERENCE', x - 50, z + 286, 8, { rot: Math.PI / 4, stretch: 2 });
+    silk.text('NPU-01  ·  REV 5', x - 50, z + 286, 8, { rot: Math.PI / 4, stretch: 2 });
   }
   const hash = (a, b) => { const x = Math.sin(a * 127.1 + b * 311.7) * 43758.5453; return x - Math.floor(x); };
   let focus = 0;
@@ -537,9 +531,7 @@ export function buildIO(pal, parts, silk) {
   parts.sprinkle(-820, -560, 38, 38, 26); parts.sprinkle(-822, -200, 30, 30, 22); parts.sprinkle(-760, -420, 34, 34, 22);
   for (let i = 0; i < 6; i++) parts.can(-860 + (i % 3) * 22, -150 + Math.floor(i / 3) * 22, 8, 22, pal.audioCap, pal.audioCapTop);
   if (silk) {
-    silk.text('接口', -856, -380, 62, { weight: '700', family: jpFont, rot: -Math.PI / 2, stretch: 1.8 });
-    silk.text('I/O', -770, -380, 36, { weight: '700', family: dispFont, rot: -Math.PI / 2, stretch: 1.8 });
-    silk.text('REAR PANEL  ·  OUT TO THE WORLD', -730, -380, 8, { rot: -Math.PI / 2, stretch: 1.8 });
+    silk.text('IO_06  ·  REV 5', -730, -380, 8, { rot: -Math.PI / 2, stretch: 1.8 });
     silk.line([[-884, -720], [-884, -150]], 1.2);
   }
   // output: packets run in along the traces and leave through the ports, on twos
@@ -584,7 +576,7 @@ export function buildRest(pal, parts, silk) {
     c.fillStyle = pal.anod; c.fillRect(0, 0, W, H);
     c.fillStyle = 'rgba(255,255,255,0.08)'; for (let x = 0; x < W; x += 14) c.fillRect(x, 0, 6, H);
     // printed low-contrast: the AI stop hovers right over this module and it must not fight the lattice
-    c.globalAlpha = 0.24; c.fillStyle = pal.silk; c.font = `700 ${H * 0.32}px ${dispFont}`; c.textBaseline = 'middle'; c.fillText('M.2_1  STORAGE', W * 0.05, H * 0.52);
+    c.globalAlpha = 0.24; c.fillStyle = pal.silk; c.font = `700 ${H * 0.32}px ${dispFont}`; c.textBaseline = 'middle'; c.fillText('M.2_1', W * 0.05, H * 0.52);
     // a dim status strip: printed full green it read as a lit band across the skim's foreground
     c.globalAlpha = 0.4; c.fillStyle = pal.signalDeep; c.fillRect(W * 0.7, H * 0.44, W * 0.25, H * 0.12); c.globalAlpha = 1;
   }, m2Id, { res: 1024 }));
@@ -645,9 +637,8 @@ export function buildRest(pal, parts, silk) {
     for (const [x, z] of [[-950, -700], [950, -700], [950, 700], [-950, 700], [-80, 700], [330, -660], [-660, 120]]) { silk.ring(x, z, 8, 16); silk.aoDisc(x, z, 18, 4, 0.5); }
     // board identity, bottom left
     silk.path(FOLD_FRONT, -880, 620, 60); silk.path(FOLD_BACK, -880, 620, 60);
-    silk.text('XINI', -842, 606, 30, { weight: '700', family: dispFont, track: 3 });
     silk.text('MB-01  REV 2.6  ·  2026', -842, 634, 9);
-    silk.text('DESIGNED AND BUILT BY XINI', -842, 650, 7);
+    silk.text('XINI 2026', -842, 650, 7);
   }
   // status lights all over the city: they read as windows from above; one deep green, steady
   const ledCols = [pal.signalDeep];

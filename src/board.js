@@ -171,6 +171,8 @@ export class Silk {
     g.save(); g.translate(X, Y); g.rotate(rot); g.scale(1, stretch);
     g.fillStyle = `rgb(${Math.round(255 * (amt ?? (size >= 16 ? 0.5 : 1)))},0,0)`; g.font = `${weight} ${size * this.k}px ${family}`; g.textAlign = align; g.textBaseline = base;
     if (track) g.letterSpacing = `${track * this.k}px`;
+    // (kept for the board-text audit: what was printed where, and how long it runs)
+    (this.texts ??= []).push({ str, x, z, size: size * stretch, rot, w: g.measureText(str).width / this.k, align });
     g.fillText(str, 0, 0); g.restore();
   }
   line(pts, lw = 1.1) { const g = this.g; g.strokeStyle = 'rgb(255,0,0)'; g.lineWidth = lw * this.k; g.lineJoin = 'miter'; g.beginPath(); pts.forEach(([x, z], i) => { const [X, Y] = this.P(x, z); i ? g.lineTo(X, Y) : g.moveTo(X, Y); }); g.stroke(); }

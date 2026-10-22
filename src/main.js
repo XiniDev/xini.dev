@@ -658,5 +658,5 @@ post.uFocusSoft.value = 0; post.uFocusMisreg.value = 2.2;
 if (!q.has('nolut')) setLut(makeLut(gradeVerdigris), q.has('lut') ? +q.get('lut') : 1);
 await world.start();
 // (for the capture and QA tools)
-Object.assign(window.__xini, { post, boardU, skyU, shared });
+Object.assign(window.__xini, { post, boardU, skyU, shared, THREE });
 window.__xini.ready = true;

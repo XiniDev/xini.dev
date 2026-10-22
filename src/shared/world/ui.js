@@ -97,7 +97,6 @@ export function renderWorld({ places, mark, route, deco = {} }) {
     return `<li style="--x:${((x - vbx) / vbw) * 100}%;--y:${((y - vby) / vbh) * 100}%"><a href="#${id}" data-i="${i}"${i === 0 ? ' aria-current="true"' : ''}><i aria-hidden="true"></i><span>${esc(places[i])}</span></a></li>`;
   }).join('')}</ol>
 </nav>
-<div class="title" aria-hidden="true"><span class="title__text"></span></div>
 <aside class="index" id="index" aria-label="All projects" hidden>
   <div class="index__sheet" data-scroll>
     <header class="index__head"><h2>All projects</h2><button class="index__close" type="button" aria-label="Close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5l14 14M19 5L5 19"/></svg></button></header>
@@ -108,7 +107,7 @@ export function renderWorld({ places, mark, route, deco = {} }) {
 }
 
 /** Wire the route nav, project pager, drawer and sound toggle to the world. */
-export function wireWorld({ nav, sfx, onProject, places }) {
+export function wireWorld({ nav, sfx, onProject }) {
   const links = [...document.querySelectorAll('.route__list a')];
   const done = document.querySelector('.route__done');
   const total = done ? done.getTotalLength() : 0;
@@ -161,11 +160,5 @@ export function wireWorld({ nav, sfx, onProject, places }) {
   sfx.onChange(sync); sync(false);
   document.addEventListener('pointerover', (e) => { if (e.target.closest && e.target.closest('a, button')) sfx.play('hover'); });
   document.addEventListener('pointerdown', () => sfx.activity(), { passive: true });
-  // the place title that sweeps in mid-flight
-  const title = document.querySelector('.title'), titleText = document.querySelector('.title__text');
-  const showTitle = (i) => {
-    titleText.textContent = places[i];
-    title.classList.remove('is-on'); void title.offsetWidth; title.classList.add('is-on');
-  };
-  return { setProject: (i, d) => setProject(i, d), get project() { return cur; }, showTitle, open };
+  return { setProject: (i, d) => setProject(i, d), get project() { return cur; }, open };
 }

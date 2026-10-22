@@ -72,7 +72,7 @@ export class World {
     this.resize();
     this.rig = new Rig(this.camera, route.stops, route.legs, { closed: route.closed, speed: route.speed ?? 34, minT: route.minT ?? 1.6, maxT: route.maxT ?? 3.0, ...(route.rig || {}) });
     this.nav = new Nav({ ids: STOP_IDS, wrap: !!route.wrap, onChange: (to, from, how) => this.go(to, from, how), onSide: (d) => this.side(d) });
-    this.ui = wireWorld({ nav: this.nav, sfx, places: this.places, onProject: (i, d) => this.director.project?.(i, d, this) });
+    this.ui = wireWorld({ nav: this.nav, sfx, onProject: (i, d) => this.director.project?.(i, d, this) });
     sfx.where = { stop: () => this.rig.flight?.to ?? this.rig.index, solved: () => !!this.director.solved?.(), bootImpact: () => this.director.bootImpact?.() ?? null };
     this.setCard(0, true);
     this.director.ready?.(this);
@@ -132,7 +132,6 @@ export class World {
     // arrival is driven by the flight itself, so it lands exactly when the camera does
     if (this.pending) {
       const pr = this.rig.progress, P = this.pending;
-      if (!P.titled && pr >= 0.16) { P.titled = true; this.ui.showTitle(P.to); }
       if (pr >= 0.93 || !this.rig.flying) {
         this.pending = null;
         this.setCard(P.to, true);
@@ -183,7 +182,7 @@ export class World {
     this.director.depart?.(from, to, this);
     const dur = reduced ? this.rig.go(to, { duration: 0.35 }) : this.rig.go(to);
     sfx.play('flight'); sfx.depart(to);
-    this.pending = { to, titled: reduced, from };
+    this.pending = { to, from };
     return dur * 1000;
   }
   side(d) {

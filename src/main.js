@@ -274,7 +274,10 @@ class MachineDirector {
     ];
     // phones step back from every stop except the gallery, where the aisle is too narrow and the pose is already set back
     return { stops, legs, closed: true, cardGrid: true, speed: 420, minT: 1.9, maxT: 3.4, speedRef: 320, arriveImpact: 'hit', phonePull: () => lerp(0.32, 0.04, this.wake?.[4] ?? 0) - 0.14 * (this.wake?.[3] ?? 0), phoneFov: 12, phoneLift: 0.14,
-      wrap: true, rig: { profile: 'minjerk', lookAhead: 0.22, damp: 9, settle: 3, maxBank: 0.09 } };
+      wrap: true, rig: { profile: 'minjerk', lookAhead: 0.22, damp: 9, settle: 3, maxBank: 0.09,
+        // a jump past the next stop flies straight there at cruise height, above everything but the tower, which it
+        // goes round (its footprint with the fan and the pipes, from the part bounds)
+        jump: { cruise: 360, avoid: [[TOWER.cx - 116, TOWER.cz - TOWER.width / 2, TOWER.cx + 116, TOWER.cz + TOWER.width / 2 + 16]] } } };
   }
   exhibitPose(i) {
     // close to square-on (about 30 degrees off the screen), as far back as the aisle allows; on a portrait

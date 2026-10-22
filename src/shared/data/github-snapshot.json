@@ -1,16 +1,16 @@
 {
-  "fetchedAt": "2026-10-02T23:51:41.539Z",
+  "fetchedAt": "2026-10-22T14:22:06.890Z",
   "username": "XiniDev",
   "repos": [
     {
       "name": "xini.dev",
       "full_name": "XiniDev/xini.dev",
-      "description": "Personal site of Xini, systems engineer: featured projects, background and contact details.",
+      "description": "Personal site of Xini, Software Engineer · AI Integration featured projects, background and contact details.",
       "html_url": "https://github.com/XiniDev/xini.dev",
       "homepage": "https://xini.dev",
       "language": "TypeScript",
       "topics": [],
-      "pushed_at": "2026-10-02T23:50:19Z",
+      "pushed_at": "2026-10-02T23:57:07Z",
       "archived": false,
       "fork": false
     },
@@ -23,18 +23,6 @@
       "language": "TypeScript",
       "topics": [],
       "pushed_at": "2026-10-01T10:09:05Z",
-      "archived": false,
-      "fork": false
-    },
-    {
-      "name": "saltancy-web",
-      "full_name": "XiniDev/saltancy-web",
-      "description": "Website for Saltancy, a technical consultancy for web, backend and mobile systems, built with Next.js, Tailwind CSS and Motion.",
-      "html_url": "https://github.com/XiniDev/saltancy-web",
-      "homepage": "https://saltancy-web.vercel.app",
-      "language": "TypeScript",
-      "topics": [],
-      "pushed_at": "2026-06-15T00:34:40Z",
       "archived": false,
       "fork": false
     },

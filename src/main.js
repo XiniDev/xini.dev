@@ -297,6 +297,7 @@ class MachineDirector {
     this.world.rig.nudge(pose.p.clone().sub(base.p), pose.t.clone().sub(base.t));
   }
   arriveSeq(to, from) { return to === 0 && from === 5 ? 'sig' : null; }
+  solved() { return this.enc?.solved ?? false; }
   impactCenter(i, world) {
     const a = i === 0 ? this.tower.crownPos : world.route.stops[i].t, s = world.toScreen(a.clone ? a.clone() : V(...a));
     return [s.x / world.view.w, 1 - s.y / world.view.h];

@@ -1,20 +1,31 @@
 // Procedural sound effects (WebAudio, no audio files). Off by default; the toggle turns it on.
 import { createMaster } from './master.js';
+import { createMusic } from './music.js';
 
 const KEY = 'xini-sound';
 
-class Sfx {
+export class Sfx {
   constructor() {
     this.on = false;
     this.ctx = null;
+    this.music = null;
     this.listeners = new Set();
     this.lastPlay = {};
+    this.where = { stop: () => 0, solved: () => false }; // the world tells the music where the visitor is
   }
   ensure() {
     if (this.ctx) return this.ctx;
     const AC = window.AudioContext || window.webkitAudioContext;
     if (!AC) return null;
-    return this.attach(new AC());
+    this.attach(new AC());
+    // a hidden tab fades out and suspends; the music carries on where it stopped
+    document.addEventListener('visibilitychange', () => {
+      if (!this.on) return;
+      clearTimeout(this.suspendT);
+      if (document.hidden) { this.fade(0, 0.25); this.suspendT = setTimeout(() => this.ctx.suspend(), 300); }
+      else this.ctx.resume().then(() => this.fade(1, 0.4));
+    });
+    return this.ctx;
   }
   /** cues → sfxBus and music → musicBus, both into the master chain (limiter, soft clip), then the output gain */
   attach(ctx) {
@@ -24,6 +35,7 @@ class Sfx {
     this.chain.output.connect(this.out); this.out.connect(ctx.destination);
     this.sfxBus = ctx.createGain(); this.sfxBus.connect(this.chain.input);
     this.musicBus = ctx.createGain(); this.musicBus.connect(this.chain.input);
+    this.music = createMusic(ctx, this.musicBus);
     const len = ctx.sampleRate * 1.5;
     this.noise = ctx.createBuffer(1, len, ctx.sampleRate);
     const d = this.noise.getChannelData(0);
@@ -33,9 +45,38 @@ class Sfx {
   set(on) {
     this.on = on;
     try { localStorage.setItem(KEY, on ? '1' : '0'); } catch {}
-    if (on) { const c = this.ensure(); if (c && c.state === 'suspended') c.resume(); }
+    if (on) this.soundOn(); else this.soundOff();
     for (const fn of this.listeners) fn(on);
   }
+  soundOn() {
+    const ctx = this.ensure(); if (!ctx) return;
+    clearTimeout(this.suspendT);
+    this.fade(1, 0.05);
+    ctx.resume().then(() => {
+      if (!this.on) return;
+      this.music.start(ctx.currentTime + 0.07, { stop: this.where.stop(), solved: this.where.solved(), fadeIn: 0.8 });
+    });
+  }
+  soundOff() {
+    if (!this.ctx) return;
+    this.music.stop(0.6);
+    this.fade(0, 0.3);
+    clearTimeout(this.suspendT);
+    this.suspendT = setTimeout(() => this.ctx.suspend(), 700);
+  }
+  fade(to, seconds) {
+    const g = this.out.gain, now = this.ctx.currentTime;
+    g.cancelScheduledValues(now); g.setValueAtTime(g.value, now); g.linearRampToValueAtTime(to, now + seconds);
+  }
+  /** the music follows the visit: a flight departs (jumps and the finale too), lands, the cube solves, any activity */
+  depart(to) {
+    if (!this.on || !this.music) return;
+    this.music.setStop(to, { solved: to === 3 && this.where.solved() });
+    this.music.duck();
+  }
+  arrive() { if (this.on && this.music) this.music.unduck(); }
+  cubeSolved() { if (this.on && this.music) this.music.cubeSolved(); }
+  activity() { if (this.on && this.music) this.music.activity(); }
   toggle() { this.set(!this.on); }
   onChange(fn) { this.listeners.add(fn); }
   remembered() { try { return localStorage.getItem(KEY) === '1'; } catch { return false; } }

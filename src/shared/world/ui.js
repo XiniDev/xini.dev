@@ -128,7 +128,7 @@ export function wireWorld({ nav, sfx, onProject, places }) {
     cur = i;
     projs[cur].classList.add('is-current'); projs[cur].dataset.dir = dir > 0 ? 'r' : 'l'; dots[cur]?.classList.add('on');
     onProject?.(cur, dir);
-    sfx.play('whoosh', { gain: 0.6 });
+    sfx.play('whoosh', { gain: 0.6 }); sfx.activity();
     return true;
   };
   document.querySelector('.pager__prev').addEventListener('click', () => setProject(cur - 1, -1));
@@ -150,6 +150,7 @@ export function wireWorld({ nav, sfx, onProject, places }) {
   sb.addEventListener('click', () => { sfx.toggle(); if (sfx.on) sfx.play('snap'); });
   sfx.onChange(sync); sync(false);
   document.addEventListener('pointerover', (e) => { if (e.target.closest && e.target.closest('a, button')) sfx.play('tick'); });
+  document.addEventListener('pointerdown', () => sfx.activity(), { passive: true });
   // the place title that sweeps in mid-flight
   const title = document.querySelector('.title'), titleText = document.querySelector('.title__text');
   const showTitle = (i) => {

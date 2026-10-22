@@ -73,6 +73,7 @@ export class World {
     this.rig = new Rig(this.camera, route.stops, route.legs, { closed: route.closed, speed: route.speed ?? 34, minT: route.minT ?? 1.6, maxT: route.maxT ?? 3.0, ...(route.rig || {}) });
     this.nav = new Nav({ ids: STOP_IDS, wrap: !!route.wrap, onChange: (to, from, how) => this.go(to, from, how), onSide: (d) => this.side(d) });
     this.ui = wireWorld({ nav: this.nav, sfx, places: this.places, onProject: (i, d) => this.director.project?.(i, d, this) });
+    sfx.where = { stop: () => this.rig.flight?.to ?? this.rig.index, solved: () => !!this.director.solved?.() };
     this.setCard(0, true);
     this.director.ready?.(this);
     this.last = performance.now();
@@ -136,7 +137,7 @@ export class World {
         this.pending = null;
         this.setCard(P.to, true);
         this.impact.hit({ seq: this.director.arriveSeq?.(P.to, P.from) ?? this.route.arriveImpact ?? 'soft', center: this.director.impactCenter?.(P.to, this) ?? [0.5, 0.5], shake: 0.5 });
-        sfx.play('slam', { gain: 0.5 });
+        sfx.play('slam', { gain: 0.5 }); sfx.arrive();
       }
     }
     this.placeCard();
@@ -181,7 +182,7 @@ export class World {
     this.cards[from].classList.add('is-leaving'); setTimeout(() => this.cards[from].classList.remove('is-leaving'), 320);
     this.director.depart?.(from, to, this);
     const dur = reduced ? this.rig.go(to, { duration: 0.35 }) : this.rig.go(to);
-    sfx.play('whoosh');
+    sfx.play('whoosh'); sfx.depart(to);
     this.pending = { to, titled: reduced, from };
     return dur * 1000;
   }

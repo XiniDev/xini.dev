@@ -217,6 +217,7 @@ export function buildEnclave(pal, parts, silk, { face = V(-80, 0, 660) } = {}) {
       group: g, leds: [pedRing], column, stickers: stickerMesh,
       unlock(t) { solving = true; solvedAt = -1; },
       lock() { solving = false; solvedAt = -1; resumeIn = 1.0; },
+      get solved() { return solvedAt >= 0; },
       update(t, dt, sfx, near, wake = 1) {
         const s = step12(t);
         sMat.uniforms.uWake.value = wake;
@@ -232,7 +233,7 @@ export function buildEnclave(pal, parts, silk, { face = V(-80, 0, 660) } = {}) {
         if (!cur) {
           if (solving) {
             if (hist.length) { const h = hist.pop(); cur = { ax: h.ax, l: h.l, dir: -h.dir, t0: s, dur: 1 / 6, push: false }; }
-            else if (solvedAt < 0) { solvedAt = s; sfx?.play('unlock'); }
+            else if (solvedAt < 0) { solvedAt = s; sfx?.play('unlock'); sfx?.cubeSolved?.(); }
           } else if (s >= idleAt) {
             const pop = hist.length >= 6 || (hist.length >= 3 && rnd() < 0.4);
             if (pop) { const h = hist.pop(); cur = { ax: h.ax, l: h.l, dir: -h.dir, t0: s, dur: 0.25, push: false }; }
@@ -272,6 +273,7 @@ export function buildEnclave(pal, parts, silk, { face = V(-80, 0, 660) } = {}) {
     },
     unlock(t) { variants[current].unlock(t); },
     lock() { variants[current].lock(); },
+    get solved() { return !!variants[current].solved; },
     update(t, dt, sfx, near = false, wake = 1) {
       const s = step12(t);
       const v = variants[current];

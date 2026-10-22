@@ -1,4 +1,4 @@
-# Inside the machine — direction (v4)
+# Inside the machine — direction (v5)
 
 ## The idea
 
@@ -10,14 +10,14 @@ are the machine's own architecture:
 | Stop | Section | District | Hero mechanism |
 |---|---|---|---|
 | 1 Power on | Intro | Cooler tower over the socket | Fans spin up, heat climbs the pipes, the crown lights |
-| 2 The core | What I build | Beside the socket | A pick-and-place gantry builds a six-part system board (UI, 3D, API, NET, DB, OPS); its traces come alive when the last part lands |
+| 2 The core | What I build | Beside the socket | A pick-and-place gantry builds a six-part system board (UI, 3D, AI, NET, DB, OPS); its traces come alive when the last part lands |
 | 3 Neural core | AI | NPU | The lattice thinks: activation waves run through it, layer by layer |
 | 4 Enclave | Security | Secure enclave (east of the memory row) | The cipher cube: scrambled in red, it solves itself and its face becomes the mark |
-| 5 Memory | Projects | DDR5 row | Each project is a module that seats with a clack |
+| 5 Memory | Projects | DDR5 row | Each project is a module that seats with a clack; scrolling steps through them |
 | 6 I/O | Contact | Rear panel | Output to the world, then the finale |
 | Finale | (end) | Whole board | Pull back: the board's power plane is the mark; dive back in |
 
-"I build complete systems" stops being a claim: the visitor travels through one.
+"From design to deployment" stops being a claim: the visitor travels through one.
 
 ## What the feedback set
 
@@ -80,11 +80,12 @@ and warm daylight through the mark at the exit.
 The mark is the same everywhere: back fold sea-green, front fold cream, as in the logo; the power
 plane prints its fold in cream, and at the I/O, where it is light, the fold is cream and the legs a deep
 brass, both flat. The impact frame keeps it legible: the fold stays paper, its cuts knock out of the ink.
-The project screens print the work in two inks, ink to cream (no tinted mid-tones), softened a touch so
-a screenshot's own fine texture does not beat against the dot screens; the page's own strong colours
-(its live UI) overprint in the green, so the hero carries the stop's live colour. What surrounds the
-work in a capture (Gloam's board sits on a wood table, whose grain read as motion streaks) is printed as
-the screen's dark ground.
+The project screens are lit monitors (v5): the work in its own colours, which the grade leaves alone (a
+display), its darkest values lifted at most 10 % toward the petrol air, a fine anti-aliased pixel grid
+that fades out before it could moire, and a glass sheen drawn as hard-edged bands (light is drawn, never
+airbrushed). The comic treatment stays on the frame. The screenshots are the real sites, captured at the
+screen's aspect and device pixel ratio 2 in the scheme a first visit gets. (v4 printed them in two inks
+with the live colours in green; it made the screenshots read oddly and Gloam look like a horror game.)
 
 The chrome's inks are opaque (brass laid thin over teal turns olive): a dim brass for keylines, a dark
 steel for rules, steel for labels, a headline cream a step under the hero's light, so the hero, not the
@@ -121,7 +122,19 @@ Beyond the board's edge the rest of the case stands as a night skyline of towers
 to the north, all in the haze:
 - Windows in one dim warm colour, sparse, some towers mostly dark.
 - A few vertical signs in Chinese with small English (電源 POWER, 冷卻 COOLING, 記憶體 MEMORY), all in
-  one dim cream. The board's legends are Chinese too (組裝 ASSEMBLY, 神經 NEURAL CORE, 加密 SECURE ENCLAVE).
+  one dim cream.
+
+### Board text (v5)
+
+- The board prints what real boards print: designators (U1, CPU1), connector and slot codes (PCIE_1 ×16,
+  DIMM_A1, EPS_12V), port labels, and terse markings (ASSY-01 · REV 5 · XINI 2026, SEC-04 · REV 5,
+  IO_06 · REV 5). No sentences and no lines that explain themselves.
+- A legend (a word that names a district) stays only if it can be read at its own stop: on screen, not
+  behind a part or under the card, glyphs at least 7 px. One does: 組裝 ASSEMBLY at the core, kept exactly
+  as it is. A legend seen only mid-flight is removed (tools/v5/audit-17-text.mjs measures them).
+- Chinese must work as Chinese on its own: punchy written copy, never a translation of an English line or
+  metaphor. The Enclave and Memory legends were translations and are gone; the alternatives for Xini to
+  pick from later are in docs/v5/COPY.md.
 
 The skyline holds still. The foreground stays clean machinery.
 
@@ -138,6 +151,13 @@ Tried and removed for clarity:
 - **Every flight is a different move**: crane (start to core), orbit (core to neural), skim (neural to
   enclave, low along the board's south edge), climb (over the memory row into the gallery), run (down
   the aisle and a banked arc behind the cooler), reveal (the finale). Never two alike in a row.
+- **A jump flies straight** (v5): between stops that are not neighbours the camera rises to cruise height,
+  goes round the tower the short way and comes down onto the stop, turning from where it looks to where the
+  stop looks by the shortest rotation, within 120°/s. (Through every stop between, a jump could spin most of
+  the way round.)
+- **The gallery steps.** At Memory each scroll step, arrow key or swipe shows the next project, then moves
+  on; coming forward it opens on the first, back from the I/O on the last, and the flight lands on that
+  screen.
 - **Smooth like the tower**: a minimum-jerk speed profile, the camera looks along its path mid-flight
   and returns to the subject at the end, orientation is critically damped, a small settle on
   arrival. Every route keeps clearance from solid parts, checked frame by frame.
@@ -154,24 +174,46 @@ The **PCB card** (chosen over a datasheet style) is built like a plug-in card:
 - round alignment marks in two corners and a row of gold contacts along one edge
 
 Cards keep to the page's columns: a card on the left lines up with the logo, one on the right with the
-bar's last control; only its height follows the world. A trace leaves the card from a pad on its edge
+bar's last control; only its height follows the world (at the gallery the card's anchor rides the exhibit
+nudge, so it keeps its column on every project). A trace leaves the card from a pad on its edge
 and ends in a hollow ring on the edge of the part it describes, keyed in ink, at least 60 px from the
 card; a packet runs along it. The route is a strip of board read left to right: six numbered vias on
 one trace, the way travelled in brass, the current via cream in a brass ring, a return run under it for
-the finale, and the current stop named on a tab of the same box (04/06 ENCLAVE). On a phone the card
-carries the count instead. Tags are printed labels with no keyline and designators are bare
+the finale, and the current stop named on a tab of the same box (04/06 ENCLAVE); three small ticks under
+05 count the gallery's projects, the one on show filled. Arrivals land their impact frame with no stop name
+over it: the route strip already says where you are. On a phone the card carries the count instead. Tags are printed labels with no keyline and designators are bare
 silkscreen, so the only boxed things on a card are the ones you can press. The nav follows the order
 you travel (About, Work, Contact), and About stays lit for the three stops it covers.
 
 Type: Chakra Petch for headlines (squared, technical), JetBrains Mono for silkscreen labels,
 Hanken Grotesk for running text. No explanatory text anywhere in the product.
 
+### Copy (v5)
+
+Clear, concise, professional; nothing cocky or edgy; no "X, not Y" constructions; nothing that explains
+itself or announces the obvious. The words are in src/shared/data/content.js and docs/v5/COPY.md: Xini,
+Software Engineer · AI Integration, "Ambitious ideas, ambitious software." over Developer · Designer ·
+Creator (no degrees anywhere); From design to deployment (AI Integration · Real-time 3D · Multiplayer);
+Intelligence built in; Safe & secure; and Get in touch with Saltancy · GitHub · LinkedIn as icon buttons.
+
 ### Sound (off by default)
 
-Low board hum and fan noise that follows fan speed; relay clicks cascading at boot, a rising power
-whine, the impact slam; at the enclave, cube slices clicking round and an unlock clunk; a module
-seating clack.
-All synthesised (WebAudio), no files.
+Every page load starts silent (browsers need a click). Sound is music-led (v5), all synthesised in WebAudio,
+no files:
+- **Music.** An adaptive track generated in code (src/shared/core/music.js): 90 BPM, swung sixteenths, F minor,
+  electric piano, pad, bass, synthesised drums. Each stop adds or changes a layer, so moving through the site
+  builds the track; the Enclave sits on a locked section that resolves on the beat after the cube solves; a
+  long idle thins it to keys and pad. A fixed seed: every visit plays the same notes. It ducks 5 dB under
+  flights and fades out with a hidden tab.
+- **The sting** is the boot sound: the first switch-on in a page load plays the relays, the rising power whine
+  and the slam, and the music's first chord lands on the slam (on the boot's own impact frame if sound comes
+  on during the boot). Later switch-ons fade the music in.
+- **No ambient bed.** The board hum and the fan noise are gone; every other cue stays: the flight whoosh, the
+  arrival slam, the cube's dial clicks and unlock clunk, the module's seating clack, ticks and snaps.
+- **Levels**, each measured alone through the master chain (a limiter, then a soft clipper): signature cues
+  (sting slam, unlock) peak at −4…−2 dBFS, movement (whooshes, slams, seating, snaps in the scene) −10…−6,
+  detail (relays, hover ticks, interface snaps, dial clicks) −18…−12; the music sits at about −20 LUFS per
+  stop (−22.5…−18, spread at most 3 LU). Every cue sounds the same each time, so its level holds.
 
 ## The entrance: a boot sequence (2.75 s)
 
@@ -197,6 +239,8 @@ All synthesised (WebAudio), no files.
   headline; the cooler's foot, the gantry and the lattice are out of shot.
 - **The core: a steel frame.** In brass the bridge outweighed the board it builds; brass stays on thin
   lit edges.
+- **Enclave plinth: a block** (v5). Hard edges the ink catches, walls darker than the board, a top lighter
+  than it, a stepped lip, brass only as a thin top keyline: flat, it read as 2D.
 - **I/O: square on to the shield,** so the mark's verticals stand vertical; the vents are backed dark and
   the beam is out within the first quarter of its run, and thins the more directly you look into it.
 - **The boot plays once per visit**, the name printing in its corner as the power floods the mark.

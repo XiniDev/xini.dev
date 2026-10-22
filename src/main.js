@@ -63,6 +63,10 @@ document.getElementById('app').innerHTML = renderWorld({
   const strip = document.createElementNS(ns, 'rect'); [['x', -99], ['y', -21], ['width', 198], ['height', 42]].forEach(([k, v]) => strip.setAttribute(k, v)); g.appendChild(strip);
   nodes.forEach(([x], i) => { const t = document.createElementNS(ns, 'text'); t.setAttribute('x', x); t.setAttribute('y', 20); t.textContent = `0${i + 1}`; g.appendChild(t); });
   svg.insertBefore(g, svg.firstChild);
+  // the gallery's projects, as ticks under its via; the one on show is filled (setCount)
+  const ticks = document.createElementNS(ns, 'g'); ticks.setAttribute('class', 'route__ticks');
+  featured.forEach((_, k) => { const r = document.createElementNS(ns, 'rect'); [['x', nodes[4][0] + (k - (featured.length - 1) / 2) * 4.6 - 1.2], ['y', 2.5], ['width', 2.4], ['height', 4]].forEach(([a, v]) => r.setAttribute(a, v)); ticks.appendChild(r); });
+  svg.appendChild(ticks);
   // the current stop, named over the strip
   const lab = document.createElement('p'); lab.className = 'route__label'; lab.setAttribute('aria-hidden', 'true');
   document.querySelector('.route').appendChild(lab);
@@ -93,7 +97,11 @@ setNav(0);
   document.body.insertAdjacentHTML('beforeend', '<p class="cue" aria-hidden="true">Scroll<i></i></p>');
   document.querySelector('.stop--top .card')?.insertAdjacentHTML('beforeend', '<p class="card__cue" aria-hidden="true">Scroll<i></i></p>');
 }
-const setCount = (i) => { const b = document.querySelector('.pager__count b'); if (b) b.textContent = String(i + 1).padStart(2, '0'); };
+const setCount = (i) => {
+  const b = document.querySelector('.pager__count b'); if (b) b.textContent = String(i + 1).padStart(2, '0');
+  document.querySelectorAll('.route__ticks rect').forEach((r, k) => r.classList.toggle('on', k === i));
+};
+setCount(0);
 // the route's brass trace runs with the flight itself, and its lit via moves with the label and the nav
 const routeGeo = (() => {
   const done = document.querySelector('.route__done'), path = document.querySelector('.route__path');
@@ -305,7 +313,13 @@ class MachineDirector {
   }
   depart(from, to, world) {
     this.labelled = false; this.lastFrom = from; document.documentElement.classList.add('moved');
-    if (to === 4) { world.ui.setProject(1, 1); setCount(1); }
+    // the gallery opens on its first project coming forward, on its last coming back from the I/O, and the flight
+    // lands on that screen
+    if (to === 4) {
+      const p = from === 5 ? featured.length - 1 : 0, base = this.stops[4], pose = this.exhibitPose(p);
+      world.ui.setProject(p, 1); setCount(p);
+      world.rig.arriveNudged(pose.p.clone().sub(base.p), pose.t.clone().sub(base.t));
+    }
     if (from === 3) this.enc.lock(); if (from === 1) this.gantry.stop();
   }
   arrive(i, world) { if (!this.labelled) { this.labelled = true; routeLabel(i, this.lastFrom); setNav(i); }

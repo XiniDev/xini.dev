@@ -7,12 +7,14 @@ export class Nav {
    * @param {string[]} o.ids        section ids in order (used for hashes)
    * @param {(to:number, from:number, how:string) => number} o.onChange  returns the transition length in ms
    * @param {(dir:number) => boolean} [o.onSide]  horizontal step inside the current section (projects); return true if handled
+   * @param {(dir:number) => boolean} [o.onStep]  a scroll step the current section takes before the page moves on; true if taken
    * @param {number} [o.start]
    */
-  constructor({ ids, onChange, onSide, start = 0, root = window, wrap = false }) {
+  constructor({ ids, onChange, onSide, onStep, start = 0, root = window, wrap = false }) {
     this.ids = ids; this.wrap = wrap; // wrap: stepping on from the last section returns to the first
     this.onChange = onChange;
     this.onSide = onSide || (() => false);
+    this.onStep = onStep || (() => false);
     this.index = start;
     this.lockUntil = 0;
     this.wheelAcc = 0;
@@ -72,7 +74,11 @@ export class Nav {
     for (const fn of this.listeners) fn(i, from, how);
     return true;
   }
-  step(d, how) { const n = this.ids.length; const i = this.index + d; return this.go(this.wrap && i >= n ? 0 : i, how); }
+  step(d, how) {
+    if (!this.enabled || this.busy()) return false;
+    if (this.onStep(d, how)) { this.lockUntil = performance.now() + 450; return true; }
+    const n = this.ids.length; const i = this.index + d; return this.go(this.wrap && i >= n ? 0 : i, how);
+  }
   scrollableTarget(e) {
     // let inner scrollers (the project index drawer) scroll natively
     let el = e.target;

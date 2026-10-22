@@ -160,5 +160,5 @@ export function wireWorld({ nav, sfx, onProject }) {
   sfx.onChange(sync); sync(false);
   document.addEventListener('pointerover', (e) => { if (e.target.closest && e.target.closest('a, button')) sfx.play('hover'); });
   document.addEventListener('pointerdown', () => sfx.activity(), { passive: true });
-  return { setProject: (i, d) => setProject(i, d), get project() { return cur; }, open };
+  return { setProject: (i, d) => setProject(i, d), get project() { return cur; }, get count() { return projs.length; }, open };
 }

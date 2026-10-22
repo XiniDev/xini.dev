@@ -76,7 +76,7 @@ export class World {
     this.route = route;
     this.resize();
     this.rig = new Rig(this.camera, route.stops, route.legs, { closed: route.closed, speed: route.speed ?? 34, minT: route.minT ?? 1.6, maxT: route.maxT ?? 3.0, ...(route.rig || {}) });
-    this.nav = new Nav({ ids: STOP_IDS, wrap: !!route.wrap, onChange: (to, from, how) => this.go(to, from, how), onSide: (d) => this.side(d) });
+    this.nav = new Nav({ ids: STOP_IDS, wrap: !!route.wrap, onChange: (to, from, how) => this.go(to, from, how), onSide: (d) => this.side(d), onStep: (d) => this.inside(d) });
     this.ui = wireWorld({ nav: this.nav, sfx, onProject: (i, d) => this.director.project?.(i, d, this) });
     sfx.where = { stop: () => this.rig.flight?.to ?? this.rig.index, solved: () => !!this.director.solved?.(), bootImpact: () => this.director.bootImpact?.() ?? null };
     this.setCard(0, true);
@@ -194,6 +194,12 @@ export class World {
     if (STOP_IDS[this.rig.index] !== 'work' || this.rig.flying) return false;
     this.ui.setProject(this.ui.project + d, d);
     return true;
+  }
+  /** scrolling at the gallery steps through its projects, then moves on from the last (or back from the first) */
+  inside(d) {
+    if (STOP_IDS[this.rig.index] !== 'work' || this.rig.flying) return false;
+    const i = this.ui.project + d;
+    return i >= 0 && i < this.ui.count && this.ui.setProject(i, d);
   }
   bindClicks() {
     const ray = new THREE.Raycaster();

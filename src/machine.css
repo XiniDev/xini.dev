@@ -185,6 +185,8 @@ html[data-card='pcb'] .tags li { border-color: transparent; background: #13302a;
 .route__board text { font-family: var(--f-mono); font-size: 9.5px; font-weight: 700; letter-spacing: 0.04em; text-anchor: middle; fill: color-mix(in srgb, var(--text) 72%, transparent); }
 .route__path { fill: none; stroke: color-mix(in srgb, var(--text) 26%, transparent); stroke-width: 2; stroke-linejoin: miter; }
 .route__done { fill: none; stroke: var(--gold); stroke-width: 2; stroke-linejoin: miter; } /* runs with the flight (main.js) */
+.route__ticks rect { fill: var(--bg); stroke: color-mix(in srgb, var(--text) 58%, transparent); stroke-width: 1; vector-effect: non-scaling-stroke; }
+.route__ticks rect.on { fill: var(--gold); stroke: var(--gold); }
 .route__list { list-style: none; margin: 0; padding: 0; position: absolute; inset: 0; }
 .route__list li { position: absolute; left: var(--x); top: var(--y); }
 .route__list li:has(a[aria-current]), .route__list li:has(a:hover), .route__list li:has(a:focus-visible) { z-index: 3; }

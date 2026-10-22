@@ -109,9 +109,12 @@ export class Rig {
     this.flight = { pc, tc, F, R, keys, t: 0, dur, from, to, warp, look: opt.look ?? this.lookAheadAmt };
     this.index = to;
     this.settle = null;
-    this.offsetTarget.p.set(0, 0, 0); this.offsetTarget.t.set(0, 0, 0);
+    this.landNudged();
     return dur;
   }
+  /** the next flight lands nudged (the exhibit on show at a gallery): set before go(); the nudge is a move of the
+   *  whole view, so it slides in over the flight's second half without turning the camera */
+  arriveNudged(p, t) { this.arriveNext = { p: this.V(p), t: this.V(t) }; }
   /** straight to a stop that is not a neighbour: see the jump option */
   jump(to, duration) {
     const from = this.index, J = this.jumpOpt;
@@ -126,7 +129,7 @@ export class Rig {
       turn: { q0, q1, d0: start.p.distanceTo(start.t), d1: end.p.distanceTo(end.t), q: new THREE.Quaternion() } };
     this.index = to;
     this.settle = null;
-    this.offsetTarget.p.set(0, 0, 0); this.offsetTarget.t.set(0, 0, 0);
+    this.landNudged();
     return dur;
   }
   /** the jump's path: the shortest way round the keep-outs on the ground, flown at cruise height between a climb
@@ -179,8 +182,15 @@ export class Rig {
     pts.push(new THREE.Vector3(land[0], cruise, land[1]), b.clone());
     return pts;
   }
+  landNudged() {
+    this.flight.arrive = this.arriveNext; this.arriveNext = null;
+    this.offsetTarget.p.set(0, 0, 0); this.offsetTarget.t.set(0, 0, 0);
+  }
   /** small move inside the current stop (e.g. the next project exhibit) */
-  nudge(p, t) { this.offsetTarget.p.copy(this.V(p)); this.offsetTarget.t.copy(this.V(t)); }
+  nudge(p, t) {
+    const A = this.flight?.arrive; // (still landing nudged: this is where it lands)
+    (A ? A.p : this.offsetTarget.p).copy(this.V(p)); (A ? A.t : this.offsetTarget.t).copy(this.V(t));
+  }
   sampleKeyed(arr, keys, u) {
     let k = 1; while (k < keys.length - 1 && keys[k] < u) k++;
     const f = (u - keys[k - 1]) / Math.max(1e-6, keys[k] - keys[k - 1]);
@@ -231,13 +241,17 @@ export class Rig {
         const dir = f.pc.getTangentAt(1);
         this.pose = this.copyPose(s); this.flight = null;
         if (this.settleAmt > 0) this.settle = { t: 0, dir };
+        // landed nudged: the nudge is now the stop's own
+        if (f.arrive) { this.offset.p.add(f.arrive.p); this.offset.t.add(f.arrive.t); this.offsetTarget.p.copy(f.arrive.p); this.offsetTarget.t.copy(f.arrive.t); }
       }
     }
-    // exhibit nudges ease in
+    // exhibit nudges ease in; a flight that lands nudged slides its nudge in over its second half
     const k = 1 - Math.exp(-dt * 3.2);
     this.offset.p.lerp(this.offsetTarget.p, k); this.offset.t.lerp(this.offsetTarget.t, k);
+    const A = this.flight?.arrive, x = A ? THREE.MathUtils.clamp((this.flight.t / this.flight.dur - 0.45) / 0.5, 0, 1) : 0, s = x * x * (3 - 2 * x);
     const cam = this.camera;
     cam.position.copy(this.pose.p).add(this.offset.p);
+    if (A) cam.position.addScaledVector(A.p, s);
     // arrival settle: carry on a little along the flight direction, then spring back
     if (this.settle) {
       const S = this.settle; S.t += dt;
@@ -246,6 +260,7 @@ export class Rig {
       if (S.t > 1.2) this.settle = null;
     }
     this.lookAt = this.pose.t.clone().add(this.offset.t);
+    if (A) this.lookAt.addScaledVector(A.t, s);
     cam.fov = this.pose.fov;
     // speed for post effects (world units per second, smoothed)
     const v = cam.position.distanceTo(this.lastPos) / Math.max(dt, 1e-4);

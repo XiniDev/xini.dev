@@ -6,6 +6,8 @@ import { site, beats, featured, moreProjects, monthYear } from '../data/content.
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 const ext = (href, label, cls = '') => `<a class="${cls}" href="${href}" target="_blank" rel="noopener">${label}<span class="sr"> (opens in a new tab)</span></a>`;
 export const STOP_IDS = ['top', 'systems', 'ai', 'security', 'work', 'contact'];
+/** a label in parts ("A · B") that may only wrap after a dot */
+const nowrapParts = (s) => String(s).split(' · ').map((p) => esc(p).replace(/ /g, '&nbsp;')).join('&nbsp;· ');
 
 const soundIcon = `<svg viewBox="0 0 32 32" aria-hidden="true"><path class="spk" d="M5 12h5l7-6v20l-7-6H5z"/><path class="w1" d="M21 11c2 2.6 2 7.4 0 10"/><path class="w2" d="M24.5 7.5c4.2 4.6 4.2 12.4 0 17"/><path class="x" d="M21 12l7 8M28 12l-7 8"/></svg>`;
 
@@ -33,9 +35,9 @@ export function renderWorld({ places, mark, route, deco = {} }) {
   <section class="stop stop--top" id="top" data-stop="top" aria-labelledby="h-top">
     <div class="card card--hero">${deco.top || ''}
       <p class="card__place" aria-hidden="true">${esc(places[0])}</p>
-      <p class="card__kicker"><span>${esc(site.name)}</span><span>${esc(site.role)}</span></p>
+      <p class="card__kicker"><span>${esc(site.name)}</span><span>${nowrapParts(site.role)}</span></p>
       <h1 id="h-top" class="card__statement">${esc(site.statement)}</h1>
-      <p class="card__cred">${site.credentials.map((c) => `<span>${esc(c)}</span>`).join('')}</p>
+      <p class="card__cred"><span>${esc(site.spec)}</span></p>
     </div>
   </section>
   ${beats.map((b, i) => `

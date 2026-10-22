@@ -1,6 +1,6 @@
 # xini.dev
 
-The personal site of Xini, systems engineer: "Inside the machine", one real-time 3D scene (three.js, comic-ink
+The personal site of Xini: "Inside the machine", one real-time 3D scene (three.js, comic-ink
 rendering) that flies through a motherboard city at night across six stops: Power on, The core, Neural core,
 Enclave, Memory (projects) and I/O (contact).
 

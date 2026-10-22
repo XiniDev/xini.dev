@@ -8,9 +8,9 @@ import imgDbridger from './img/dbridger.webp';
 
 export const site = {
   name: 'Xini',
-  role: 'Systems engineer',
-  statement: 'I build complete, self-hosted products with modern AI woven in.',
-  credentials: ['MSc Artificial Intelligence, St Andrews', 'BSc Computer Science, Warwick'],
+  role: 'Software Engineer · AI Integration',
+  statement: 'Ambitious ideas, ambitious software.',
+  spec: 'Developer · Designer · Creator',
   email: 'xini@saltancy.com',
   github: 'https://github.com/XiniDev',
   linkedin: 'https://www.linkedin.com/in/xinidev',

@@ -499,7 +499,6 @@ class MachineDirector {
     this.rest.updateLeds(t);
     this.io.update(t);
     this.city.update(t);
-    world.api().sfx.fan(Math.min(1, (world.rig.flying ? 0.6 : 0) + this.spin * 0.5));
     this.updateFocus(dt, world);
     // project screens wait on standby until you are in the gallery; the chosen one is the only one fully lit
     this.mem.screens.forEach((scr, i) => {

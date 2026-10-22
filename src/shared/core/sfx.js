@@ -26,8 +26,7 @@ class Sfx {
   set(on) {
     this.on = on;
     try { localStorage.setItem(KEY, on ? '1' : '0'); } catch {}
-    if (on) { const c = this.ensure(); if (c && c.state === 'suspended') c.resume(); this.ambient(true); }
-    else this.ambient(false);
+    if (on) { const c = this.ensure(); if (c && c.state === 'suspended') c.resume(); }
     for (const fn of this.listeners) fn(on);
   }
   toggle() { this.set(!this.on); }
@@ -127,32 +126,6 @@ class Sfx {
         this.tone('sine', 45, 60, t, 0.4, 0.4 * v, 0.6); break;
       }
       default: break;
-    }
-  }
-  /** fan noise follows the machine: 0 idle .. 1 spun up */
-  fan(k) {
-    if (!this.amb) return;
-    const c = this.ctx, now = c.currentTime;
-    this.amb.ng.gain.setTargetAtTime(0.25 + 0.45 * k, now, 0.25);
-    this.amb.nb.frequency.setTargetAtTime(400 + 700 * k, now, 0.25);
-  }
-  ambient(on) {
-    if (!this.ctx) return;
-    if (on && !this.amb) {
-      const c = this.ctx, g = c.createGain(); g.gain.value = 0.0001;
-      const lp = this.filt('lowpass', 260, 0.6);
-      const o1 = c.createOscillator(), o2 = c.createOscillator(); o1.type = 'sawtooth'; o2.type = 'sawtooth';
-      o1.frequency.value = 55; o2.frequency.value = 55.4;
-      const n = c.createBufferSource(); n.buffer = this.noise; n.loop = true; const nb = this.filt('bandpass', 400, 0.5); const ng = c.createGain(); ng.gain.value = 0.25;
-      n.connect(nb); nb.connect(ng); ng.connect(g);
-      o1.connect(lp); o2.connect(lp); lp.connect(g); g.connect(this.master);
-      o1.start(); o2.start(); n.start();
-      g.gain.exponentialRampToValueAtTime(0.06, c.currentTime + 2.5);
-      this.amb = { g, ng, nb, nodes: [o1, o2, n] };
-    } else if (!on && this.amb) {
-      const { g, nodes } = this.amb; this.amb = null;
-      g.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + 0.4);
-      setTimeout(() => nodes.forEach((x) => { try { x.stop(); } catch {} }), 500);
     }
   }
 }

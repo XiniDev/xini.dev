@@ -67,7 +67,7 @@ if (parts.includes('copy')) {
     return { label: t('.h6__label'), role: t('.h6__role'), name: t('.h6__name-face'), statement: t('.h6__sr'), spec: t('.h6__spec span:last-child'), pwr: t('.h6__pwr'),
       h1: [...document.querySelectorAll('h1')].length, h1in: !!h.querySelector('h1'), lockHidden: h.querySelector('.h6__lk').getAttribute('aria-hidden'),
       pe: getComputedStyle(h).pointerEvents, oldCard: !!document.querySelector('.stop--top .card'), oldLead: !!document.querySelector('.lead.is-on:not(.is-hidden)'),
-      rings: document.querySelectorAll('.h6-leader__ring:not([hidden])').length + document.querySelectorAll('.lead.is-on:not(.is-hidden) .lead__via').length };
+      rings: document.querySelectorAll('.h6-leader:not([hidden]) .h6-leader__ring').length + document.querySelectorAll('.lead.is-on:not(.is-hidden) .lead__via').length };
   });
   const want = { label: 'Power on', role: 'Software Engineer · AI Integration', name: 'Xini', statement: 'Ambitious ideas, ambitious software.', spec: 'Developer · Designer · Creator', pwr: 'PWR' };
   for (const [k, v] of Object.entries(want)) verdict(n(got[k]) === n(v), `${k.padEnd(9)} "${(got[k] ?? '').replace(/\s+/g, ' ').trim()}"`);

@@ -40,6 +40,8 @@
 }
 .h6[hidden],
 .h6-leader[hidden] { display: none; }
+/* (the site's reduced-motion rule gives every element a transition; the panel animates only by script) */
+.h6, .h6 *, .h6 *::before, .h6 *::after, .h6-leader, .h6-leader * { transition: none !important; }
 .h6 *,
 .h6 *::before,
 .h6 *::after { box-sizing: border-box; }

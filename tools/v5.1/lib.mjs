@@ -50,7 +50,7 @@ export const measure = (page) => page.evaluate(() => {
   const ring = h.leader.querySelector('.h6-leader__ring');
   const d = h.leader.querySelector('.h6-leader__trace').getAttribute('d') || '';
   return { parts, ring: [+ring.getAttribute('cx'), +ring.getAttribute('cy'), +ring.getAttribute('r')], trace: d, k: h.state.k, compact: h.state.compact,
-    wrap: h.root.classList.contains('h6--wrap'), hidden: h.root.hidden, leaderHidden: h.leader.hidden };
+    wrap: h.root.classList.contains('h6--wrap'), hidden: h.root.hasAttribute('hidden'), leaderHidden: h.leader.hasAttribute('hidden') };
 });
 
 /** the trace's corner points, from its path (M, L, H, V only) */

@@ -325,7 +325,7 @@ class MachineDirector {
       world.rig.arriveNudged(pose.p.clone().sub(base.p), pose.t.clone().sub(base.t));
     }
     if (from === 3) this.enc.lock(); if (from === 1) this.gantry.stop();
-    if (from === 0) this.hero?.hide();
+    if (from === 0) this.hero?.leave({ reduced });
   }
   arrive(i, world) { if (!this.labelled) { this.labelled = true; routeLabel(i, this.lastFrom); setNav(i); }
     if (i === 0) this.enterHero();
@@ -423,7 +423,8 @@ class MachineDirector {
     this.heroOut = this.hero.layout(this.heroIn);
     this.crownLive = null;
   }
-  enterHero() { if (!this.hero) return; this.placeHero(); this.hero.show(); }
+  /** the hologram entrance, wherever the old card printed in: after the boot's impact frame, or an arrival's */
+  enterHero() { if (!this.hero) return; this.placeHero(); this.hero.enter({ reduced }); }
   crown(k) {
     const g = this.pal;
     this.crownK = k;

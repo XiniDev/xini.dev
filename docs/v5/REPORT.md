@@ -160,12 +160,10 @@ Eyes:
 
 Decisions that are yours:
 - **The share image** (`public/og.jpg`) still shows the old headline in its picture; only its alt text changed. It
-  needs a new capture.
-- **Saltancy's image alt** ("a serif headline beside a wireframe cube") no longer matches the new capture, where the
-  headline sits above and below the cube. Copy is frozen to COPY.md, so it was not changed.
-- **Retired strings left:** "Warwick Game Dev Society" (Overthrow Synthetica's summary) and "MSc dissertation"
-  (LeadingOnes DAC) are project text, kept per COPY.md; the GitHub snapshot's description of the xini.dev repo still
-  says "systems engineer" (it is GitHub's own text, refreshed at build and hidden from the list): change it on GitHub.
+  waits for the hero changes, then needs a new capture.
+- **Saltancy's image alt** now describes the new capture (Xini's call).
+- **Retired strings:** "Warwick Game Dev Society" and "MSc dissertation" stay as project text (Xini's call). The
+  xini.dev repo's description was changed on GitHub and the snapshot refreshed.
 - **The skyline signs** pair Chinese with its English translation, and 自研 BUILT SOLO echoes the retired "built solo".
-  They are signs, not board legends, so they were left; COPY.md's Chinese rule would cut them.
+  Left for now (Xini's call).
 - **Unused code:** `buildEnclave` in `districts.js` (an older enclave, never built) still holds 認證 and the old lines.

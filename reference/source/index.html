@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Xini rework: four worlds</title>
+<meta name="description" content="Four walkable directions for the xini.dev rework.">
+<style>
+  :root { --bg: #07080c; --text: #eef0f4; --muted: rgba(238, 240, 244, .66); --line: rgba(238, 240, 244, .14); color-scheme: dark; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.5 "Helvetica Neue", Arial, sans-serif; }
+  a { color: inherit; }
+  header { display: flex; align-items: center; gap: 14px; padding: 28px clamp(16px, 4vw, 56px) 8px; }
+  header svg { width: 34px; height: 34px; }
+  header h1 { margin: 0; font-size: 20px; font-weight: 700; letter-spacing: .02em; }
+  header p { margin: 0 0 0 auto; color: var(--muted); font-size: 13px; }
+  main { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px; padding: 22px clamp(16px, 4vw, 56px) 48px; }
+  .w { display: flex; flex-direction: column; border: 1px solid var(--line); background: #0c0e14; }
+  .w__shot { display: block; aspect-ratio: 16 / 10; overflow: hidden; background: #000; }
+  .w__shot img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .4s; }
+  .w__shot:hover img, .w__shot:focus-visible img { transform: scale(1.02); }
+  .w__body { padding: 18px 20px 20px; display: grid; gap: 10px; }
+  .w__name { margin: 0; font-size: 24px; font-weight: 700; }
+  .w__line { margin: 0; color: var(--muted); }
+  .w__row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 4px; }
+  .go { display: inline-flex; align-items: center; min-height: 44px; padding: 0 18px; background: var(--text); color: #000; text-decoration: none; font-weight: 700; }
+  .go:hover, .go:focus-visible { background: #fff; }
+  .chip { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 12px; border: 1px solid var(--line); text-decoration: none; font-size: 13px; color: var(--muted); }
+  .chip:hover, .chip:focus-visible { color: var(--text); border-color: var(--text); }
+  .chip i { width: 12px; height: 12px; display: inline-block; }
+  footer { padding: 0 clamp(16px, 4vw, 56px) 40px; color: var(--muted); font-size: 13px; }
+  :focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+  @media (max-width: 860px) { main { grid-template-columns: minmax(0, 1fr); } header p { display: none; } }
+</style>
+</head>
+<body>
+<header>
+  <svg viewBox="0 0 120 120" aria-hidden="true"><path fill="#eef0f4" d="M8.00,96.02 L29.22,73.98 L29.22,12.74 L8.00,21.30 Z M112.00,23.98 L90.78,46.02 L90.78,107.26 L112.00,98.70 Z"/><path fill="#3dff8f" d="M43.98,58.66 L58.71,43.36 L31.08,14.67 L31.08,45.27 Z M8.00,98.70 L29.22,107.26 L112.00,21.30 L90.78,12.74 Z M88.92,74.73 L76.02,61.34 L61.29,76.64 L88.92,105.33 Z"/></svg>
+  <h1>xini.dev, four worlds</h1>
+  <p>Scroll, swipe, use the arrow keys or the map to move.</p>
+</header>
+<main>
+  <article class="w">
+    <a class="w__shot" href="./concepts/loop/index.html"><img src="./proto-img/loop.jpg" alt="The loop: a neon track shaped like the mark, over a cloud city at night" width="1440" height="900"></a>
+    <div class="w__body">
+      <h2 class="w__name">The loop</h2>
+      <p class="w__line">A maglev ride round a track shaped like the mark, above a cloud city at night.</p>
+      <div class="w__row">
+        <a class="go" href="./concepts/loop/index.html">Walk it</a>
+        <a class="chip" href="./concepts/loop/index.html?palette=arasaka"><i style="background:#ff3b30"></i>Red</a>
+        <a class="chip" href="./concepts/loop/index.html?palette=lattice"><i style="background:#3dff8f"></i>Lattice</a>
+        <a class="chip" href="./concepts/loop/index.html?palette=hextech"><i style="background:#5ac8e6"></i>Gilt</a>
+      </div>
+    </div>
+  </article>
+  <article class="w">
+    <a class="w__shot" href="./concepts/machine/index.html"><img src="./proto-img/machine.jpg" alt="Inside the machine: a CPU cooler tower over a motherboard city" width="1440" height="900"></a>
+    <div class="w__body">
+      <h2 class="w__name">Inside the machine</h2>
+      <p class="w__line">A drone flight through a motherboard built like a night city, with the cooler as its tower.</p>
+      <div class="w__row">
+        <a class="go" href="./concepts/machine/index.html">Walk it</a>
+        <a class="chip" href="./concepts/machine/index.html?palette=lattice"><i style="background:#3dff8f;outline:1px solid #000"></i>Lattice</a>
+        <a class="chip" href="./concepts/machine/index.html?palette=arasaka"><i style="background:#ff3b30"></i>Red</a>
+        <a class="chip" href="./concepts/machine/index.html?palette=verdigris"><i style="background:#4cd6a6"></i>Verdigris</a>
+        <a class="chip" href="./concepts/machine/index.html?palette=blueprint"><i style="background:#f0502a"></i>Blueprint</a>
+      </div>
+    </div>
+  </article>
+  <article class="w">
+    <a class="w__shot" href="./concepts/tower/index.html"><img src="./proto-img/tower.jpg" alt="Tower dive: the mark on a megatower roof in the rain" width="1440" height="900"></a>
+    <div class="w__body">
+      <h2 class="w__name">Tower dive</h2>
+      <p class="w__line">Land on a megatower roof in the rain, then dive down its atrium a floor at a time.</p>
+      <div class="w__row">
+        <a class="go" href="./concepts/tower/index.html">Walk it</a>
+        <a class="chip" href="./concepts/tower/index.html?palette=signal"><i style="background:#3dff8f"></i>Night shift</a>
+        <a class="chip" href="./concepts/tower/index.html?palette=verdigris"><i style="background:#4cd6a6"></i>Verdigris</a>
+      </div>
+    </div>
+  </article>
+  <article class="w">
+    <a class="w__shot" href="./concepts/hextech/index.html"><img src="./proto-img/hextech.jpg" alt="Hextech realm: a brass armillary over a city at dusk" width="1440" height="900"></a>
+    <div class="w__body">
+      <h2 class="w__name">Hextech realm</h2>
+      <p class="w__line">Fly through the rings of a painted brass armillary that hangs over a city at dusk.</p>
+      <div class="w__row">
+        <a class="go" href="./concepts/hextech/index.html">Walk it</a>
+        <a class="chip" href="./concepts/hextech/index.html?palette=verdigris"><i style="background:#4cd6a6"></i>Verdigris</a>
+        <a class="chip" href="./concepts/hextech/index.html?palette=vermilion"><i style="background:#f0502a"></i>Vermilion</a>
+      </div>
+    </div>
+  </article>
+</main>
+<footer>Sound is off until you turn it on. Best in a desktop browser with hardware graphics.</footer>
+</body>
+</html>

@@ -1,0 +1,17 @@
+<!doctype html><html><head><meta charset="utf-8"><style>html,body{margin:0;height:100%;background:#000;overflow:hidden}canvas{display:block;width:100vw;height:100vh}</style></head>
+<body><script type="module">
+import * as THREE from 'three';
+import { InkPipeline } from '../shared/gfx/pipeline.js';
+import { shared } from '../shared/gfx/ink-material.js';
+import { MiuraForm } from '../concepts/fold/forms.js';
+const q = new URLSearchParams(location.search);
+const r = new THREE.WebGLRenderer(); r.autoClear = false; document.body.appendChild(r.domElement);
+const pipe = new InkPipeline(r, { glow: false });
+const scene = new THREE.Scene(); const cam = new THREE.PerspectiveCamera(30, innerWidth / innerHeight, 0.1, 100); cam.position.set(0, 0, 10);
+const m = new MiuraForm({ paper: '#eee6d3', back: '#35e08a', edge: '#222', pulse: '#35e08a' });
+m.set(+(q.get('p') || 0.6)); m.group.rotation.set(+(q.get('rx') || 0), +(q.get('ry') || 0), 0);
+scene.add(m.group);
+shared.uKeyDir.value.set(-0.6, 0.5, 0.6).normalize();
+r.setSize(innerWidth, innerHeight); pipe.setSize(innerWidth, innerHeight, 1);
+function f() { pipe.render(scene, cam); requestAnimationFrame(f); } f();
+</script></body></html>

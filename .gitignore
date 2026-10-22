@@ -1,11 +1,8 @@
 node_modules/
 out/
-out-test/
-.astro/
+.shots/
 .wrangler/
-.lighthouseci/
 test-results/
-playwright-report/
 coverage/
 .env*
 .dev.vars

@@ -1,0 +1,269 @@
+/* INSIDE THE MACHINE — a board at night. Cards are printed like the board's own legend:
+   corner brackets, a pin-one dot, a reference designator. */
+:root {
+  --bg: #040807; --text: #e8f1ec; --neon: #3dff8f; --muted: rgba(232, 241, 236, 0.7); --line: rgba(61, 255, 143, 0.38); --panel: rgba(3, 8, 6, 0.8);
+  --steel: #8fa19b; --brass: #c29e58; --gold: #d7ae60; --silk: #ece6d4; --rule: #3a4644; --head: #d9d3c2;
+  --f-display: 'Chakra Petch', 'Arial Narrow', sans-serif;
+  --f-body: 'Hanken Grotesk Variable', 'Helvetica Neue', Arial, sans-serif;
+  --f-mono: 'JetBrains Mono Variable', ui-monospace, Menlo, monospace;
+  --f-jp: 'Zen Kaku Gothic New', 'Hiragino Sans', sans-serif;
+  --gutter: clamp(18px, 4vw, 64px);
+  --br: 16px;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; background: var(--bg); color: var(--text); overflow: hidden; overscroll-behavior: none; }
+body { font-family: var(--f-body); -webkit-font-smoothing: antialiased; }
+a { color: inherit; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.skip { position: fixed; left: 12px; top: -60px; z-index: 60; background: var(--neon); color: #000; padding: 10px 14px; font-weight: 700; }
+.skip:focus { top: 12px; }
+:focus-visible { outline: 2px solid var(--neon); outline-offset: 3px; }
+canvas.gl { position: fixed; inset: 0; width: 100vw; height: 100vh; height: 100dvh; display: block; }
+
+/* bar */
+.bar { position: fixed; z-index: 20; top: 0; left: 0; right: 0; display: flex; align-items: center; gap: 26px; padding: 20px var(--gutter); pointer-events: none; }
+.bar > * { pointer-events: auto; }
+.bar::before { content: ''; position: absolute; z-index: -1; inset: 0 0 -56px; pointer-events: none; background: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 88%, transparent), color-mix(in srgb, var(--bg) 45%, transparent) 60%, transparent); }
+.bar__mark { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+.bar__mark svg { width: 34px; height: 34px; display: block; }
+.bar__name { font-family: var(--f-display); font-weight: 700; font-size: 22px; letter-spacing: 0.16em; text-transform: uppercase; }
+.bar__nav { margin-left: auto; display: flex; gap: 26px; font-family: var(--f-mono); font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; }
+.bar__nav a { text-decoration: none; padding: 8px 0; position: relative; }
+.bar__nav a::after { content: ''; position: absolute; left: 0; right: 0; bottom: 3px; height: 2px; background: var(--neon); transform: scaleX(0); transform-origin: left; transition: transform .2s steps(4); }
+.bar__nav a:hover::after, .bar__nav a:focus-visible::after { transform: scaleX(1); }
+.bar__nav a[aria-current]::after { transform: scaleX(1); background: var(--gold); }
+.arr { margin-left: 4px; }
+.bar__sound { all: unset; cursor: pointer; display: grid; place-items: center; width: 44px; height: 40px; border: 1px solid var(--line); background: color-mix(in srgb, var(--bg) 92%, transparent); }
+.bar__sound svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.bar__sound .spk { fill: currentColor; }
+.bar__sound .w1, .bar__sound .w2 { opacity: 0; }
+.bar__sound[aria-pressed='true'] { background: var(--neon); color: #000; }
+.bar__sound[aria-pressed='true'] .w1, .bar__sound[aria-pressed='true'] .w2 { opacity: 1; }
+.bar__sound[aria-pressed='true'] .x { opacity: 0; }
+
+/* stops: cards hang off a point in the world (--ax, --ay set by the engine) */
+.stops { position: fixed; inset: 0; z-index: 10; pointer-events: none; }
+.stop { position: absolute; inset: 0; pointer-events: none; }
+.card {
+  position: absolute; left: 0; top: 0; width: min(430px, 32vw);
+  transform: translate(calc(var(--ax, 50vw) - 50%), calc(var(--ay, 50vh) - 50%));
+  padding: 30px 30px 34px;
+  opacity: 0; visibility: hidden;
+  --chamfer: 16px;
+}
+.card > * { position: relative; }
+/* the silk layer: drawn in px by cards.js so the chamfers stay square */
+.card__silk { position: absolute !important; inset: 0; z-index: 0; overflow: visible; pointer-events: none; }
+.card__silk path, .card__silk circle { vector-effect: non-scaling-stroke; }
+.card__ref { position: absolute; z-index: 2; top: 12px; right: 44px; padding: 2px 0; font-family: var(--f-mono); font-size: 10.5px; font-weight: 700; letter-spacing: 0.16em; }
+.card__count { display: none; position: absolute; z-index: 2; top: 14px; right: 84px; font-family: var(--f-mono); font-size: 10.5px; font-weight: 700; letter-spacing: 0.14em; color: var(--steel); }
+.card__cue { display: none; position: absolute; z-index: 2; right: 18px; bottom: 22px; margin: 0; align-items: center; gap: 7px; font-family: var(--f-mono); font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: color-mix(in srgb, var(--text) 70%, transparent); }
+.card__cue i { width: 7px; height: 7px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(45deg) translateY(-2px); }
+.moved .card__cue { opacity: 0; }
+
+/* the PCB card: solder mask with a copper pour under it, silkscreen legend, fiducials, gold fingers */
+html[data-card='pcb'] .card {
+  clip-path: polygon(0 0, calc(100% - var(--chamfer)) 0, 100% var(--chamfer), 100% 100%, var(--chamfer) 100%, 0 calc(100% - var(--chamfer)));
+}
+/* a dark mask, printed with the world's dot screen; an ink line round the edge like everything else in the frame */
+html[data-card='pcb'] .silk__mask { fill: color-mix(in srgb, #0b1d19 95%, transparent); }
+html[data-card='pcb'] .silk__hatchline { fill: rgba(120, 200, 160, 0.075); }
+html[data-card='pcb'] .silk__ink { fill: none; stroke: #030807; stroke-width: 2; }
+html[data-card='pcb'] .silk__shadow { fill: #030807; }
+html[data-card='pcb'] .silk__finger { fill: #8a7040; }
+html[data-card='pcb'] .silk__edge { fill: none; stroke: var(--line); stroke-width: 1.5; }
+html[data-card='pcb'] .silk__line { fill: none; stroke: #4b5654; stroke-width: 1; }
+html[data-card='pcb'] .silk__fid { fill: var(--gold); stroke: #04100d; stroke-width: 3; paint-order: stroke; }
+html[data-card='pcb'] .card__ref { color: color-mix(in srgb, var(--silk) 45%, transparent); }
+html[data-card='pcb'] .card__place { color: var(--steel); }
+html[data-card='pcb'] .card__place::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--silk); margin-right: 2px; }
+/* tags are printed labels (no keyline), so the only boxed things on a card are the ones you can press */
+html[data-card='pcb'] .tags li { border-color: transparent; background: #13302a; color: color-mix(in srgb, var(--silk) 86%, transparent); }
+
+
+/* printing a card: the legend draws, the mask fills, then the type comes up, on twos */
+.stop.is-current .card { opacity: 1; visibility: visible; pointer-events: auto; }
+.stop.is-current .silk__edge, .stop.is-current .silk__line { stroke-dasharray: 3000; animation: silk-draw .34s steps(6, end) both; }
+.stop.is-current .silk__mask, .stop.is-current .silk__hatch { animation: mask-fill .3s steps(4, end) .12s both; }
+.stop.is-current .silk__fingers, .stop.is-current .card::before { animation: mask-fill .3s steps(4, end) .16s both; }
+.stop.is-current .card > :not(.card__silk) { animation: type-in .3s steps(5, end) .26s both; }
+.stop.is-leaving .card { visibility: visible; animation: out .22s steps(3, end) forwards; }
+@keyframes silk-draw { from { stroke-dashoffset: 3000; } to { stroke-dashoffset: 0; } }
+@keyframes mask-fill { from { opacity: 0; } to { opacity: 1; } }
+@keyframes type-in { 0% { opacity: 0; clip-path: inset(0 100% 0 0); } 40% { opacity: 1; } 100% { opacity: 1; clip-path: inset(-12px -12px -12px -12px); } }
+@keyframes out { to { opacity: 0; transform: translate(calc(var(--ax, 50vw) - 50%), calc(var(--ay, 50vh) - 50% - 16px)); } }
+@keyframes boot { 0% { opacity: 0; clip-path: inset(0 100% 0 0); } 30% { opacity: 1; } 100% { opacity: 1; clip-path: inset(-20px -20px -20px -20px); } }
+
+/* the leader: a trace from the card to the part it describes, ending in a via */
+.lead { position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: 11; pointer-events: none; overflow: visible; opacity: 0; filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.8)); }
+.lead.is-on { opacity: 1; }
+.lead.is-hidden { opacity: 0; }
+.lead__trace { fill: none; stroke: var(--gold); stroke-width: 2.2; stroke-linejoin: miter; stroke-dasharray: 100; stroke-dashoffset: 100; }
+.lead.is-on .lead__trace { animation: lead-draw .34s steps(6, end) .42s forwards; }
+.lead__packet { fill: none; stroke: var(--silk); stroke-width: 3.4; stroke-linecap: round; stroke-dasharray: 3 140; stroke-dashoffset: 3; opacity: 0; }
+.lead.is-on .lead__packet { animation: packet 1.5s steps(15, end) .8s infinite; }
+.lead__via { fill: none; stroke: var(--gold); stroke-width: 2.2; transform-box: fill-box; transform-origin: center; transform: scale(0); }
+.lead.is-on .lead__via { animation: via-in .2s steps(3, end) .72s forwards; }
+/* the via's ink key under it, and the pad the trace leaves the card from (it prints with the trace) */
+.lead__hole { fill: none; stroke: #030807; stroke-width: 5.4; transform-box: fill-box; transform-origin: center; transform: scale(0); }
+.lead.is-on .lead__hole { animation: via-in .2s steps(3, end) .72s forwards; }
+.lead__pad { fill: var(--gold); stroke: #030807; stroke-width: 1.5; opacity: 0; }
+.lead.is-on .lead__pad { animation: pad-in .01s linear .42s forwards; }
+@keyframes pad-in { to { opacity: 1; } }
+@keyframes lead-draw { to { stroke-dashoffset: 0; } }
+@keyframes packet { 0% { opacity: 1; stroke-dashoffset: 3; } 99% { opacity: 1; } 100% { opacity: 1; stroke-dashoffset: -100; } }
+@keyframes via-in { to { transform: scale(1); } }
+
+
+.card__place { margin: 0 0 12px; display: flex; align-items: center; gap: 10px; font-family: var(--f-mono); font-size: 11.5px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--steel); }
+.card__place::after { content: ''; flex: 1; height: 1px; background: var(--rule); }
+.card__kicker { margin: 0 0 12px; display: flex; gap: 12px; font-family: var(--f-mono); font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+.card__kicker span:first-child { color: var(--text); font-weight: 700; }
+.card__statement { margin: 0; color: var(--head); font-family: var(--f-display); font-weight: 700; font-size: clamp(28px, 2.7vw, 36px); line-height: 0.98; letter-spacing: 0.005em; text-transform: uppercase; text-wrap: balance; }
+.card__cred { margin: 16px 0 0; display: flex; flex-direction: column; gap: 3px; font-family: var(--f-mono); font-size: 11.5px; color: var(--muted); letter-spacing: 0.03em; }
+.card__h { margin: 0 0 12px; color: var(--head); font-family: var(--f-display); font-weight: 700; font-size: clamp(30px, 2.8vw, 44px); line-height: 0.98; text-transform: uppercase; text-wrap: balance; }
+.card__body { margin: 0 0 16px; font-size: 15.5px; line-height: 1.55; color: var(--muted); }
+.tags { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.tags li { font-family: var(--f-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; padding: 5px 10px; border: 1px solid var(--line); }
+.card--hero { width: min(470px, 36vw); }
+
+/* work */
+.work__list { list-style: none; margin: 0; padding: 0; display: grid; }
+.proj { grid-area: 1 / 1; opacity: 0; visibility: hidden; }
+.proj.is-current { opacity: 1; visibility: visible; animation: boot .36s steps(5, end) both; }
+.proj__kicker { margin: 0 0 6px; font-family: var(--f-mono); font-size: 11.5px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
+.proj__name { margin: 0 0 10px; color: var(--head); font-family: var(--f-display); font-weight: 700; font-size: clamp(38px, 3.6vw, 58px); line-height: 0.92; text-transform: uppercase; }
+.proj__summary { margin: 0 0 14px; font-size: 15px; line-height: 1.55; color: var(--muted); }
+.proj__links { margin: 16px 0 0; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.proj__credit { font-family: var(--f-mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+.btn { display: inline-flex; align-items: center; gap: 6px; padding: 11px 18px; background: #0b1d19; color: var(--text); box-shadow: inset 0 0 0 1px var(--brass); text-decoration: none; font-family: var(--f-mono); font-weight: 700; font-size: 12.5px; letter-spacing: 0.1em; text-transform: uppercase; border: 0; cursor: pointer; }
+.btn:hover, .btn:focus-visible { background: var(--neon); color: #000; }
+/* every control is cut like the cards: a 7px chamfer at the top right, its keyline drawn along the cut */
+.btn, .pager__btn, .contact__links a, .bar__sound { clip-path: polygon(0 0, calc(100% - 7px) 0, 100% 7px, 100% 100%, 0 100%); }
+.btn { background: linear-gradient(225deg, transparent 4.95px, var(--brass) 4.95px 6.2px, #0b1d19 6.2px); }
+.btn--ghost { background: linear-gradient(225deg, transparent 4.95px, var(--line) 4.95px 6.2px, transparent 6.2px); }
+.pager__btn, .contact__links a { background: linear-gradient(225deg, transparent 4.95px, var(--line) 4.95px 6.2px, transparent 6.2px); }
+.bar__sound { background: linear-gradient(225deg, transparent 4.95px, var(--line) 4.95px 6.2px, color-mix(in srgb, var(--bg) 92%, transparent) 6.2px); }
+.btn--ghost { background: transparent; color: var(--text); box-shadow: inset 0 0 0 1px var(--line); }
+.btn--ghost:hover, .btn--ghost:focus-visible { background: var(--text); color: #000; }
+.work__pager { margin-top: 18px; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.pager__btn { all: unset; cursor: pointer; flex: none; width: 44px; height: 44px; display: grid; place-items: center; border: 1px solid var(--line); }
+.pager__btn svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2.2; }
+.pager__btn:hover, .pager__btn:focus-visible { background: var(--neon); color: #000; }
+.pager__dots { display: flex; gap: 6px; padding: 0 4px; }
+.pager__dots i { width: 18px; height: 3px; background: var(--line); }
+.pager__dots i.on { background: var(--neon); }
+.work__all { margin-left: auto; padding: 11px 14px; white-space: nowrap; }
+.pager__count { padding: 0 6px; font-family: var(--f-mono); font-size: 12px; letter-spacing: 0.14em; color: var(--muted); white-space: nowrap; }
+.pager__count b { color: var(--text); font-weight: 700; }
+.work__allcount { opacity: 0.7; }
+
+/* contact */
+.contact__mail { margin: 0 0 12px; font-family: var(--f-display); font-weight: 700; font-size: clamp(26px, 2.4vw, 36px); }
+.contact__mail a { color: var(--head); text-decoration: underline; text-decoration-color: var(--brass); text-decoration-thickness: 2px; text-underline-offset: 7px; }
+.contact__mail a:hover, .contact__mail a:focus-visible { color: var(--neon); text-decoration-color: var(--neon); }
+.card--contact .card__body a { color: var(--text); text-decoration-color: var(--brass); text-underline-offset: 3px; }
+.card--contact .card__body a:hover { color: var(--neon); text-decoration-color: var(--neon); }
+.contact__links { list-style: none; margin: 0 0 16px; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.contact__links a { display: inline-flex; align-items: center; min-height: 44px; padding: 9px 14px; border: 1px solid var(--line); text-decoration: none; font-family: var(--f-mono); font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; white-space: nowrap; }
+.contact__restart span { margin-right: 0.45em; }
+.contact__links a:hover { background: var(--neon); color: #000; }
+.contact__links .contact__restart { color: var(--text); }
+/* the first stop says how to move on, until the visitor does */
+.cue { position: fixed; z-index: 12; left: 50%; bottom: 30px; transform: translateX(-50%); margin: 0; display: flex; flex-direction: column; align-items: center; gap: 8px; font-family: var(--f-mono); font-size: 11px; letter-spacing: 0.26em; text-transform: uppercase; color: color-mix(in srgb, var(--text) 72%, transparent); pointer-events: none; transition: opacity .3s steps(3, end); }
+.cue i { width: 9px; height: 9px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(45deg); animation: cue 1.2s steps(6, end) infinite; }
+@keyframes cue { 0%, 100% { translate: 0 0; } 50% { translate: 0 5px; } }
+.booting .cue, .moved .cue { opacity: 0; }
+.contact__copy { margin: 0; font-family: var(--f-mono); font-size: 11px; color: var(--muted); }
+
+/* route: one trace read left to right across a strip of board, its vias numbered; only the current via is in full green */
+.route { position: fixed; z-index: 20; left: var(--gutter); bottom: 26px; width: 220px; height: 48px; --rline: color-mix(in srgb, var(--gold) 45%, transparent); }
+.route__map { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.route__board rect { fill: color-mix(in srgb, var(--bg) 92%, transparent); stroke: var(--rline); stroke-width: 1; vector-effect: non-scaling-stroke; }
+.route__board text { font-family: var(--f-mono); font-size: 9.5px; font-weight: 700; letter-spacing: 0.04em; text-anchor: middle; fill: color-mix(in srgb, var(--text) 72%, transparent); }
+.route__path { fill: none; stroke: color-mix(in srgb, var(--text) 26%, transparent); stroke-width: 2; stroke-linejoin: miter; }
+.route__done { fill: none; stroke: var(--gold); stroke-width: 2; stroke-linejoin: miter; } /* runs with the flight (main.js) */
+.route__list { list-style: none; margin: 0; padding: 0; position: absolute; inset: 0; }
+.route__list li { position: absolute; left: var(--x); top: var(--y); }
+.route__list li:has(a[aria-current]), .route__list li:has(a:hover), .route__list li:has(a:focus-visible) { z-index: 3; }
+.route__list a { position: absolute; transform: translate(-50%, -50%); display: grid; place-items: center; width: 32px; height: 32px; text-decoration: none; }
+.route__list i { width: 9px; height: 9px; background: var(--bg); border: 2px solid color-mix(in srgb, var(--text) 58%, transparent); border-radius: 50%; transition: transform .15s steps(3); }
+.route__list span { position: absolute; bottom: calc(100% - 2px); left: 50%; transform: translateX(-50%); white-space: nowrap; font-family: var(--f-mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; opacity: 0; pointer-events: none; padding: 3px 7px; background: var(--panel); border: 1px solid var(--line); }
+.route__list a:hover span, .route__list a:focus-visible span { opacity: 1; }
+/* the label is a tab on the strip: one box, one keyline */
+.route__label { position: absolute; left: 0; bottom: calc(100% - 1px); z-index: 2; margin: 0; font-family: var(--f-mono); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; padding: 4px 8px 3px; background: color-mix(in srgb, var(--bg) 92%, transparent); border: 1px solid var(--rline); border-bottom: 0; pointer-events: none; white-space: nowrap; }
+.route__label b { color: var(--steel); font-weight: 700; margin-right: 6px; }
+.route__label span { color: var(--steel); }
+.route__list a[aria-current] i { background: var(--text); border-color: var(--gold); transform: scale(1.4); }
+.route__list a:hover i, .route__list a:focus-visible i { border-color: var(--gold); }
+
+/* the place title sweeps across mid-flight */
+.title { position: fixed; z-index: 15; left: 0; right: 0; top: 50%; transform: translateY(-50%); pointer-events: none; overflow: hidden; display: flex; justify-content: center; }
+.title__text { font-family: var(--f-display); font-weight: 700; font-size: clamp(60px, 11vw, 190px); line-height: 0.9; text-transform: uppercase; letter-spacing: 0.04em; color: transparent; -webkit-text-stroke: 2px color-mix(in srgb, var(--silk) 62%, transparent); opacity: 0; white-space: nowrap; }
+.title.is-on .title__text { animation: sweep 1.25s steps(14, end) both; }
+@keyframes sweep { 0% { opacity: 0; transform: translateX(30%) skewX(-12deg); } 25% { opacity: 1; } 70% { opacity: 1; transform: translateX(-4%) skewX(-12deg); } 100% { opacity: 0; transform: translateX(-30%) skewX(-12deg); } }
+
+/* drawer */
+.index { position: fixed; inset: 0; z-index: 40; background: rgba(2, 5, 4, 0.55); }
+.index__sheet { position: absolute; top: 0; right: 0; bottom: 0; width: min(580px, 100vw); background: #050a08; border-left: 1px solid var(--line); overflow-y: auto; overscroll-behavior: contain; padding: 26px clamp(18px, 3vw, 36px) 60px; transform: translateX(104%); transition: transform .32s steps(6, end); }
+.index.is-open .index__sheet { transform: none; }
+.index__head { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); padding-bottom: 12px; margin-bottom: 4px; }
+.index__head h2 { margin: 0; font-family: var(--f-display); font-weight: 700; font-size: 38px; text-transform: uppercase; }
+.index__close { all: unset; cursor: pointer; width: 44px; height: 44px; display: grid; place-items: center; }
+.index__close svg { width: 22px; height: 22px; stroke: currentColor; stroke-width: 2.4; fill: none; }
+.index__list { list-style: none; margin: 0; padding: 0; }
+.index__list li { border-bottom: 1px solid rgba(232, 241, 236, 0.1); }
+.ix { display: grid; gap: 3px; padding: 14px 6px; text-decoration: none; }
+.ix:hover, .ix:focus-visible { background: color-mix(in srgb, var(--neon) 10%, transparent); }
+.ix__name { font-family: var(--f-display); font-weight: 700; font-size: 23px; text-transform: uppercase; }
+.ix__desc { font-size: 14.5px; line-height: 1.45; color: var(--muted); }
+.ix__meta { font-family: var(--f-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--steel); }
+.index__older summary { cursor: pointer; padding: 16px 6px; font-family: var(--f-mono); font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; }
+
+
+/* phones: the card docks at the bottom like a component label */
+@media (max-width: 760px), (orientation: portrait) and (max-width: 1000px) {
+  :root { --gutter: 16px; --br: 12px; }
+  .bar { padding: 14px var(--gutter); gap: 14px; }
+  .bar__mark svg { width: 30px; height: 30px; }
+  .bar__name { font-size: 19px; }
+  .bar__nav { gap: 4px; font-size: 12px; }
+  .bar__nav a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 5px; }
+  /* a firmer scrim under the bar: the hero can sit high on a tall screen */
+  .bar::before { inset: 0 0 -40px; background: linear-gradient(to bottom, color-mix(in srgb, var(--bg) 92%, transparent), color-mix(in srgb, var(--bg) 70%, transparent) 55%, transparent); }
+  .bar__nav a:not([href^='#']) { display: none; }
+  .card, .card--hero { left: var(--gutter); right: var(--gutter); top: auto; bottom: calc(max(16px, env(safe-area-inset-bottom)) + 16px); width: auto; transform: none; padding: 20px 18px 36px; }
+  /* the header row: the rule ends before the count and the designator */
+  .card__place { padding-right: 128px; }
+  /* the gallery card stays under half the screen: its project tags and kicker fold away, and the pager row fits */
+  .stop--work .tags, .stop--work .proj__kicker { display: none; }
+  .work__pager { gap: 6px; }
+  .pager__count { padding: 0 2px; }
+  .work__all { padding: 11px 10px; font-size: 11px; letter-spacing: 0.06em; }
+  .route { display: none; }
+  .card__count { display: block; }
+  .card__cue { display: flex; }
+  .btn { min-height: 44px; }
+  .pager__btn { width: 44px; height: 44px; }
+  .route__label { left: 50%; transform: translateX(-50%); font-size: 9.5px; padding: 2px 6px; }
+  .cue { display: none; }
+  @keyframes out { to { opacity: 0; transform: translateY(12px); } }
+  .card__statement { font-size: clamp(28px, 8.6vw, 38px); }
+  .card__h { font-size: clamp(27px, 8.2vw, 36px); }
+  .card__body, .proj__summary { font-size: 14.5px; margin-bottom: 12px; }
+  .proj__name { font-size: clamp(34px, 10.5vw, 46px); }
+  .title__text { font-size: clamp(52px, 16vw, 90px); }
+  .card { --chamfer: 12px; }
+}
+/* the boot owns the screen: the chrome stays dark until the mark flashes, then prints in with the first card */
+.bar, .route { transition: opacity .3s steps(4, end); }
+.bar__nav, .bar__sound { transition: opacity .25s steps(3, end); }
+.flying .bar__nav, .flying .bar__sound { opacity: 0.35; }
+.booting .route, .booting .bar__nav, .booting .bar__sound { opacity: 0; pointer-events: none; transition: none; }
+/* the name alone prints in its corner as the power floods the mark */
+.booting .bar__mark { opacity: 0; transition: opacity .3s steps(4, end); }
+.booting.boot-brand .bar__mark { opacity: 1; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-delay: 0ms !important; transition-duration: 0.01ms !important; }
+}

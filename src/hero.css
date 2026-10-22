@@ -1,0 +1,279 @@
+/* The Power on panel, design 6a ("3b + card trim"), with its hologram entrance. Ported from
+ * reference/hero-6a/hero6a.css with its values as they are; only the font families are the site's (the same faces,
+ * as the site loads them), and the name is set in capitals by CSS (the copy is "Xini").
+ *
+ * Everything is drawn in design units: 1u = var(--k). At k = 1px the panel matches the approved
+ * mock pixel for pixel on a 2551 × 1265 viewport. hero.js sets --k and draws the trim, the
+ * fingers and the leader in px after layout. Small text has px floors so it stays legible.
+ */
+
+.h6,
+.h6-leader {
+  --cream: #ece6d4;
+  --ink: #050c0c;
+  --brass: #d7ae60;
+  --brass-dim: #8a7140;
+  --label: #8fa39b;
+  --dim: #b9b4a3;
+  --hair: #2e4945;
+  --plate: #3c6b65;
+  --sea: #52e3b2;
+  --verm: #e4553b;
+}
+
+.h6 {
+  --u: var(--k, 1px);
+  --fs-label: max(10px, calc(15 * var(--u)));
+  --fs-spec: max(12px, calc(20 * var(--u)));
+  --row: max(18px, calc(24 * var(--u)));
+  --pad-top: max(12px, calc(34 * var(--u)));
+  --dg: max(4px, calc(8 * var(--u)));           /* dot grid of the teal print plate */
+  position: absolute;
+  left: 0;
+  top: 0;
+  box-sizing: border-box;
+  width: calc(1250 * var(--u));
+  padding-bottom: max(4px, calc(8 * var(--u)));
+  font-family: var(--f-mono);
+  color: var(--cream);
+  pointer-events: none;            /* nothing in it is interactive; the scene stays clickable */
+}
+.h6[hidden],
+.h6-leader[hidden] { display: none; }
+/* (the site's reduced-motion rule gives every element a transition; the panel animates only by script) */
+.h6, .h6 *, .h6 *::before, .h6 *::after, .h6-leader, .h6-leader * { transition: none !important; }
+.h6 *,
+.h6 *::before,
+.h6 *::after { box-sizing: border-box; }
+
+/* ---------- content: strip, name, lockup, spec ---------- */
+
+.h6__content {
+  position: relative;
+  padding-top: var(--pad-top);
+}
+
+.h6__strip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: calc(20 * var(--u));
+  margin-left: calc(36 * var(--u));
+  width: calc(1068 * var(--u));
+  min-height: var(--row);
+  font-size: var(--fs-label);
+  font-weight: 500;
+  line-height: var(--row);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.h6__dot {
+  flex: none;
+  width: max(6px, calc(9 * var(--u)));
+  height: max(6px, calc(9 * var(--u)));
+  border-radius: 50%;
+  background: var(--cream);
+}
+.h6__label { letter-spacing: 0.32em; color: var(--label); }
+.h6__rule { flex: 1 1 0; min-width: 16px; height: 1px; background: var(--hair); }
+.h6__role { letter-spacing: 0.24em; color: var(--dim); }
+
+.h6__name {
+  position: relative;
+  height: calc(480 * var(--u));
+  margin: calc(13 * var(--u)) 0 0;
+  font-family: var(--f-display);
+  font-weight: 700;
+  font-size: calc(612 * var(--u));
+  line-height: calc(480 * var(--u));
+  letter-spacing: calc(8 * var(--u));
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.h6__art { position: absolute; inset: 0; }
+.h6__art > span { position: absolute; top: 0; left: calc(16 * var(--u)); }
+.h6__art > .h6__name-plate {
+  left: calc(32 * var(--u));
+  top: calc(16 * var(--u));
+  color: transparent;
+  -webkit-text-stroke: max(1px, calc(2 * var(--u))) var(--brass);
+}
+.h6__name-face {
+  color: transparent;
+  -webkit-text-stroke: max(1px, calc(3 * var(--u))) var(--cream);
+  background-image: var(--h6-halftone);
+  background-repeat: no-repeat;
+  background-size: calc(1400 * var(--u)) calc(520 * var(--u));
+  background-position: 0 calc(-40 * var(--u));
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+.h6__lockup {
+  position: relative;
+  height: calc(150 * var(--u));
+  margin: calc(15 * var(--u)) 0 0;
+}
+.h6__lk {
+  position: absolute;
+  inset: 0;
+  font-family: var(--f-display);
+  font-weight: 700;
+  white-space: nowrap;
+}
+.h6__p { position: absolute; line-height: 1; }
+.h6__p--big { font-size: calc(150 * var(--u)); }
+.h6__p--small { font-size: calc(64 * var(--u)); }
+.h6__p--face { color: var(--cream); }
+.h6__p--line { color: transparent; -webkit-text-stroke: max(1px, calc(2 * var(--u))) var(--brass); }
+.h6__p--dots {
+  color: transparent;
+  background-image: radial-gradient(circle, var(--plate) 0 calc(var(--dg) * 0.3), transparent calc(var(--dg) * 0.35));
+  background-size: var(--dg) var(--dg);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+.h6__bar {
+  position: absolute;
+  left: calc(847 * var(--u));
+  top: calc(21 * var(--u));
+  width: max(1px, calc(2 * var(--u)));
+  height: calc(105 * var(--u));
+  background: var(--brass);
+}
+
+.h6__spec {
+  display: flex;
+  align-items: center;
+  gap: calc(18 * var(--u));
+  height: max(calc(26 * var(--u)), calc(var(--fs-spec) * 1.32));
+  margin: calc(20 * var(--u)) 0 0 calc(38 * var(--u));
+  font-size: var(--fs-spec);
+  letter-spacing: 0.08em;
+  color: var(--dim);
+  white-space: nowrap;
+}
+.h6__dash {
+  flex: none;
+  width: max(24px, calc(56 * var(--u)));
+  height: max(1.5px, calc(2 * var(--u)));
+  background: var(--brass);
+}
+
+.h6__sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ---------- trim: corners, pads, PWR, fingers (geometry drawn by hero6a.js) ---------- */
+
+.h6__trim {
+  position: absolute;
+  left: 0;
+  top: 0;
+  overflow: visible;
+  pointer-events: none;
+}
+.h6__trim .h6-pad { transform-box: fill-box; transform-origin: center; }
+
+.h6__pwr {
+  position: absolute;
+  top: var(--pad-top);
+  height: var(--row);
+  font-size: var(--fs-label);
+  font-weight: 500;
+  line-height: var(--row);
+  letter-spacing: 0.24em;
+  color: var(--label);
+  white-space: nowrap;
+}
+
+.h6__fingers {
+  position: relative;
+  height: max(8px, calc(20 * var(--u)));
+  margin-top: calc(28 * var(--u));
+}
+.h6__run {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(90deg, var(--brass-dim) 0 var(--fw), transparent var(--fw) var(--fp));
+}
+
+/* ---------- hologram layers (only on screen during the entrance) ---------- */
+
+.h6__beam {                         /* sits just above the reveal edge, so the clip never hides it */
+  position: absolute;
+  left: calc(-12 * var(--u));
+  right: calc(-12 * var(--u));
+  top: calc(-1 * max(2px, calc(3 * var(--u))));
+  height: max(2px, calc(3 * var(--u)));
+  background: var(--sea);
+  opacity: 0;
+  pointer-events: none;
+}
+.h6__beam::before {                 /* halftone trail: drawn light, dots shrink away from the line */
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 100%;
+  height: calc(var(--dg) * 3);
+  background:
+    radial-gradient(circle, var(--sea) 0 calc(var(--dg) * 0.3), transparent calc(var(--dg) * 0.34)) 0 calc(var(--dg) * 2) / var(--dg) var(--dg) repeat-x,
+    radial-gradient(circle, var(--sea) 0 calc(var(--dg) * 0.21), transparent calc(var(--dg) * 0.25)) calc(var(--dg) * 0.5) var(--dg) / var(--dg) var(--dg) repeat-x,
+    radial-gradient(circle, var(--sea) 0 calc(var(--dg) * 0.12), transparent calc(var(--dg) * 0.16)) 0 0 / var(--dg) var(--dg) repeat-x;
+}
+
+.h6__holo {                         /* the projection's scanlines */
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(82, 227, 178, 0.2) 0 max(1px, calc(1.5 * var(--u))),
+    transparent 0 max(3px, calc(4.5 * var(--u)))
+  );
+}
+
+.h6__ghost {                        /* colour fringes on the name while it locks in */
+  color: transparent;
+  -webkit-text-stroke: max(1px, calc(2.5 * var(--u))) var(--sea);
+}
+.h6__ghost--verm { -webkit-text-stroke-color: var(--verm); }
+
+/* ---------- compact (phones, portrait) and wrapped strips (small desktop sizes) ---------- */
+
+.h6--compact .h6__strip,
+.h6--wrap .h6__strip {
+  width: auto;
+  margin-right: var(--pwr-room, 0px);
+}
+.h6--compact .h6-pad[data-pad="bl"] { display: none; }   /* no room beside the spec line on phones */
+.h6--compact .h6__role,
+.h6--wrap .h6__role {
+  flex-basis: 100%;
+  margin-right: calc(-1 * var(--pwr-room, 0px));
+  letter-spacing: 0.16em;
+  white-space: normal;
+}
+
+/* ---------- the leader: crown ring and trace (full-viewport overlay) ---------- */
+
+.h6-leader {
+  position: absolute;
+  left: 0;
+  top: 0;
+  overflow: visible;
+  pointer-events: none;
+}
+.h6-leader__trace { fill: none; stroke: var(--brass); stroke-linejoin: miter; }
+.h6-leader__ring { fill: none; stroke: var(--brass); }
+.h6-leader__core { fill: var(--brass); }
+.h6-leader__ping { fill: none; stroke: var(--brass); opacity: 0; transform-box: fill-box; transform-origin: center; }

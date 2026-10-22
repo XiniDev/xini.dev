@@ -1,0 +1,125 @@
+<title>xini.dev worlds</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Inside the machine v4, the walkable prototype for the xini.dev rework, with the earlier directions beside it.">
+<script>
+  // #machine2, #machine, #tower or #hextech on the link opens that world directly
+  (function () {
+    var w = (location.hash || '').slice(1);
+    if (['machine2', 'machine', 'tower', 'hextech'].indexOf(w) >= 0) location.replace('concepts/' + w + '/index.html');
+  })();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@800;900&family=Hanken+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+  /* The featured world, then the earlier directions: one shot per world and a door into it. One dark look by choice. */
+  :root {
+    --bg: #07080c; --panel: #0c0e14; --fg: #eef0f4; --muted: #a6a9b1; --line: #23262f; --line-strong: #3a3e4a; --accent: #3dff8f; --on-accent: #04110a;
+    --f-display: 'Big Shoulders Display', 'Arial Narrow', Impact, sans-serif;
+    --f-body: 'Hanken Grotesk', 'Helvetica Neue', Arial, sans-serif;
+    --f-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--fg); font: 16px/1.55 var(--f-body); }
+  a { color: inherit; }
+  .wrap { max-width: 1480px; margin: 0 auto; padding-block: 32px 48px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 28px; }
+  header { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px 28px; }
+  .brand { display: flex; align-items: center; gap: 14px; }
+  .brand svg { width: 40px; height: 40px; flex: none; }
+  h1 { margin: 0; font: 900 clamp(40px, 6vw, 72px)/0.9 var(--f-display); text-transform: uppercase; letter-spacing: 0.01em; text-wrap: balance; }
+  .kicker { margin: 0 0 6px; font: 700 12px/1 var(--f-mono); letter-spacing: 0.22em; text-transform: uppercase; color: var(--accent); }
+  .how { margin: 0 0 4px auto; max-width: 34ch; color: var(--muted); font-size: 14px; }
+  main { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+  .w { display: grid; grid-template-rows: auto 1fr; background: var(--panel); border: 1px solid var(--line); min-width: 0; }
+  .shot { display: block; position: relative; aspect-ratio: 16 / 10; max-width: 100%; overflow: hidden; background: #000; }
+  .shot img { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s cubic-bezier(.2, .7, .2, 1); }
+  .shot:hover img, .shot:focus-visible img { transform: scale(1.025); }
+  .body { display: grid; gap: 12px; align-content: start; padding: 20px 22px 22px; min-width: 0; }
+  .name { margin: 0; font: 800 34px/1 var(--f-display); text-transform: uppercase; letter-spacing: 0.02em; }
+  .line { margin: 0; color: var(--muted); max-width: 60ch; }
+  .meta { margin: 0; font: 500 12px/1.4 var(--f-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+  .row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 4px; }
+  .go { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; padding: 0 20px; background: var(--fg); color: var(--bg); text-decoration: none; font: 700 13px/1 var(--f-mono); letter-spacing: 0.16em; text-transform: uppercase; }
+  .go:hover, .go:focus-visible { background: var(--accent); color: var(--on-accent); }
+  .chip { display: inline-flex; align-items: center; gap: 9px; min-height: 44px; padding: 0 14px; border: 1px solid var(--line-strong); text-decoration: none; font-size: 14px; color: var(--muted); }
+  .chip:hover, .chip:focus-visible { color: var(--fg); border-color: var(--fg); }
+  .chip i { width: 12px; height: 12px; flex: none; transform: rotate(45deg); }
+  .feat { display: grid; grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr); background: var(--panel); border: 1px solid var(--line); }
+  .feat .shot { aspect-ratio: 16 / 10; }
+  .feat .body { padding: 28px 28px 26px; align-content: center; }
+  .feat .name { font-size: clamp(38px, 4vw, 58px); }
+  .tag { display: inline-block; margin-left: 10px; padding: 3px 8px 2px; vertical-align: middle; font: 700 13px/1 var(--f-mono); letter-spacing: 0.14em; background: var(--accent); color: var(--on-accent); }
+  .sec { margin: 8px 0 -8px; font: 700 12px/1 var(--f-mono); letter-spacing: 0.22em; text-transform: uppercase; color: var(--muted); }
+  main.small { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+  main.small .name { font-size: 24px; }
+  main.small .body { padding: 14px 16px 16px; gap: 8px; }
+  main.small .line { font-size: 14px; }
+  main.small .go { min-height: 40px; padding: 0 14px; font-size: 12px; }
+  footer { color: var(--muted); font-size: 14px; display: flex; flex-wrap: wrap; gap: 6px 24px; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  @media (max-width: 860px) { main, main.small, .feat { grid-template-columns: minmax(0, 1fr); } .how { margin-left: 0; } }
+  @media (prefers-reduced-motion: reduce) { .shot img { transition: none; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <svg viewBox="0 0 120 120" aria-hidden="true"><path fill="#eef0f4" d="M8.00,96.02 L29.22,73.98 L29.22,12.74 L8.00,21.30 Z M112.00,23.98 L90.78,46.02 L90.78,107.26 L112.00,98.70 Z"/><path fill="#3dff8f" d="M43.98,58.66 L58.71,43.36 L31.08,14.67 L31.08,45.27 Z M8.00,98.70 L29.22,107.26 L112.00,21.30 L90.78,12.74 Z M88.92,74.73 L76.02,61.34 L61.29,76.64 L88.92,105.33 Z"/></svg>
+      <div>
+        <p class="kicker">xini.dev rework</p>
+        <h1>Inside the machine</h1>
+      </div>
+    </div>
+    <p class="how">Scroll, swipe, use the arrow keys or the map to fly between places.</p>
+  </header>
+
+  <section class="feat" aria-labelledby="v2">
+    <a class="shot" href="concepts/machine2/index.html"><img src="proto-img/machine2.jpg" alt="Inside the machine v4: the cooler tower with the mark on its crown over a motherboard city at night" width="1200" height="750"></a>
+    <div class="body">
+      <h2 class="name" id="v2">Inside the machine<span class="tag">V4</span></h2>
+      <p class="line">One hero lit at a time, a tighter palette and light drawn in dots. A working mechanism at every stop, a boot sequence, and a finale that pulls back to the mark.</p>
+      <p class="meta">Power on &middot; The core &middot; Neural core &middot; Enclave &middot; Memory &middot; I/O</p>
+      <div class="row"><a class="go" href="concepts/machine2/index.html">Walk it</a></div>
+    </div>
+  </section>
+
+  <p class="sec">Earlier directions</p>
+  <main class="small">
+    <article class="w">
+      <a class="shot" href="concepts/machine/index.html"><img src="proto-img/machine.jpg" alt="Inside the machine: a CPU cooler tower over a motherboard city" width="1440" height="900"></a>
+      <div class="body">
+        <h2 class="name">Inside the machine v1</h2>
+        <p class="line">A drone flight through a motherboard built like a night city, with the cooler as its tower.</p>
+        <div class="row">
+          <a class="go" href="concepts/machine/index.html">Walk it</a>
+        </div>
+      </div>
+    </article>
+    <article class="w">
+      <a class="shot" href="concepts/tower/index.html"><img src="proto-img/tower.jpg" alt="Tower dive: the mark on a megatower roof in the rain" width="1440" height="900"></a>
+      <div class="body">
+        <h2 class="name">Tower dive</h2>
+        <p class="line">Land on a megatower roof in the rain, then dive down its atrium a floor at a time.</p>
+        <div class="row">
+          <a class="go" href="concepts/tower/index.html">Walk it</a>
+        </div>
+      </div>
+    </article>
+    <article class="w">
+      <a class="shot" href="concepts/hextech/index.html"><img src="proto-img/hextech.jpg" alt="Hextech realm: a brass armillary over a city at dusk" width="1440" height="900"></a>
+      <div class="body">
+        <h2 class="name">Hextech realm</h2>
+        <p class="line">Fly through the rings of a painted brass armillary that hangs over a city at dusk.</p>
+        <div class="row">
+          <a class="go" href="concepts/hextech/index.html">Walk it</a>
+        </div>
+      </div>
+    </article>
+  </main>
+
+  <footer>
+    <span>Sound stays off until you turn it on.</span>
+    <span>Best in a desktop browser with hardware graphics. Phones get their own layout.</span>
+  </footer>
+</div>

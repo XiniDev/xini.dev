@@ -40,9 +40,10 @@ const lerp = THREE.MathUtils.lerp, clamp = THREE.MathUtils.clamp;
 const ease = (x) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
 const sstep = (a, b, x) => { const u = clamp((x - a) / (b - a), 0, 1); return u * u * (3 - 2 * u); };
 const phone = Math.min(innerWidth, innerHeight) < 600;
-// portrait screens dock the card below: each stop centres its subject instead of leaving room beside it
-const portrait = innerHeight > innerWidth * 1.05;
-const PT = (wide, tall) => (portrait && tall ? tall : wide);
+// portrait screens dock the card below: each stop centres its subject instead of leaving room beside it. A stop keeps
+// both framings, and the director takes the one for the screen as it turns (frame)
+const PT = (wide, tall) => ({ wide, tall });
+const framed = (v, tall) => (v && v.wide !== undefined ? (tall ? v.tall : v.wide) : v);
 
 // the route: one trace from 01 to 06 read left to right, its vias numbered, with a return run under it back to
 // the start (the finale); a strip of board, not a map, so the order reads at a glance
@@ -191,7 +192,7 @@ class MachineDirector {
       const c = new THREE.PerspectiveCamera(pose.fov, 1.6, 1, 10); c.position.copy(pose.p); c.lookAt(pose.t); c.updateMatrixWorld();
       return new THREE.Vector3(nx, ny, 0.5).unproject(c).sub(pose.p).normalize().multiplyScalar(depth).add(pose.p).toArray();
     };
-    const stops = [
+    const specs = [
       // looking up at the spire from close in: the crown in the upper right third, big enough to win over the
       // headline, the cooler's foot and the districts round it out of shot; portrait screens centre it over the card
       { id: 'top', p: PT(V(-320, 230, 820), V(-160, 300, 900)), t: PT(V(-300, 610, -120), V(-85, 600, 108)), fov: PT(42, 31) },
@@ -205,14 +206,15 @@ class MachineDirector {
       { id: 'ai', p: PT(V(-450, 85, 650), V(-480, 112, 610)), t: PT(V(-415, 178, 330), V(-470, 176, 330)), fov: 50 },
       // (aimed a little right of the cube: the tower's fan ring hung as a pale arc in the corner)
       { id: 'security', p: V(495, 130, 640), t: PT(V(615, LOCK_Y - 2, 98), V(700, LOCK_Y, 140)), fov: 49 },
-      { id: 'work', ...this.exhibitPose(1) },
+      { id: 'work', exhibit: 1 },
       // square on to the shield, so the mark's verticals stand vertical; the mark left of centre, clear of the card
       { id: 'contact', p: V(-600, 215, -410), t: V(-1000, 228, -470), fov: 54 },
     ];
     // (the side of the screen each card takes; across, cards snap to the page's columns, see placeCard)
-    const cardAt = [[-0.58, 0.36], [0.56, 0.02], [0.5, -0.18], [-0.52, 0.06], [-0.62, 0.04], [0.62, 0.06]];
-    stops.forEach((st, i) => { st.anchor = at(st, ...cardAt[i]); });
-    this.stops = stops;
+    this.cardAt = [[-0.58, 0.36], [0.56, 0.02], [0.5, -0.18], [-0.52, 0.06], [-0.62, 0.04], [0.62, 0.06]];
+    this.at = at; this.stopSpecs = specs; this.tall = innerHeight > innerWidth * 1.05;
+    const stops = (this.stops = specs.map((s) => ({ id: s.id })));
+    this.frame();
     // what each stop is about: within r0 of it everything keeps its full ink; by r1 the machine has receded
     this.focus = [
       { p: V(TOWER.cx, 610, 0), r0: 300, r1: 820 },                       // the spire's crown
@@ -284,7 +286,22 @@ class MachineDirector {
     // screen from further down the aisle and above, so the whole screen sits over the docked card
     const z = SCREEN_Z[i];
     // (portrait: wider, and aimed lower on the screen, so its top clears the bar and its near corner the card)
-    return portrait ? { p: V(50, 150, z + 250), t: V(246, 90, z + 20), fov: 58, roll: 0 } : { p: V(38, 128, z + 102), t: V(246, 98, z - 52), fov: 56, roll: 0 };
+    return this.tall ? { p: V(50, 150, z + 250), t: V(246, 90, z + 20), fov: 58, roll: 0 } : { p: V(38, 128, z + 102), t: V(246, 98, z - 52), fov: 56, roll: 0 };
+  }
+  /** each stop's framing for the screen's orientation, and its card's anchor */
+  frame() {
+    this.stopSpecs.forEach((S, i) => {
+      const st = this.stops[i], pose = S.exhibit !== undefined ? this.exhibitPose(S.exhibit) : S;
+      st.p = framed(pose.p, this.tall).clone(); st.t = framed(pose.t, this.tall).clone(); st.fov = framed(pose.fov, this.tall);
+      if (pose.roll !== undefined) st.roll = pose.roll;
+      st.anchor = this.at(st, ...this.cardAt[i]);
+    });
+  }
+  /** the screen turned: a camera at rest takes its stop's new framing at once (a flight lands on it) */
+  reframe() {
+    const r = this.world?.rig; if (!r || r.flying || this.intro) return;
+    r.pose = r.copyPose(this.stops[r.index]); r.snap();
+    if (r.index === 4) { this.aimExhibit(this.world.ui.project); r.offset.p.copy(r.offsetTarget.p); r.offset.t.copy(r.offsetTarget.t); }
   }
   depart(from, to, world) {
     this.labelled = false; this.lastFrom = from; document.documentElement.classList.add('moved');
@@ -294,8 +311,8 @@ class MachineDirector {
   arrive(i, world) { if (!this.labelled) { this.labelled = true; routeLabel(i, this.lastFrom); setNav(i); }
     if (i === 4) this.focusExhibit(world.ui.project); if (i === 3) this.enc.unlock(world.time); if (i === 1) this.gantry.start(world.time); }
   project(i) { setCount(i); this.focusExhibit(i); } // the module seating lands the impact
-  focusExhibit(i) {
-    this.mem.seat(i, this.world.time);
+  focusExhibit(i) { this.mem.seat(i, this.world.time); this.aimExhibit(i); }
+  aimExhibit(i) {
     const base = this.stops[4], pose = this.exhibitPose(i);
     this.world.rig.nudge(pose.p.clone().sub(base.p), pose.t.clone().sub(base.t));
   }
@@ -550,6 +567,7 @@ class MachineDirector {
     // speed lines keep off the bar and the route box (css: a 96px band at the top; the route sits a gutter in, 26px up)
     const gut = Math.min(64, Math.max(18, view.w * 0.04));
     post.uSpeedMask.value.set(96 * view.dpr, (gut + 236) * view.dpr, (26 + 48 + 40) * view.dpr);
+    if (this.stopSpecs && view.portrait !== this.tall) { this.tall = view.portrait; this.frame(); this.reframe(); }
   }
   preRender(world) {
     this.cards?.update(world);

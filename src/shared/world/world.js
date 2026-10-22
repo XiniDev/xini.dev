@@ -37,7 +37,11 @@ export class World {
     this.time = 0; this.frozen = null;
     this.dprScale = 1; this.perf = { ema: 1 / 60, slow: 0, t: 0, steps: 0 };
     this.view = { w: 1, h: 1, dpr: 1, portrait: false, phone: false, aspect: 1 };
-    addEventListener('resize', () => this.resize());
+    // (a turned phone can report its new size late, or only to the visual viewport: every source, once a frame)
+    const onResize = () => { if (!this.rsFrame) this.rsFrame = requestAnimationFrame(() => { this.rsFrame = 0; this.resize(true); }); };
+    addEventListener('resize', onResize); addEventListener('orientationchange', onResize);
+    globalThis.visualViewport?.addEventListener('resize', onResize);
+    new ResizeObserver(onResize).observe(document.documentElement);
     addEventListener('pointermove', (e) => { this.pointer.x = (e.clientX / innerWidth) * 2 - 1; this.pointer.y = -((e.clientY / innerHeight) * 2 - 1); }, { passive: true });
     document.addEventListener('visibilitychange', () => { this.paused = document.hidden; this.last = performance.now(); });
     this.palette = null;
@@ -51,11 +55,12 @@ export class World {
     document.documentElement.dataset.palette = name;
     this.director.palette?.(p, name);
   }
-  resize() {
+  resize(soft = false) {
     const w = innerWidth, h = innerHeight;
     const phone = Math.min(w, h) < 600;
     const cap = q.has('dpr') ? +q.get('dpr') : phone ? 1.5 : 1.75;
     const dpr = Math.min(devicePixelRatio || 1, cap) * this.dprScale;
+    if (soft && w === this.view.w && h === this.view.h && dpr === this.view.dpr) return;
     Object.assign(this.view, { w, h, dpr, phone, portrait: h > w * 1.05, aspect: w / h });
     this._grid = null;
     this.renderer.setPixelRatio(dpr); this.renderer.setSize(w, h, false);

@@ -1,4 +1,6 @@
 // Procedural sound effects (WebAudio, no audio files). Off by default; the toggle turns it on.
+import { createMaster } from './master.js';
+
 const KEY = 'xini-sound';
 
 class Sfx {
@@ -12,11 +14,16 @@ class Sfx {
     if (this.ctx) return this.ctx;
     const AC = window.AudioContext || window.webkitAudioContext;
     if (!AC) return null;
-    const ctx = new AC();
+    return this.attach(new AC());
+  }
+  /** cues → sfxBus and music → musicBus, both into the master chain (limiter, soft clip), then the output gain */
+  attach(ctx) {
     this.ctx = ctx;
-    this.master = ctx.createGain(); this.master.gain.value = 0.55;
-    const comp = ctx.createDynamicsCompressor(); comp.threshold.value = -16; comp.ratio.value = 4;
-    this.master.connect(comp); comp.connect(ctx.destination);
+    this.chain = createMaster(ctx);
+    this.out = ctx.createGain();
+    this.chain.output.connect(this.out); this.out.connect(ctx.destination);
+    this.sfxBus = ctx.createGain(); this.sfxBus.connect(this.chain.input);
+    this.musicBus = ctx.createGain(); this.musicBus.connect(this.chain.input);
     const len = ctx.sampleRate * 1.5;
     this.noise = ctx.createBuffer(1, len, ctx.sampleRate);
     const d = this.noise.getChannelData(0);
@@ -39,7 +46,7 @@ class Sfx {
   env(node, t, a, peak, d) {
     const g = this.ctx.createGain(); g.gain.setValueAtTime(0.0001, t);
     g.gain.exponentialRampToValueAtTime(peak, t + a); g.gain.exponentialRampToValueAtTime(0.0001, t + a + d);
-    node.connect(g); g.connect(this.master); return g;
+    node.connect(g); g.connect(this.sfxBus); return g;
   }
   filt(type, f, q = 1) { const b = this.ctx.createBiquadFilter(); b.type = type; b.frequency.value = f; b.Q.value = q; return b; }
   tone(type, f0, f1, t, a, peak, d) {
@@ -85,7 +92,7 @@ class Sfx {
         n.connect(hp); hp.connect(bp);
         const g = c.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.32 * v, t + 0.03);
         g.gain.setValueAtTime(0.32 * v, t + dur); g.gain.exponentialRampToValueAtTime(0.0001, t + dur + 0.1);
-        bp.connect(g); g.connect(this.master); break;
+        bp.connect(g); g.connect(this.sfxBus); break;
       }
       case 'rattle': {
         for (let i = 0; i < 5; i++) {

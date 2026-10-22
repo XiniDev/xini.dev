@@ -22,7 +22,7 @@ const step12 = (t) => Math.floor(t * 12) / 12;
 // rails run north-south, open at the south end where the camera looks in; the bridge rides them along z,
 // the carriage runs along the bridge in x
 export const GANTRY = { xW: -305, xE: -95, zN: 160, zS: 330, H: 122, feedZ: 190, keep: [-322, 124, -62, 346] };
-const LABELS = ['UI', '3D', 'API', 'NET', 'DB', 'OPS'];
+const LABELS = ['UI', '3D', 'AI', 'NET', 'DB', 'OPS'];
 const MOD = { x: -200, z: 262, w: 158, d: 96 };
 const CHIP = 26, CHIP_H = 6, DECK_Y = 9, TRAY_Y = 8;
 
@@ -118,7 +118,7 @@ export function buildGantry(pal, parts, silk) {
   }
   // reel stickers: one small atlas, three planes merged into one mesh
   const reelTex = canvasTex(768, 256, (c) => {
-    [['UI · 3D'], ['API · NET'], ['DB · OPS']].forEach(([t], i) => {
+    [['UI · 3D'], ['AI · NET'], ['DB · OPS']].forEach(([t], i) => {
       const X = i * 256;
       c.fillStyle = '#efe9d9'; c.fillRect(X, 0, 256, 256);
       c.fillStyle = '#121615'; c.font = `700 54px ${MONO}`; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText(t, X + 128, 96);

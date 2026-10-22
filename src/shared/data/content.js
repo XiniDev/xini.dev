@@ -21,9 +21,9 @@ export const site = {
 export const beats = [
   {
     id: 'systems', label: 'Systems', jp: 'システム',
-    heading: 'Whole systems, built solo.',
-    body: 'I take ambitious ideas all the way to production on my own: real-time 3D, multiplayer backends, data, infrastructure and the interface people actually use.',
-    support: ['Full stack', 'Real-time 3D', 'Multiplayer'],
+    heading: 'From design to deployment.',
+    body: 'I take big ideas all the way to production on my own: AI integration, real-time 3D, multiplayer backends, data, infrastructure and polished interfaces.',
+    support: ['AI Integration', 'Real-time 3D', 'Multiplayer'],
   },
   {
     id: 'ai', label: 'AI', jp: '人工知能',

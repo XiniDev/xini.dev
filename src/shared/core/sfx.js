@@ -82,11 +82,12 @@ export class Sfx {
    *  slam; later ones fade the music in. Times run on the context clock from the click, which a new or suspended
    *  context holds still until it runs. */
   soundOn() {
-    const ctx = this.ensure(); if (!ctx) return;
+    const fresh = !this.ctx, ctx = this.ensure(); if (!ctx) return;
     clearTimeout(this.suspendT);
     ctx.resume();
     this.fade(1, 0.05);
-    const t0 = ctx.currentTime, at = { stop: this.where.stop(), solved: this.where.solved() };
+    // the click is t = 0: a new context's clock starts there, and may run while the graph and the music are built
+    const t0 = fresh ? 0 : ctx.currentTime, at = { stop: this.where.stop(), solved: this.where.solved() };
     if (this.stung) { this.music.start(t0 + 0.05, { ...at, fadeIn: 0.8 }); return; }
     this.stung = true;
     // switched on during the visual boot with its impact frame far enough away, the slam lands on that frame: its

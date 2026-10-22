@@ -51,6 +51,7 @@ export class Rig {
     this.flight = null;
     this.offset = { p: new THREE.Vector3(), t: new THREE.Vector3() }; // per-stop nudges (project exhibits)
     this.offsetTarget = { p: new THREE.Vector3(), t: new THREE.Vector3() };
+    this.nudged = new THREE.Vector3(); // the whole nudge on the view right now: what is anchored to the stop moves with it
     this.speedNow = 0;
     this.lastPos = this.pose.p.clone();
     this.q = null; this.dt = 1 / 60;
@@ -250,8 +251,8 @@ export class Rig {
     this.offset.p.lerp(this.offsetTarget.p, k); this.offset.t.lerp(this.offsetTarget.t, k);
     const A = this.flight?.arrive, x = A ? THREE.MathUtils.clamp((this.flight.t / this.flight.dur - 0.45) / 0.5, 0, 1) : 0, s = x * x * (3 - 2 * x);
     const cam = this.camera;
-    cam.position.copy(this.pose.p).add(this.offset.p);
-    if (A) cam.position.addScaledVector(A.p, s);
+    this.nudged.copy(this.offset.p); if (A) this.nudged.addScaledVector(A.p, s);
+    cam.position.copy(this.pose.p).add(this.nudged);
     // arrival settle: carry on a little along the flight direction, then spring back
     if (this.settle) {
       const S = this.settle; S.t += dt;

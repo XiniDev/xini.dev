@@ -162,7 +162,8 @@ export class World {
     const i = this.rig.index, stop = this.route.stops[i];
     const card = this.cards[i];
     if (!stop.anchor || !card) return;
-    const s = this.toScreen(new THREE.Vector3(...stop.anchor));
+    // (the anchor rides the stop's nudge, so an exhibit's card keeps its column)
+    const s = this.toScreen(new THREE.Vector3(...stop.anchor).add(this.rig.nudged));
     const el = card.firstElementChild;
     const w = el.offsetWidth, h = el.offsetHeight, m = 24, top = 84;
     let x = THREE.MathUtils.clamp(s.x, m + w / 2, this.view.w - m - w / 2);

@@ -3,7 +3,7 @@
 //            panel and the trace against the playground once the input difference is allowed for, and the capture
 //            aligned against target-6a.png (panel, trace run, ring)
 //   copy     the panel's text against v5 COPY.md (whitespace normalised), one h1, POWER ON and PWR
-//   desktop  1440 × 900, 1920 × 1080, 1280 × 720, 1024 × 768: in the band without touching the bar or the route strip,
+//   desktop  1440 × 900, 1920 × 1080, 1280 × 720, 1024 × 768 (and 1000 × 960, 820 × 800): in the band without touching the bar or the route strip,
 //            clear of the tower, the trace right of the frame before it turns, the rule ending before PWR
 //   phone    390 × 844 and 844 × 390: nothing off screen, no text under 10 px, the trace clear of the text and the ring;
 //            at 390 × 844 the arrangement against the playground's phone layout and target-6a-390.png
@@ -89,7 +89,8 @@ const towerOverlap = (page) => page.evaluate(() => {
 });
 
 if (parts.includes('desktop')) {
-  for (const size of [[1440, 900], [1920, 1080], [1280, 720], [1024, 768]]) {
+  // (HERO.md's four, then two near-square screens, which still take the wide framing)
+  for (const size of [[1440, 900], [1920, 1080], [1280, 720], [1024, 768], [1000, 960], [820, 800]]) {
     const { page, context, errors } = await open(browser, { size, query: '?skipintro&nobatch' });
     await settled(page);
     const M = await measure(page), I = await page.evaluate(() => window.__xini.heroIn());

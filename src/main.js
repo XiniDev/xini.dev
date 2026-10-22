@@ -419,7 +419,9 @@ class MachineDirector {
     if (!this.hero || !this.world?.route) return;
     const v = this.world.view, r = (sel) => { const b = document.querySelector(sel)?.getBoundingClientRect(); return b?.height ? b : null; };
     const cue = r('.cue'), lows = [r('.route')?.top, r('.route__label')?.top, cue && cue.top - 12].filter((y) => y != null);
-    this.heroIn = { vw: v.w, vh: v.h, crown: this.restCrown(), gutter: r('.bar__mark')?.left ?? 16, bandTop: r('.bar')?.bottom ?? 0, bandBottom: Math.min(v.h, ...lows) };
+    // (the phone layout goes with the portrait framing, which centres the crown over it; the module's own guess, under
+    // 1.1:1, put a full-width panel over the crown on near-square screens that still frame it wide)
+    this.heroIn = { vw: v.w, vh: v.h, crown: this.restCrown(), gutter: r('.bar__mark')?.left ?? 16, bandTop: r('.bar')?.bottom ?? 0, bandBottom: Math.min(v.h, ...lows), compact: v.portrait };
     this.heroOut = this.hero.layout(this.heroIn);
     this.crownLive = null;
   }

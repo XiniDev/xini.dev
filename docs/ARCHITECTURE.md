@@ -101,8 +101,9 @@ are in `DIRECTION.md`.
   (`restCrown()`: the stop's pose with the world's portrait step-back and lift, no sway or shake, whichever stop is
   showing, so the panel's size holds); the gutter (the logo's left); the band from the bar's bottom to the top of
   the route strip and its label tab. On phones, where the strip is hidden, the band ends 12 px over the scroll cue,
-  which the old card carried and which now shows under the panel. `compact` is left to the module (portrait-ish,
-  or narrower than 600 px).
+  which the old card carried and which now shows under the panel. `compact` (the phone layout) is the world's
+  portrait framing (`view.portrait`), which centres the crown over it: the module's own guess (under 1.1:1, or
+  narrower than 600 px) put a full-width panel over the crown on near-square screens that still frame it wide.
 - Every frame while the panel is up, `preRender` hands the live crown to `setCrown()` (the pointer's sway, an
   impact's shake): only the trace and ring follow; the panel stays put.
 - `enter({ reduced })` runs where the old card printed in (after the boot's impact frame, after an arrival's),

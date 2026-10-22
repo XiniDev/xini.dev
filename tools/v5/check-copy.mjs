@@ -22,7 +22,8 @@ for (const i of stops) {
     return {
       place: q('.card__place')?.textContent, h: q('.card__h')?.textContent, body: q('.card__body')?.textContent ?? null,
       tags: [...c.querySelectorAll('.tags li')].map((l) => l.textContent), mail: q('.contact__mail')?.textContent,
-      links: [...c.querySelectorAll('.contact__links a')].map((a) => [a.childNodes[0]?.nodeType === 3 || a.querySelector('svg') ? a.innerText : a.textContent, a.getAttribute('href'), a.target]),
+      links: [...c.querySelectorAll('.contact__links a')].map((a) => { const k = a.cloneNode(true); k.querySelectorAll('.sr, svg').forEach((x) => x.remove()); return [k.textContent, a.getAttribute('href'), a.target]; }),
+      icons: [...c.querySelectorAll('.contact__links a .contact__icon')].map((v) => { const r = v.getBoundingClientRect(), a = v.closest('a').getBoundingClientRect(); return { w: r.width, h: r.height, colour: getComputedStyle(v).color, mid: Math.round(r.top + r.height / 2 - (a.top + a.height / 2)) }; }),
       copy: q('.contact__copy')?.textContent,
     };
   }, IDS[i]);
@@ -39,6 +40,11 @@ for (const i of stops) {
     got.links.filter(([, h]) => h.startsWith('http')).forEach(([t, h, tg]) => { if (tg !== '_blank') bad.push(`${t} opens in place`); });
   }
   if (w.copy && n(got.copy) !== n(w.copy)) bad.push(`copyright "${got.copy}"`);
+  if (w.links) {
+    const I = got.icons, same = I.length === 3 && I.every((x) => x.w === I[0].w && x.h === I[0].h && x.colour === I[0].colour && Math.abs(x.mid) <= 1);
+    if (!same) bad.push(`icons ${JSON.stringify(I)}`);
+    else console.log(`   icons: 3 × ${I[0].w}×${I[0].h}px, ${I[0].colour}, centred in their buttons`);
+  }
   if (bad.length) fail++;
   console.log(`0${i + 1} ${w.place}: ${bad.length ? bad.join('; ') : 'matches COPY.md'}  ${bad.length ? 'FAIL' : 'PASS'}`);
 }

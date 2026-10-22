@@ -168,6 +168,7 @@ html[data-card='pcb'] .tags li { border-color: transparent; background: #13302a;
 .contact__links { list-style: none; margin: 0 0 16px; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
 .contact__links a { display: inline-flex; align-items: center; min-height: 44px; padding: 9px 14px; border: 1px solid var(--line); text-decoration: none; font-family: var(--f-mono); font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; white-space: nowrap; }
 .contact__restart span { margin-right: 0.45em; }
+.contact__icon { flex: none; width: 15px; height: 15px; margin-right: 9px; }
 .contact__links a:hover { background: var(--neon); color: #000; }
 .contact__links .contact__restart { color: var(--text); }
 /* the first stop says how to move on, until the visitor does */

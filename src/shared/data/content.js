@@ -15,7 +15,6 @@ export const site = {
   github: 'https://github.com/XiniDev',
   linkedin: 'https://www.linkedin.com/in/xinidev',
   saltancy: 'https://saltancy.com',
-  contactLine: 'I take on client projects through my consultancy, Saltancy.',
 };
 
 export const beats = [

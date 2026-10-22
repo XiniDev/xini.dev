@@ -1,11 +1,11 @@
 {
-  "fetchedAt": "2026-10-22T14:22:06.890Z",
+  "fetchedAt": "2026-10-22T14:26:52.787Z",
   "username": "XiniDev",
   "repos": [
     {
       "name": "xini.dev",
       "full_name": "XiniDev/xini.dev",
-      "description": "Personal site of Xini, Software Engineer · AI Integration featured projects, background and contact details.",
+      "description": "Personal site of Xini, Software Engineer · AI Integration: featured projects, background and contact details.",
       "html_url": "https://github.com/XiniDev/xini.dev",
       "homepage": "https://xini.dev",
       "language": "TypeScript",

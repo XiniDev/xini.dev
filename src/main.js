@@ -400,8 +400,10 @@ class MachineDirector {
     document.querySelector('.stop--top').classList.remove('is-current');
     const r = world.rig; r.pose.p.copy(this.intro.pc.getPoint(0)); r.pose.t.copy(this.intro.tc.getPoint(0)); r.pose.fov = 50; r.snap?.();
   }
-  /** the point the panel's trace runs to: where the old leader's via sat, just inside the crown plate's left edge */
-  crownPt() { return this.tower.crownPos.clone().add(V(-74, 0, 0)); }
+  /** the point the panel's trace runs to, just inside the crown plate's edge on the side the trace comes from: the left,
+   *  where the old leader's via sat; on the phone layout, whose trace comes up a column right of the panel, the right,
+   *  and high enough that its 45° run in clears the tower's far side */
+  crownPt() { return this.tower.crownPos.clone().add(this.world.view.portrait ? V(74, 40, 0) : V(-74, 0, 0)); }
   /** the crown point as the Power on stop's own camera sees it, whichever stop is showing: no sway, no shake, and
    *  on a portrait screen the same step back and lift as the world's (so the panel keeps its size) */
   restCrown() {

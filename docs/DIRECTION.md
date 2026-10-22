@@ -201,7 +201,9 @@ different from the others, which stay boxed. Do not put the box back.
 - **The trace** is the panel's own (the card leader is retired at Power on: exactly one ring, at the crown). On
   a wide screen it runs from the PWR pad straight right, then 45° into the ring's left side, and the panel
   shrinks rather than let it turn before it has run clear of the frame; on phones it runs right out of the pad,
-  up a column just right of the frame, then 45° into the side of the ring facing it.
+  up a column just right of the frame, then 45° into the side of the ring facing it. The ring sits on the crown
+  plate's edge that faces the trace (the left on a wide screen, the right and a little higher on phones), so the
+  trace lands on the crown and never cuts across the tower or the mark to reach it.
 - **The hologram entrance** (about 1 s) is light projected from the crown that settles into print: a ring pings
   at the crown and the trace runs to the PWR pad; the pad pops, PWR and the corner marks flicker on; a
   sea-green beam sweeps down the panel and the content arrives behind it under scanlines; sea-green and

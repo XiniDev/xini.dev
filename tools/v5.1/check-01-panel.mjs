@@ -8,10 +8,11 @@
 //   phone    390 × 844 and 844 × 390: nothing off screen, no text under 10 px, the trace clear of the text and the ring;
 //            at 390 × 844 the arrangement against the playground's phone layout and target-6a-390.png
 //   resize   the v5 #13 cases for the panel: its rectangle and the trace's end within 4 px of a fresh load
-//   node tools/v5.1/check-01-panel.mjs [parts=target,copy,desktop,phone,resize] [outDir]
+//   trace    phones and tablets, upright and on their side: the trace clear of the tower (see traceClear)
+//   node tools/v5.1/check-01-panel.mjs [parts=target,copy,desktop,phone,resize,trace] [outDir]
 import { launch, open, openRef, settled, measure, tracePoints, align, out } from './lib.mjs';
 
-const parts = (process.argv[2] || 'target,copy,desktop,phone,resize').split(',');
+const parts = (process.argv[2] || 'target,copy,desktop,phone,resize,trace').split(',');
 const dir = out(process.argv[3] || '.shots/v5.1-checks/01');
 const browser = await launch();
 let fail = 0;
@@ -88,6 +89,32 @@ const towerOverlap = (page) => page.evaluate(() => {
   return { hits, minGap };
 });
 
+/**
+ * The trace over the tower once it is 4 px off the ring, in px: rays through it every px (unbatched, as above), walking
+ * from the ring (where the path starts). `land` is the stretch it lands on the crown by, from the ring to the first px
+ * clear of the tower; `rest` is any tower after that; `mark` is the crown's mark anywhere.
+ */
+const traceOverTower = (page, pts, ring) => page.evaluate(({ pts, ring }) => {
+  const X = window.__xini, w = X.world, T = X.THREE, o = X.hero.leader.getBoundingClientRect(), { group, crown } = w.director.tower, skip = X.hero.state.m.ringGap + 4;
+  const rc = new T.Raycaster(), n = { land: 0, rest: 0, mark: 0 };
+  let clear = false;
+  for (let i = 1; i < pts.length; i++) {
+    const [a, b] = [pts[i - 1], pts[i]], L = Math.hypot(b[0] - a[0], b[1] - a[1]);
+    for (let s = 0; L && s <= L; s++) {
+      const x = a[0] + (b[0] - a[0]) * s / L, y = a[1] + (b[1] - a[1]) * s / L;
+      if (Math.hypot(x - ring[0], y - ring[1]) < skip) continue;
+      rc.setFromCamera(new T.Vector2(((x + o.left) / w.view.w) * 2 - 1, -((y + o.top) / w.view.h) * 2 + 1), w.camera);
+      if (rc.intersectObject(group, true).length) n[clear ? 'rest' : 'land']++; else clear = true;
+      if (rc.intersectObject(crown, true).length) n.mark++;
+    }
+  }
+  return n;
+}, { pts, ring });
+/** the trace lands on the crown and crosses nothing on its way: on phones it has a clear way round the tower; on a wide
+ *  screen it lands across the tower's west face (its side, seen beside the crown plate, as in target-6a.png) */
+const traceClear = (o, compact) => !o.mark && !o.rest && (!compact || !o.land);
+const traceSays = (o) => `trace over the tower ${o.land + o.rest} px (${o.land} landing on the crown, ${o.rest} on its way, ${o.mark} over the mark)`;
+
 if (parts.includes('desktop')) {
   // (HERO.md's four, then two near-square screens, which still take the wide framing)
   for (const size of [[1440, 900], [1920, 1080], [1280, 720], [1024, 768], [1000, 960], [820, 800]]) {
@@ -96,11 +123,11 @@ if (parts.includes('desktop')) {
     const M = await measure(page), I = await page.evaluate(() => window.__xini.heroIn());
     const fr = M.parts.frame, top = fr[1], bottom = fr[1] + fr[3], right = fr[0] + fr[2];
     const tw = await towerOverlap(page);
-    const pts = tracePoints(M.trace), turnX = pts.length >= 3 ? pts[1][0] : NaN;
+    const pts = tracePoints(M.trace), turnX = pts.length >= 3 ? pts[1][0] : NaN, over = await traceOverTower(page, pts, M.ring);
     const rule = M.parts.rule, pwr = M.parts.pwr, ruleEnd = rule[0] + rule[2];
     await page.screenshot({ path: `${dir}/desktop-${size.join('x')}.png` });
-    verdict(top > I.bandTop && bottom < I.bandBottom && tw.hits === 0 && turnX - right >= 0 && ruleEnd < pwr[0] && !errors.length,
-      `${size.join('x').padEnd(9)} k ${M.k.toFixed(3)}${M.wrap ? ' (strip wrapped)' : ''}: ${f1(top - I.bandTop)} px under the bar, ${f1(I.bandBottom - bottom)} px over the route strip; tower over the panel at ${tw.hits} points (nearest tower ${f1(tw.minGap)} px right of it); trace runs ${f1(turnX - right)} px right of the frame before it turns; rule ends ${f1(pwr[0] - ruleEnd)} px before PWR${errors.length ? `; errors ${errors}` : ''}`);
+    verdict(top > I.bandTop && bottom < I.bandBottom && tw.hits === 0 && turnX - right >= 0 && traceClear(over, M.compact) && ruleEnd < pwr[0] && !errors.length,
+      `${size.join('x').padEnd(9)} k ${M.k.toFixed(3)}${M.wrap ? ' (strip wrapped)' : ''}: ${f1(top - I.bandTop)} px under the bar, ${f1(I.bandBottom - bottom)} px over the route strip; tower over the panel at ${tw.hits} points (nearest tower ${f1(tw.minGap)} px right of it); trace runs ${f1(turnX - right)} px right of the frame before it turns; ${traceSays(over)}; rule ends ${f1(pwr[0] - ruleEnd)} px before PWR${errors.length ? `; errors ${errors}` : ''}`);
     await context.close();
   }
 }
@@ -164,6 +191,18 @@ if (parts.includes('resize')) {
     const want = await grab(b.page); await b.context.close();
     const dfr = Math.max(...got.frame.map((v, k) => Math.abs(v - want.frame[k]))), dend = Math.hypot(got.end[0] - want.end[0], got.end[1] - want.end[1]);
     verdict(dfr <= 4 && dend <= 4 && got.lead === want.lead, `${A.join('x')} → ${B.join('x')}: panel off by ${f1(dfr)} px, trace end off by ${f1(dend)} px, leader ${got.lead ? 'shown' : 'hidden'} vs ${want.lead ? 'shown' : 'hidden'}`);
+  }
+}
+
+if (parts.includes('trace')) {
+  const SIZES = [[320, 568], [360, 640], [375, 667], [390, 844], [412, 915], [430, 932], [768, 1024], [820, 1180], [1024, 1366], [568, 320], [667, 375], [844, 390], [932, 430]];
+  for (const size of SIZES) {
+    const { page, context, errors } = await open(browser, { size, dpr: 2, query: '?skipintro&nobatch' });
+    await settled(page);
+    const M = await measure(page), pts = tracePoints(M.trace), over = await traceOverTower(page, pts, M.ring);
+    await page.screenshot({ path: `${dir}/trace-${size.join('x')}.png` });
+    verdict(pts.length > 1 && traceClear(over, M.compact) && !errors.length, `${size.join('x').padEnd(9)} ${M.compact ? 'compact' : 'wide'}, ${pts.length - 1} segments, ring at (${f1(M.ring[0])}, ${f1(M.ring[1])}): ${traceSays(over)}${errors.length ? `; errors ${errors}` : ''}`);
+    await context.close();
   }
 }
 

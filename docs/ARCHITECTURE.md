@@ -83,8 +83,9 @@ are in `DIRECTION.md`.
   stop that looks different (DIRECTION.md says why; don't put the box back). It enters as a hologram from the crown;
   the entrance's sea-green (the projection light) and vermilion (a fringe on the name) exist only while it runs, and
   the settled panel is the static design. Its trace replaces the card leader at Power on (one ring, at the crown): on
-  a wide screen from the PWR pad straight right, then 45° into the ring; on phones out of the pad, up a column just
-  right of the frame, then 45° into the ring.
+  a wide screen from the PWR pad straight right, then 45° into the ring on the crown plate's left edge, landing across
+  the tower's west face (as in the approved target); on phones out of the pad, up a column just right of the frame,
+  then 45° into the ring on the plate's right edge, clear of the tower all the way.
 - The source of truth is `reference/hero-6a/` (`hero6a.js`, `hero6a.css`; serve the folder and open `index.html`,
   R replays the entrance, `?t=610` freezes it, `?static=1`, `?compact=1`, `?reduced=1`). `src/hero.js` and
   `src/hero.css` keep its geometry table `G`, the px floors in `metrics()`, `LOCKUP`, `TIMELINE`, the trace router,
@@ -96,8 +97,10 @@ are in `DIRECTION.md`.
   `createHero()` adopts it in the director's `ready()` and puts the leader (trace and ring) in the same layer.
 - Laid out (`placeHero()`): at start, when the fonts are in, on every world resize (which covers rotation and the
   visual viewport), on a device-pixel-ratio change (the name's halftone is drawn at k × devicePixelRatio), and right
-  before every entrance. Its inputs: the viewport (`innerWidth` / `innerHeight`); the crown point (`crownPt()`, where
-  the old leader's via sat, just inside the crown plate's left edge) projected with the Power on rest camera
+  before every entrance. Its inputs: the viewport (`innerWidth` / `innerHeight`); the crown point (`crownPt()`, just
+  inside the crown plate's edge on the side the trace comes from: the left, where the old leader's via sat; on the
+  portrait framing the right, raised 40 units so the trace's 45° run in clears the tower's far side by 10 px or more)
+  projected with the Power on rest camera
   (`restCrown()`: the stop's pose with the world's portrait step-back and lift, no sway or shake, whichever stop is
   showing, so the panel's size holds); the gutter (the logo's left); the band from the bar's bottom to the top of
   the route strip and its label tab. On phones, where the strip is hidden, the band ends 12 px over the scroll cue,
@@ -139,7 +142,7 @@ Run once: `npx playwright install chromium`.
   `XINI_URL`), the board-text audit, and `capture-sites.mjs`, which re-captures the client sites for the screens.
   (`check-07-power-on.mjs` checked the old Power on card and no longer applies.)
 - `tools/v5.1/`: the checks for the Power on panel (`check-01-panel.mjs`: against the playground and the approved
-  captures, sizes, phones, resizes) and its entrance (`check-02-entrance.mjs`: frames, arrivals, interruptions,
+  captures, sizes, phones, resizes, and the trace against the tower from 320 × 568 to 1024 × 1366) and its entrance (`check-02-entrance.mjs`: frames, arrivals, interruptions,
   reduced motion, the boot, frame pacing); they serve the playground from the dev server.
 
 Reference captures of the approved v4 design are in `reference/captures/`; v5's are in `reference/captures-v5/`;

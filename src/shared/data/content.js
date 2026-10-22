@@ -59,7 +59,7 @@ export const featured = [
     summary: 'My consultancy for end-to-end technical work and custom software. Client projects run through it.',
     tags: ['Next.js', 'Tailwind CSS', 'Motion'], url: 'https://saltancy.com', linkLabel: 'saltancy.com',
     image: imgSaltancy, accent: '#f26b1d', year: '2026',
-    alt: 'Saltancy’s landing page: a serif headline beside a wireframe cube on a dark background.',
+    alt: 'Saltancy’s landing page: the serif headline “Software worth its salt.” around a glass cube with an orange core, a streak of light running through it.',
   },
 ];
 
